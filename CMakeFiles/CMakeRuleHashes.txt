@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+025ec6215e8efa15cb6073ea7fd547e1 CMakeFiles/Sponza_automoc

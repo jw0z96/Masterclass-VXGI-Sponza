@@ -1,0 +1,2 @@
+/home/i7463769/dev/PBR/PBRSponza/CMakeFiles/Sponza_automoc.dir
+/home/i7463769/dev/PBR/PBRSponza/CMakeFiles/Sponza.dir
