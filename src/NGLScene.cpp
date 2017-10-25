@@ -2,6 +2,7 @@
 #include <QApplication>
 
 #include "NGLScene.h"
+
 #include <ngl/Camera.h>
 #include <ngl/Light.h>
 #include <ngl/Transformation.h>
@@ -71,8 +72,8 @@ void NGLScene::initializeGL()
 	shader->attachShader( vertexShader, ngl::ShaderType::VERTEX );
 	shader->attachShader( fragShader, ngl::ShaderType::FRAGMENT );
 	// attach the source
-	shader->loadShaderSource( vertexShader, "shaders/PBRVertex.glsl" );
-	shader->loadShaderSource( fragShader, "shaders/PBRFragment.glsl" );
+	shader->loadShaderSource( vertexShader, "shaders/gBuffer_vert.glsl" );
+	shader->loadShaderSource( fragShader, "shaders/gBuffer_frag.glsl" );
 	// compile the shaders
 	shader->compileShader( vertexShader );
 	shader->compileShader( fragShader );
@@ -80,13 +81,11 @@ void NGLScene::initializeGL()
 	shader->attachShaderToProgram( shaderProgram, vertexShader );
 	shader->attachShaderToProgram( shaderProgram, fragShader );
 
-
 	// now we have associated that data we can link the shader
 	shader->linkProgramObject( shaderProgram );
 	// and make it active ready to load values
 	( *shader )[ shaderProgram ]->use();
 	shader->setUniform("camPos",m_cam.getEye());
-
 
 	for(size_t i=0; i<g_lightPositions.size(); ++i)
 	{
@@ -99,8 +98,13 @@ void NGLScene::initializeGL()
 	shader->setUniform("roughnessMap", 3);
 	shader->setUniform("aoMap", 4);
 
+	// // create the output shader program
+	shader->loadShader("outputPass",
+		"shaders/screen_space_vert.glsl",
+		"shaders/output_frag.glsl");
 
-	glClearColor(0.4f, 0.4f, 0.4f, 1.0f);			   // Grey Background
+	// Grey Background
+	glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 	// enable depth testing for drawing
 	glEnable(GL_DEPTH_TEST);
 	// enable multisampling for smoother drawing
@@ -118,8 +122,6 @@ void NGLScene::initializeGL()
 	m_cam.setProjection(50,(float)1024/720,1.0f,800.0f);
 	// now to load the shader and set the values
 	// grab an instance of shader manager
-
-	glEnable(GL_DEPTH_TEST);
 
 	m_mtl.reset(  new Mtl);
 	//bool loaded=m_mtl->loadBinary("sponzaMtl.bin");
@@ -140,6 +142,10 @@ void NGLScene::initializeGL()
 		exit(EXIT_FAILURE);
 	}
 
+	// generate screen aligned quad
+	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
+	prim->createTrianglePlane("ScreenAlignedQuad", 2, 2, 1, 1, ngl::Vec3(0,1,0));
+
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
 
@@ -148,8 +154,86 @@ void NGLScene::initializeGL()
 void NGLScene::initFBO()
 {
 	std::cout<<"initFBO call\n";
+
+	// SETUP THE G-BUFFER FBOS
+	// First delete the FBO if it has been created previously
+	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE) {
+		glDeleteTextures(1, &m_FBOWSPositionId);
+		glDeleteTextures(1, &m_FBOWSNormalId);
+		glDeleteTextures(1, &m_FBODepthId);
+		glDeleteFramebuffers(1, &m_gBufferFBOId);
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 1);
+
+	//since MTL always takes 0 through 4
+	glActiveTexture(GL_TEXTURE5);
+	// glActiveTexture(GL_TEXTURE0);
+
+	// Generate a texture to write the Position to
+	glGenTextures(1, &m_FBOWSPositionId);
+	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
+	glTexImage2D(GL_TEXTURE_2D,
+				 0,
+				 GL_RGB16F,
+				 m_win.width,
+				 m_win.height,
+				 0,
+				 GL_RGB,
+				 GL_FLOAT,
+				 NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Generate a texture to write the Normals to
+	glGenTextures(1, &m_FBOWSNormalId);
+	glBindTexture(GL_TEXTURE_2D, m_FBOWSNormalId);
+	glTexImage2D(GL_TEXTURE_2D,
+				 0,
+				 GL_RGB16F,
+				 m_win.width,
+				 m_win.height,
+				 0,
+				 GL_RGB,
+				 GL_FLOAT,
+				 NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// The depth buffer is rendered to a texture buffer too,
+	glGenTextures(1, &m_FBODepthId);
+	glBindTexture(GL_TEXTURE_2D, m_FBODepthId);
+	glTexImage2D(GL_TEXTURE_2D,
+				 0,
+				 GL_DEPTH_COMPONENT,
+				 m_win.width,
+				 m_win.height,
+				 0,
+				 GL_DEPTH_COMPONENT,
+				 GL_UNSIGNED_BYTE,
+				 NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Create the frame buffer
+	glGenFramebuffers(1, &m_gBufferFBOId);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOWSPositionId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_FBOWSNormalId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_FBODepthId, 0);
+
+	// Set the fragment shader output targets DEPTH_ATTACHMENT is done automatically apparently but i dont trust it
+	GLenum drawBufs[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+	glDrawBuffers(2, drawBufs);
+
+	// Check it is ready to rock and roll
+	CheckFrameBuffer();
+
 	// Unbind the framebuffer to revert to default render pipeline
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 }
 
 void NGLScene::loadMatricesToShader()
@@ -182,7 +266,20 @@ void NGLScene::paintGL()
 		m_isFBODirty = false;
 	}
 
+	// get singleton instances
 	ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
+
+	//----------------------------------------------------------------------------------------------------------------------
+	/// G BUFFER PASS START
+	//----------------------------------------------------------------------------------------------------------------------
+
+	// bind the gBuffer FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+	// clear the screen and depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0,0,m_win.width,m_win.height);
+
 	shader->use("PBR");
 
 	float currentFrame = m_timer.elapsed()*0.001f;
@@ -213,9 +310,7 @@ void NGLScene::paintGL()
 	{
 		m_cam.move(xDirection,yDirection,m_deltaTime);
 	}
-	// clear the screen and depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0,0,m_win.width,m_win.height);
+
 	auto end=m_model->numMeshes();
 	std::string matName;
 	if(m_drawGeo == true)
@@ -272,11 +367,39 @@ void NGLScene::paintGL()
 				tx.setPosition(g_lightPositions[i]);
 				MVP=m_cam.getVP()* m_mouseGlobalTX * tx.getMatrix() ;
 				shader->setUniform("MVP",MVP);
-				ngl::VAOPrimitives::instance()->draw("cube");
+				prim->draw("cube");
 			}
 		}
 	}
 
+	//----------------------------------------------------------------------------------------------------------------------
+	/// OUTPUT PASS START
+	//----------------------------------------------------------------------------------------------------------------------
+
+	// unbind FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, 1);
+	glClear (GL_COLOR_BUFFER_BIT);
+	glViewport(0,0,m_win.width,m_win.height);
+	glDisable(GL_BLEND); // important!
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_FBOWSNormalId);
+
+	shader->use("outputPass");
+	GLuint pid = shader->getProgramID("outputPass");
+
+	glUniform1i(glGetUniformLocation(pid, "WSPositionTex"), 0);
+	glUniform1i(glGetUniformLocation(pid, "WSNormalTex"), 1);
+	glUniform2f(glGetUniformLocation(pid, "windowSize"), m_win.width, m_win.height);
+
+	//MVP for screenspace effects
+	ngl::Mat4 SSMVP = ngl::Mat4(1.0f);
+	SSMVP.rotateX(90);
+	shader->setUniform("MVP", SSMVP);
+
+	prim->draw("ScreenAlignedQuad");
 }
 
 
@@ -342,4 +465,41 @@ void NGLScene::keyReleaseEvent( QKeyEvent *_event	)
 {
 	// remove from our key set any keys that have been released
 	m_keysPressed -= static_cast<Qt::Key>(_event->key());
+}
+
+/**
+ * @brief Scene::CheckFrameBuffer Outputs result of test on the Framebuffer as nice string.
+ * @return Nothing!
+ */
+void NGLScene::CheckFrameBuffer() noexcept
+{
+	switch(glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
+	case GL_FRAMEBUFFER_UNDEFINED:
+		std::cerr<<"GL_FRAMEBUFFER_UNDEFINED: returned if target is the default framebuffer, but the default framebuffer does not exist.\n";
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: returned if any of the framebuffer attachment points are framebuffer incomplete.\n";
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: returned if the framebuffer does not have at least one image attached to it.\n";
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: returned if the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for any color attachment point(s) named by GL_DRAWBUFFERi.\n";
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: returned if GL_READ_BUFFER is not GL_NONE and the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for the color attachment point named by GL_READ_BUFFER.\n";
+		break;
+	case GL_FRAMEBUFFER_UNSUPPORTED:
+		std::cerr<<"GL_FRAMEBUFFER_UNSUPPORTED: returned if the combination of internal formats of the attached images violates an implementation-dependent set of restrictions. GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is also returned if the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not the same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not GL_TRUE for all attached textures.\n";
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: returned if any framebuffer attachment is layered, and any populated attachment is not layered, or if all populated color attachments are not from textures of the same target.\n";
+		break;
+	case GL_FRAMEBUFFER_COMPLETE:
+		std::cerr<<"GL_FRAMEBUFFER_COMPLETE: returned if everything is groovy!\n";
+		break;
+	default:
+		std::cerr<<glCheckFramebufferStatus(GL_FRAMEBUFFER)<<": Undefined framebuffer return value: possible error elsewhere?\n";
+		break;
+	}
 }
