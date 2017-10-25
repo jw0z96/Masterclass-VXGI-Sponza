@@ -12,11 +12,10 @@
 #include <ngl/VAOFactory.h>
 #include "VAO.h"
 
-
 //----------------------------------------------------------------------------------------------------------------------
+
 NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 {
-
 	// set this widget to have the initial keyboard focus
 	setFocusPolicy (Qt::StrongFocus);
 	// re-size the widget to that of the parent (in this case the GLFrame passed in on construction)
@@ -37,6 +36,7 @@ void NGLScene::resizeGL( int _w, int _h )
 	m_cam.setProjection( 45.0f, static_cast<float>( _w ) / _h, 0.5f, 3500.0f );
 	m_win.width  = static_cast<int>( _w * devicePixelRatio() );
 	m_win.height = static_cast<int>( _h * devicePixelRatio() );
+	m_isFBODirty = true;
 }
 
 // lights
@@ -143,9 +143,14 @@ void NGLScene::initializeGL()
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
 
-
 }
 
+void NGLScene::initFBO()
+{
+	std::cout<<"initFBO call\n";
+	// Unbind the framebuffer to revert to default render pipeline
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
 void NGLScene::loadMatricesToShader()
 {
@@ -171,6 +176,12 @@ void NGLScene::loadMatricesToShader()
 
 void NGLScene::paintGL()
 {
+	// Check if the FBO needs to be recreated. This occurs after a resize.
+	if (m_isFBODirty) {
+		initFBO();
+		m_isFBODirty = false;
+	}
+
 	ngl::ShaderLib* shader = ngl::ShaderLib::instance();
 	shader->use("PBR");
 

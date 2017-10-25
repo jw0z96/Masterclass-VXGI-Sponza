@@ -105,10 +105,24 @@ private:
 	bool m_drawGeo=true;
 	// Light modes
 	std::array<bool,4> m_lightOn={{true,true,true,true}};
+
+	/* RENDER PIPELINE HELPER FUNCTIONS */
+
+	//----------------------------------------------------------------------------------------------------------------------
+	/// Keep track of whether the FBO needs to be recreated
+	//----------------------------------------------------------------------------------------------------------------------
+	bool m_isFBODirty = true;
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief method to initialise FBOS for the deferred shading pipeline
+	//----------------------------------------------------------------------------------------------------------------------
+	void initFBO();
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief method to load transform matrices to the shader
 	//----------------------------------------------------------------------------------------------------------------------
 	void loadMatricesToShader();
+
+	/* EVENT HANDLING */
+
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief Qt Event called when a key is pressed
 	/// @param [in] _event the Qt event to query for size etc
@@ -132,7 +146,6 @@ private:
 	/// @param _event the Qt Event structure
 	//----------------------------------------------------------------------------------------------------------------------
 	void mouseReleaseEvent ( QMouseEvent *_event ) override;
-
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief this method is called everytime the mouse wheel is moved
 	/// inherited from QObject and overridden here.

@@ -14,12 +14,12 @@ out vec3 Normal;
 uniform mat4 MVP;
 uniform mat3 normalMatrix;
 uniform mat4 M;
+
 void main()
 {
-
-  // rotate texture cords for visual interest
-  TexCoords=inUV;
-  WorldPos = vec3(M * vec4(inVert, 1.0f));
-  Normal=normalMatrix*inNormal;
-  gl_Position = MVP*vec4(inVert,1.0);
+	// rotate texture cords for visual interest
+	TexCoords = inUV;
+	WorldPos = vec3(M * vec4(inVert, 1.0f));
+	Normal = inNormal;
+	gl_Position = MVP*vec4(inVert,1.0);
 }
