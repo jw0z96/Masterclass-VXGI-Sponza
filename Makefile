@@ -58,8 +58,7 @@ SOURCES       = src/GroupedObj.cpp \
 		src/NGLSceneMouseControls.cpp \
 		src/VAO.cpp \
 		src/FirstPersonCamera.cpp \
-		src/main.cpp qrc_qmake_qmake_immediate.cpp \
-		moc/moc_MainWindow.cpp
+		src/main.cpp moc/moc_MainWindow.cpp
 OBJECTS       = obj/GroupedObj.o \
 		obj/Mtl.o \
 		obj/MainWindow.o \
@@ -68,7 +67,6 @@ OBJECTS       = obj/GroupedObj.o \
 		obj/VAO.o \
 		obj/FirstPersonCamera.o \
 		obj/main.o \
-		obj/qrc_qmake_qmake_immediate.o \
 		obj/moc_MainWindow.o
 DIST          = .qmake.stash \
 		Sponza.pro include/GroupedObj.h \
@@ -279,7 +277,6 @@ Makefile: Sponza.pro .qmake.cache /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmak
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/yacc.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/lex.prf \
 		Sponza.pro \
-		qmake_qmake_immediate.qrc \
 		/opt/Qt5.9.0/5.9/gcc_64/lib/libQt5OpenGL.prl \
 		/opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Widgets.prl \
 		/opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Gui.prl \
@@ -467,7 +464,6 @@ Makefile: Sponza.pro .qmake.cache /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmak
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/yacc.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/lex.prf:
 Sponza.pro:
-qmake_qmake_immediate.qrc:
 /opt/Qt5.9.0/5.9/gcc_64/lib/libQt5OpenGL.prl:
 /opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Widgets.prl:
 /opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Gui.prl:
@@ -486,7 +482,6 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents qmake_qmake_immediate.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents include/GroupedObj.h include/Mtl.h include/MainWindow.h include/ui_MainWindow.h include/NGLScene.h include/WindowParams.h include/FirstPersonCamera.h include/VAO.h $(DISTDIR)/
 	$(COPY_FILE) --parents src/GroupedObj.cpp src/Mtl.cpp src/MainWindow.cpp src/NGLScene.cpp src/NGLSceneMouseControls.cpp src/VAO.cpp src/FirstPersonCamera.cpp src/main.cpp $(DISTDIR)/
@@ -513,14 +508,8 @@ check: first
 
 benchmark: first
 
-compiler_rcc_make_all: qrc_qmake_qmake_immediate.cpp
+compiler_rcc_make_all:
 compiler_rcc_clean:
-	-$(DEL_FILE) qrc_qmake_qmake_immediate.cpp
-qrc_qmake_qmake_immediate.cpp: qmake_qmake_immediate.qrc \
-		/opt/Qt5.9.0/5.9/gcc_64/bin/rcc \
-		ui/MainWindow.ui
-	/opt/Qt5.9.0/5.9/gcc_64/bin/rcc -name qmake_qmake_immediate qmake_qmake_immediate.qrc -o qrc_qmake_qmake_immediate.cpp
-
 compiler_moc_predefs_make_all: moc/moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc/moc_predefs.h
@@ -688,7 +677,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_header_clean 
+compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean 
 
 ####### Compile
 
@@ -1099,11 +1088,52 @@ obj/MainWindow.o: src/MainWindow.cpp include/MainWindow.h \
 		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/QElapsedTimer \
 		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qelapsedtimer.h \
 		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/QSet \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtUiTools/QUiLoader \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtUiTools/quiloader.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/QObject \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/QScopedPointer \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/QFile
+		include/ui_MainWindow.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/QVariant \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QAction \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qaction.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qactiongroup.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QApplication \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qapplication.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qcoreapplication.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qeventloop.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qguiapplication.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qinputmethod.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QButtonGroup \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qbuttongroup.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QGridLayout \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qgridlayout.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qlayout.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qlayoutitem.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qboxlayout.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QGroupBox \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qgroupbox.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qframe.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QHeaderView \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qheaderview.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qabstractitemview.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qabstractitemmodel.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qitemselectionmodel.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qstyleoption.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qvalidator.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qregularexpression.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qslider.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qabstractslider.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qstyle.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qtabbar.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qrubberband.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QLabel \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qlabel.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QMenuBar \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qmenubar.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qmenu.h \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QSpacerItem \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QStatusBar \
+		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qstatusbar.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/MainWindow.o src/MainWindow.cpp
 
 obj/NGLScene.o: src/NGLScene.cpp /opt/Qt5.9.0/5.9/gcc_64/include/QtGui/QMouseEvent \
@@ -1806,9 +1836,6 @@ obj/main.o: src/main.cpp /opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/QApplication 
 		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qelapsedtimer.h \
 		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/QSet
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/main.o src/main.cpp
-
-obj/qrc_qmake_qmake_immediate.o: qrc_qmake_qmake_immediate.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/qrc_qmake_qmake_immediate.o qrc_qmake_qmake_immediate.cpp
 
 obj/moc_MainWindow.o: moc/moc_MainWindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/moc_MainWindow.o moc/moc_MainWindow.cpp

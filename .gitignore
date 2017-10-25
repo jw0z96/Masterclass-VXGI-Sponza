@@ -29,3 +29,4 @@
 # qmake caches
 *.qmake.cache
 *.qmake.stash
+*.qrc

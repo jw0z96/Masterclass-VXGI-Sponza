@@ -42,8 +42,8 @@ OTHER_FILES+= shaders/*.glsl  \
               README.md \
               models/sponza.mtl
 
-RESOURCES += \
-    $$PWD/ui/MainWindow.ui
+# RESOURCES += \
+#     $$PWD/ui/MainWindow.ui
 
 # were are going to default to a console app
 CONFIG += console
