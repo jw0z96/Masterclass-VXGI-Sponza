@@ -10,15 +10,12 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 uniform float roughnessScale;
-// lights
-uniform vec3 lightPositions[4];
-uniform vec3 lightColors[4];
-
-uniform vec3 camPos;
 
 // The output textures that make up our gBuffer
 layout (location=0) out vec3 fragWSPosition;
 layout (location=1) out vec3 fragWSNormal;
+layout (location=2) out vec3 fragAlbedo;
+layout (location=3) out vec3 fragMetalRoughAo;
 
 // ----------------------------------------------------------------------------
 // Easy trick to get tangent-normals to world-space to keep PBR code simplified.
@@ -56,12 +53,14 @@ void main()
 	// calculate normal-mapped world space normals
 	vec3 N = getNormalFromMap();
 
-	// view vector
-	vec3 V = normalize(camPos - WorldPos);
-
 	// world space position out
 	fragWSPosition = WorldPos;
-
 	// world space normal out
 	fragWSNormal = N;
+	// textured fragment albedo out
+	fragAlbedo = albedo;
+	// packed fragment metallic, roughness, ao textures
+	fragMetalRoughAo = vec3(metallic);
+	// fragMetalRoughAo = vec3(metallic, roughness, ao);
+
 }

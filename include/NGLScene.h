@@ -111,7 +111,9 @@ private:
 	//----------------------------------------------------------------------------------------------------------------------
 	/// Id's used for the frame buffer object and associated textures
 	//----------------------------------------------------------------------------------------------------------------------
-	GLuint m_gBufferFBOId, m_FBOWSPositionId, m_FBOWSNormalId, m_FBODepthId;
+	GLuint m_gBufferFBOId, m_FBOWSPositionId,
+		m_FBOWSNormalId, m_FBODepthId,
+		m_FBOAlbedoId, m_FBOMetalRoughAoId;
 	//----------------------------------------------------------------------------------------------------------------------
 	/// Keep track of whether the FBO needs to be recreated
 	//----------------------------------------------------------------------------------------------------------------------

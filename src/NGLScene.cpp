@@ -110,8 +110,9 @@ void NGLScene::initializeGL()
 	// enable multisampling for smoother drawing
 	glEnable(GL_MULTISAMPLE);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+	// glEnable(GL_BLEND);
+	// glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
 
 	ngl::Vec3 from(0,40,-140);
 	ngl::Vec3 to(0,40,0);
@@ -161,12 +162,14 @@ void NGLScene::initFBO()
 		glDeleteTextures(1, &m_FBOWSPositionId);
 		glDeleteTextures(1, &m_FBOWSNormalId);
 		glDeleteTextures(1, &m_FBODepthId);
+		glDeleteTextures(1, &m_FBOAlbedoId);
+		glDeleteTextures(1, &m_FBOMetalRoughAoId);
 		glDeleteFramebuffers(1, &m_gBufferFBOId);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 
 	//since MTL always takes 0 through 4
-	glActiveTexture(GL_TEXTURE5);
+	// glActiveTexture(GL_TEXTURE5);
 	// glActiveTexture(GL_TEXTURE0);
 
 	// Generate a texture to write the Position to
@@ -217,16 +220,50 @@ void NGLScene::initFBO()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	// Generate a texture to write the Position to
+	glGenTextures(1, &m_FBOAlbedoId);
+	glBindTexture(GL_TEXTURE_2D, m_FBOAlbedoId);
+	glTexImage2D(GL_TEXTURE_2D,
+				 0,
+				 GL_RGB,
+				 m_win.width,
+				 m_win.height,
+				 0,
+				 GL_RGB,
+				 GL_FLOAT,
+				 NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Generate a texture to write the Position to
+	glGenTextures(1, &m_FBOMetalRoughAoId);
+	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughAoId);
+	glTexImage2D(GL_TEXTURE_2D,
+				 0,
+				 GL_RGB,
+				 m_win.width,
+				 m_win.height,
+				 0,
+				 GL_RGB,
+				 GL_FLOAT,
+				 NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	// Create the frame buffer
 	glGenFramebuffers(1, &m_gBufferFBOId);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOWSPositionId, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_FBOWSNormalId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_FBOAlbedoId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_FBOMetalRoughAoId, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_FBODepthId, 0);
 
-	// Set the fragment shader output targets DEPTH_ATTACHMENT is done automatically apparently but i dont trust it
-	GLenum drawBufs[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-	glDrawBuffers(2, drawBufs);
+	// Set the fragment shader output targets DEPTH_ATTACHMENT is done automatically apparently
+	GLenum drawBufs[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+	glDrawBuffers(4, drawBufs);
 
 	// Check it is ready to rock and roll
 	CheckFrameBuffer();
@@ -277,7 +314,7 @@ void NGLScene::paintGL()
 	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
 	// clear the screen and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_BLEND); // important!
+	// glDisable(GL_BLEND); // important!
 	glViewport(0,0,m_win.width,m_win.height);
 
 	shader->use("PBR");
@@ -292,7 +329,7 @@ void NGLScene::paintGL()
 	// now we loop for each of the pressed keys in the the set
 	// and see which ones have been pressed. If they have been pressed
 	// we set the movement value to be an incremental value
-	constexpr float s_update=40.0f;
+	constexpr float s_update = 100.0f;
 	foreach(Qt::Key key, m_keysPressed)
 	{
 		switch (key)
@@ -332,18 +369,23 @@ void NGLScene::paintGL()
 					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 
 				};
+				// bind albedo texture to texture unit 0
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture (GL_TEXTURE_2D,currMaterial->map_KdId);
 				setParams();
+				// bind normal texture to texture unit 1
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture (GL_TEXTURE_2D,currMaterial->bumpId);
 				setParams();
+				// bind metallic texture to texture unit 2
 				glActiveTexture(GL_TEXTURE2);
 				glBindTexture (GL_TEXTURE_2D,currMaterial->map_KaId);
 				setParams();
+				// bind roughness texture to texture unit 3
 				glActiveTexture(GL_TEXTURE3);
-				glBindTexture (GL_TEXTURE_2D,currMaterial->map_KaId);
+				glBindTexture (GL_TEXTURE_2D,currMaterial->map_NsId);
 				setParams();
+				// bind AO texture to texture unit 4
 				glActiveTexture(GL_TEXTURE4);
 				glBindTexture (GL_TEXTURE_2D,currMaterial->map_NsId);
 				setParams();
@@ -379,7 +421,6 @@ void NGLScene::paintGL()
 	// unbind FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glDisable(GL_BLEND);
 	glViewport(0,0,m_win.width,m_win.height);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -389,18 +430,28 @@ void NGLScene::paintGL()
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, m_FBODepthId);
 
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, m_FBOAlbedoId);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughAoId);
+
 	shader->use("outputPass");
 	GLuint pid = shader->getProgramID("outputPass");
 
 	glUniform1i(glGetUniformLocation(pid, "WSPositionTex"), 0);
 	glUniform1i(glGetUniformLocation(pid, "WSNormalTex"), 1);
 	glUniform1i(glGetUniformLocation(pid, "depthTex"), 2);
+	glUniform1i(glGetUniformLocation(pid, "albedoTex"), 3);
+	glUniform1i(glGetUniformLocation(pid, "metalRoughAoTex"), 4);
 	glUniform2f(glGetUniformLocation(pid, "windowSize"), m_win.width, m_win.height);
 
-	//MVP for screenspace effects
+	// MVP for screenspace effects
 	ngl::Mat4 SSMVP = ngl::Mat4(1.0f);
 	SSMVP.rotateX(90);
 	shader->setUniform("MVP", SSMVP);
+
+	// camera position
+	shader->setUniform("camPos",m_cam.getEye());
 
 	prim->draw("ScreenAlignedQuad");
 }
