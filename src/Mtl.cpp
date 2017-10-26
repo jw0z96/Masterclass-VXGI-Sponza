@@ -96,6 +96,7 @@ bool Mtl::load(const std::string &_fname)
         m_current->map_dId=0;
         m_current->map_bumpId=0;
         m_current->bumpId=0;
+        m_current->map_NsId=0;
 
         m_materials[m_currentName]=m_current;
       }
@@ -217,6 +218,8 @@ void Mtl::loadTextures()
       names.push_back(i->second->map_bump);
     if(i->second->map_bump.size() !=0)
       names.push_back(i->second->bump);
+    if(i->second->map_Ns.size() !=0)
+      names.push_back(i->second->map_Ns);
   }
 
   std::cout<<"we have this many textures "<<names.size()<<"\n";
@@ -246,6 +249,8 @@ void Mtl::loadTextures()
         i->second->map_bumpId=textureID;
       if(i->second->bump == name)
         i->second->bumpId=textureID;
+      if(i->second->map_Ns == name)
+        i->second->map_NsId=textureID;
     }
   }
 

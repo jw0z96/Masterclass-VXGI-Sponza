@@ -103,6 +103,13 @@ void NGLScene::initializeGL()
 		"shaders/screen_space_vert.glsl",
 		"shaders/output_frag.glsl");
 
+	shader->use("outputPass");
+	shader->setUniform("WSPositionTex", 0);
+	shader->setUniform("WSNormalTex", 1);
+	shader->setUniform("depthTex", 2);
+	shader->setUniform("albedoTex", 3);
+	shader->setUniform("metalRoughAoTex", 4);
+
 	// Grey Background
 	glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 	// enable depth testing for drawing
@@ -288,10 +295,7 @@ void NGLScene::loadMatricesToShader()
 	shader->setUniform( "MVP", MVP );
 	shader->setUniform( "normalMatrix", normalMatrix );
 	shader->setUniform( "M", M );
-//  ngl::Vec4 eye=m_cam.getEye();
-//  eye=MV*eye;
 	shader->setUniform("camPos",m_cam.getEye());
-
 }
 
 void NGLScene::paintGL()
@@ -320,7 +324,7 @@ void NGLScene::paintGL()
 	shader->use("PBR");
 
 	float currentFrame = m_timer.elapsed()*0.001f;
-	std::cout<<"Current Frame "<<currentFrame<<'\n';
+	// std::cout<<"Current Frame "<<currentFrame<<'\n';
 	m_deltaTime = currentFrame - m_lastFrame;
 	m_lastFrame = currentFrame;
 	/// first we reset the movement values
@@ -375,7 +379,7 @@ void NGLScene::paintGL()
 				setParams();
 				// bind normal texture to texture unit 1
 				glActiveTexture(GL_TEXTURE1);
-				glBindTexture (GL_TEXTURE_2D,currMaterial->bumpId);
+				glBindTexture (GL_TEXTURE_2D,currMaterial->map_bumpId);
 				setParams();
 				// bind metallic texture to texture unit 2
 				glActiveTexture(GL_TEXTURE2);
@@ -385,10 +389,12 @@ void NGLScene::paintGL()
 				glActiveTexture(GL_TEXTURE3);
 				glBindTexture (GL_TEXTURE_2D,currMaterial->map_NsId);
 				setParams();
-				// bind AO texture to texture unit 4
-				glActiveTexture(GL_TEXTURE4);
-				glBindTexture (GL_TEXTURE_2D,currMaterial->map_NsId);
-				setParams();
+
+				// bind AO texture to texture unit 4 (unused????)
+				// glActiveTexture(GL_TEXTURE4);
+				// glBindTexture (GL_TEXTURE_2D,currMaterial->map_NsId);
+				// setParams();
+
 				loadMatricesToShader();
 			}
 			m_model->draw(i);
@@ -436,14 +442,7 @@ void NGLScene::paintGL()
 	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughAoId);
 
 	shader->use("outputPass");
-	GLuint pid = shader->getProgramID("outputPass");
-
-	glUniform1i(glGetUniformLocation(pid, "WSPositionTex"), 0);
-	glUniform1i(glGetUniformLocation(pid, "WSNormalTex"), 1);
-	glUniform1i(glGetUniformLocation(pid, "depthTex"), 2);
-	glUniform1i(glGetUniformLocation(pid, "albedoTex"), 3);
-	glUniform1i(glGetUniformLocation(pid, "metalRoughAoTex"), 4);
-	glUniform2f(glGetUniformLocation(pid, "windowSize"), m_win.width, m_win.height);
+	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
 
 	// MVP for screenspace effects
 	ngl::Mat4 SSMVP = ngl::Mat4(1.0f);
@@ -455,7 +454,6 @@ void NGLScene::paintGL()
 
 	prim->draw("ScreenAlignedQuad");
 }
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
