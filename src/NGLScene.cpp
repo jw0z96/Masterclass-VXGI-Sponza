@@ -148,7 +148,6 @@ void NGLScene::initializeGL()
 
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
-
 }
 
 void NGLScene::initFBO()
@@ -278,6 +277,7 @@ void NGLScene::paintGL()
 	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
 	// clear the screen and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_BLEND); // important!
 	glViewport(0,0,m_win.width,m_win.height);
 
 	shader->use("PBR");
@@ -378,20 +378,23 @@ void NGLScene::paintGL()
 
 	// unbind FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
-	glClear (GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDisable(GL_BLEND);
 	glViewport(0,0,m_win.width,m_win.height);
-	glDisable(GL_BLEND); // important!
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSNormalId);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, m_FBODepthId);
 
 	shader->use("outputPass");
 	GLuint pid = shader->getProgramID("outputPass");
 
 	glUniform1i(glGetUniformLocation(pid, "WSPositionTex"), 0);
 	glUniform1i(glGetUniformLocation(pid, "WSNormalTex"), 1);
+	glUniform1i(glGetUniformLocation(pid, "depthTex"), 2);
 	glUniform2f(glGetUniformLocation(pid, "windowSize"), m_win.width, m_win.height);
 
 	//MVP for screenspace effects

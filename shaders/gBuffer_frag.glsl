@@ -60,7 +60,7 @@ void main()
 	vec3 V = normalize(camPos - WorldPos);
 
 	// world space position out
-	fragWSPosition = WorldPos/1000.0;
+	fragWSPosition = WorldPos;
 
 	// world space normal out
 	fragWSNormal = N;
