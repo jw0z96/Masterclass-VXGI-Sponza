@@ -25,15 +25,15 @@ void main()
 	vec2 texpos = gl_FragCoord.xy / windowSize;
 
 	// Access the world space position texture
-	vec3 WSPos = texture(WSPositionTex, texpos).rgb;
+	vec3 WSPos = texture(WSPositionTex, 2.0 * texpos).rgb;
 	// Access the world space normal texture
-	vec3 WSNormal = texture(WSNormalTex, texpos).rgb;
+	vec3 WSNormal = texture(WSNormalTex, 2.0 * texpos).rgb;
 	// Access the screen space depth texture
-	float depth = texture(depthTex, texpos).r;
+	float depth = texture(depthTex, 2.0 * texpos).r;
 	// Access the albedo texture
-	vec3 albedo = texture(albedoTex, texpos).rgb;
+	vec3 albedo = texture(albedoTex, 2.0 * texpos).rgb;
 	// Access the metallic, roughness, AO texture
-	vec3 metalRoughAo = texture(metalRoughAoTex, texpos).rgb;
+	vec3 metalRoughAo = texture(metalRoughAoTex, 2.0 * texpos).rgb;
 
 	if (texpos.x >= 0.5)
 	{

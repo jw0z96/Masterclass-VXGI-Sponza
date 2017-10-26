@@ -96,7 +96,7 @@ void NGLScene::initializeGL()
 	shader->setUniform("normalMap", 1);
 	shader->setUniform("metallicMap", 2);
 	shader->setUniform("roughnessMap", 3);
-	shader->setUniform("aoMap", 4);
+	// shader->setUniform("aoMap", 4);
 
 	// // create the output shader program
 	shader->loadShader("outputPass",

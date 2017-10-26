@@ -30,3 +30,7 @@
 *.qmake.cache
 *.qmake.stash
 *.qrc
+
+Makefile
+Sponza
+moc/
