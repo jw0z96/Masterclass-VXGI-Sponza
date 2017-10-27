@@ -488,6 +488,12 @@ bool Mtl::loadBinary(const std::string &_fname)
    fileIn.read(reinterpret_cast<char *>(&s[0]),size);
    item->bump=s;
 
+   fileIn.read(reinterpret_cast<char *>(&size),sizeof(size));
+   // now the string we first need to allocate space then copy in
+   s.resize(size);
+   fileIn.read(reinterpret_cast<char *>(&s[0]),size);
+   item->map_Ns=s;
+
    m_materials[materialName]=item;
   }
   m_loadTextures=true;
