@@ -69,7 +69,7 @@ newmtl Material__298
   map_Kd textures\Background_Albedo.png
   map_bump textures\Background_Normal.png
   bump textures\Background_Normal.png
-  map_NS textures\Background_roughness.png
+  map_Ns textures\Background_Roughness.png
 
 newmtl Material__47
   Ns 10.0000
