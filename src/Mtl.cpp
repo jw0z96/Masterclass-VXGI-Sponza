@@ -178,18 +178,14 @@ bool Mtl::load(const std::string &_fname)
 // as the trigger for putting the meshes back is the newmtl we will always have a hanging one
 // this adds it to the list
  m_materials[m_currentName]=m_current;
- loadTextures();
  return true;
 }
 
 Mtl::Mtl(const std::string &_fname, bool _loadTextures)
 {
   m_loadTextures=_loadTextures;
-  load(_fname);
-  if(m_loadTextures==true)
-  {
+  if(load(_fname))
     loadTextures();
-  }
 }
 
 Mtl::~Mtl()
@@ -212,14 +208,14 @@ void Mtl::loadTextures()
       names.push_back(i->second->map_Ka);
     if(i->second->map_Kd.size() !=0)
       names.push_back(i->second->map_Kd);
+    if(i->second->map_Ns.size() !=0)
+      names.push_back(i->second->map_Ns);
     if(i->second->map_d.size() !=0)
       names.push_back(i->second->map_d);
     if(i->second->map_bump.size() !=0)
       names.push_back(i->second->map_bump);
     if(i->second->map_bump.size() !=0)
       names.push_back(i->second->bump);
-    if(i->second->map_Ns.size() !=0)
-      names.push_back(i->second->map_Ns);
   }
 
   std::cout<<"we have this many textures "<<names.size()<<"\n";
@@ -235,6 +231,7 @@ void Mtl::loadTextures()
     ngl::Texture t(name);
     GLuint textureID=t.setTextureGL();
     m_textureID.push_back(textureID);
+
     std::cout<<"processing "<<name<<"\n";
     i=m_materials.begin();
     for( ; i != end; ++i )
@@ -257,7 +254,6 @@ void Mtl::loadTextures()
   std::cout <<"done \n";
 
 }
-
 
 void Mtl::clear()
 {
@@ -302,7 +298,7 @@ void Mtl::debugPrint() const
     std::cout<<"map_Ns "<<i->second->map_Ns<<"\n";
     std::cout<<"map_bump "<<i->second->map_bump<<"\n";
     std::cout<<"bump "<<i->second->bump<<"\n";
-    std::cout<<"map_Ka Texture ID"<<i->second->map_KaId<<"\n";
+    std::cout<<"map_Ka Texture ID "<<i->second->map_KaId<<"\n";
     std::cout<<"map_Kd Texture ID "<<i->second->map_KdId<<"\n";
     std::cout<<"map_d Texture ID "<<i->second->map_dId<<"\n";
     std::cout<<"map_bump Texture ID "<<i->second->map_bumpId<<"\n";

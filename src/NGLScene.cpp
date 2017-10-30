@@ -63,28 +63,35 @@ void NGLScene::initializeGL()
 	// gl commands from the lib, if this is not done program will crash
 	ngl::NGLInit::instance();
 	ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-	constexpr auto shaderProgram = "PBR";
-	constexpr auto vertexShader  = "PBRVertex";
-	constexpr auto fragShader    = "PBRFragment";
-	// create the shader program
-	shader->createShaderProgram( shaderProgram );
-	// now we are going to create empty shaders for Frag and Vert
-	shader->attachShader( vertexShader, ngl::ShaderType::VERTEX );
-	shader->attachShader( fragShader, ngl::ShaderType::FRAGMENT );
-	// attach the source
-	shader->loadShaderSource( vertexShader, "shaders/gBuffer_vert.glsl" );
-	shader->loadShaderSource( fragShader, "shaders/gBuffer_frag.glsl" );
-	// compile the shaders
-	shader->compileShader( vertexShader );
-	shader->compileShader( fragShader );
-	// add them to the program
-	shader->attachShaderToProgram( shaderProgram, vertexShader );
-	shader->attachShaderToProgram( shaderProgram, fragShader );
 
-	// now we have associated that data we can link the shader
-	shader->linkProgramObject( shaderProgram );
-	// and make it active ready to load values
-	( *shader )[ shaderProgram ]->use();
+	// constexpr auto shaderProgram = "PBR";
+	// constexpr auto vertexShader  = "PBRVertex";
+	// constexpr auto fragShader    = "PBRFragment";
+	// // create the shader program
+	// shader->createShaderProgram( shaderProgram );
+	// // now we are going to create empty shaders for Frag and Vert
+	// shader->attachShader( vertexShader, ngl::ShaderType::VERTEX );
+	// shader->attachShader( fragShader, ngl::ShaderType::FRAGMENT );
+	// // attach the source
+	// shader->loadShaderSource( vertexShader, "shaders/gBuffer_vert.glsl" );
+	// shader->loadShaderSource( fragShader, "shaders/gBuffer_frag.glsl" );
+	// // compile the shaders
+	// shader->compileShader( vertexShader );
+	// shader->compileShader( fragShader );
+	// // add them to the program
+	// shader->attachShaderToProgram( shaderProgram, vertexShader );
+	// shader->attachShaderToProgram( shaderProgram, fragShader );
+
+	// // now we have associated that data we can link the shader
+	// shader->linkProgramObject( shaderProgram );
+	// // and make it active ready to load values
+
+	// create the gBuffer shader program
+	shader->loadShader("gBufferPass",
+		"shaders/gBuffer_vert.glsl",
+		"shaders/gBuffer_frag.glsl");
+	shader->use("gBufferPass");
+
 	shader->setUniform("camPos",m_cam.getEye());
 
 	for(size_t i=0; i<g_lightPositions.size(); ++i)
@@ -98,7 +105,7 @@ void NGLScene::initializeGL()
 	shader->setUniform("roughnessMap", 3);
 	// shader->setUniform("aoMap", 4);
 
-	// // create the output shader program
+	// create the output shader program
 	shader->loadShader("outputPass",
 		"shaders/screen_space_vert.glsl",
 		"shaders/output_frag.glsl");
@@ -131,24 +138,15 @@ void NGLScene::initializeGL()
 	// now to load the shader and set the values
 	// grab an instance of shader manager
 
-	m_mtl.reset(  new Mtl);
-	//bool loaded=m_mtl->loadBinary("sponzaMtl.bin");
-	bool loaded=m_mtl->load("models/sponza.mtl");
+	m_mtl.reset(new Mtl("models/sponza.mtl"));
 
-	if(loaded == false)
-	{
-		std::cerr<<"error loading mtl file ";
-		exit(EXIT_FAILURE);
-	}
-
-
-	m_model.reset(  new GroupedObj("models/sponza.obj"));
+	m_model.reset(new GroupedObj("models/sponza.obj"));
 	//loaded=m_model->loadBinary("SponzaMesh.bin");
-	if(loaded == false)
-	{
-		std::cerr<<"error loading obj file ";
-		exit(EXIT_FAILURE);
-	}
+	// if(loaded == false)
+	// {
+	// 	std::cerr<<"error loading obj file ";
+	// 	exit(EXIT_FAILURE);
+	// }
 
 	// generate screen aligned quad
 	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
@@ -175,9 +173,13 @@ void NGLScene::initFBO()
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 
-	//since MTL always takes 0 through 4
-	// glActiveTexture(GL_TEXTURE5);
-	// glActiveTexture(GL_TEXTURE0);
+	auto setParams=[]()
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	};
 
 	// Generate a texture to write the Position to
 	glGenTextures(1, &m_FBOWSPositionId);
@@ -191,8 +193,7 @@ void NGLScene::initFBO()
 				 GL_RGB,
 				 GL_FLOAT,
 				 NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Generate a texture to write the Normals to
@@ -207,8 +208,7 @@ void NGLScene::initFBO()
 				 GL_RGB,
 				 GL_FLOAT,
 				 NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// The depth buffer is rendered to a texture buffer too,
@@ -223,8 +223,7 @@ void NGLScene::initFBO()
 				 GL_DEPTH_COMPONENT,
 				 GL_UNSIGNED_BYTE,
 				 NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Generate a texture to write the Position to
@@ -239,8 +238,7 @@ void NGLScene::initFBO()
 				 GL_RGB,
 				 GL_FLOAT,
 				 NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Generate a texture to write the Position to
@@ -255,8 +253,7 @@ void NGLScene::initFBO()
 				 GL_RGB,
 				 GL_FLOAT,
 				 NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Create the frame buffer
@@ -301,9 +298,11 @@ void NGLScene::loadMatricesToShader()
 void NGLScene::paintGL()
 {
 	// Check if the FBO needs to be recreated. This occurs after a resize.
-	if (m_isFBODirty) {
+	if (m_isFBODirty)
+	{
 		initFBO();
 		m_isFBODirty = false;
+		// m_mtl->debugPrint();
 	}
 
 	// get singleton instances
@@ -321,7 +320,7 @@ void NGLScene::paintGL()
 	// glDisable(GL_BLEND); // important!
 	glViewport(0,0,m_win.width,m_win.height);
 
-	shader->use("PBR");
+	shader->use("gBufferPass");
 
 	float currentFrame = m_timer.elapsed()*0.001f;
 	// std::cout<<"Current Frame "<<currentFrame<<'\n';
@@ -354,6 +353,7 @@ void NGLScene::paintGL()
 
 	auto end=m_model->numMeshes();
 	std::string matName;
+
 	if(m_drawGeo == true)
 	{
 		for(unsigned int i=0; i<end; ++i)
@@ -367,39 +367,34 @@ void NGLScene::paintGL()
 			{
 				auto setParams=[]()
 				{
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST_MIPMAP_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST_MIPMAP_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
 				};
 				// bind albedo texture to texture unit 0
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture (GL_TEXTURE_2D,currMaterial->map_KdId);
+				glBindTexture(GL_TEXTURE_2D, currMaterial->map_KdId);
 				setParams();
 				// bind normal texture to texture unit 1
 				glActiveTexture(GL_TEXTURE1);
-				glBindTexture (GL_TEXTURE_2D,currMaterial->map_bumpId);
+				glBindTexture(GL_TEXTURE_2D, currMaterial->map_bumpId);
 				setParams();
 				// bind metallic texture to texture unit 2
 				glActiveTexture(GL_TEXTURE2);
-				glBindTexture (GL_TEXTURE_2D,currMaterial->map_KaId);
+				glBindTexture(GL_TEXTURE_2D, currMaterial->map_KaId);
 				setParams();
 				// bind roughness texture to texture unit 3
 				glActiveTexture(GL_TEXTURE3);
-				glBindTexture (GL_TEXTURE_2D,currMaterial->map_NsId);
+				glBindTexture(GL_TEXTURE_2D, currMaterial->map_NsId);
 				setParams();
-
-				// bind AO texture to texture unit 4 (unused????)
-				// glActiveTexture(GL_TEXTURE4);
-				// glBindTexture (GL_TEXTURE_2D,currMaterial->map_NsId);
-				// setParams();
-
 				loadMatricesToShader();
 			}
 			m_model->draw(i);
 		}
 	}
+
 	// Draw Lights
 	if(m_drawLights)
 	{
