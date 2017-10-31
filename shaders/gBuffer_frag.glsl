@@ -15,7 +15,7 @@ uniform float roughnessScale;
 layout (location=0) out vec3 fragWSPosition;
 layout (location=1) out vec3 fragWSNormal;
 layout (location=2) out vec3 fragAlbedo;
-layout (location=3) out vec3 fragMetalRoughAo;
+layout (location=3) out vec2 fragMetalRough;
 
 // ----------------------------------------------------------------------------
 // Easy trick to get tangent-normals to world-space to keep PBR code simplified.
@@ -60,7 +60,5 @@ void main()
 	// textured fragment albedo out
 	fragAlbedo = albedo;
 	// packed fragment metallic, roughness, ao textures
-	// fragMetalRoughAo = vec3(roughness);
-	fragMetalRoughAo = vec3(metallic, roughness, 0.0);
-
+	fragMetalRough = vec2(metallic, roughness);
 }

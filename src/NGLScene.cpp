@@ -64,28 +64,6 @@ void NGLScene::initializeGL()
 	ngl::NGLInit::instance();
 	ngl::ShaderLib *shader=ngl::ShaderLib::instance();
 
-	// constexpr auto shaderProgram = "PBR";
-	// constexpr auto vertexShader  = "PBRVertex";
-	// constexpr auto fragShader    = "PBRFragment";
-	// // create the shader program
-	// shader->createShaderProgram( shaderProgram );
-	// // now we are going to create empty shaders for Frag and Vert
-	// shader->attachShader( vertexShader, ngl::ShaderType::VERTEX );
-	// shader->attachShader( fragShader, ngl::ShaderType::FRAGMENT );
-	// // attach the source
-	// shader->loadShaderSource( vertexShader, "shaders/gBuffer_vert.glsl" );
-	// shader->loadShaderSource( fragShader, "shaders/gBuffer_frag.glsl" );
-	// // compile the shaders
-	// shader->compileShader( vertexShader );
-	// shader->compileShader( fragShader );
-	// // add them to the program
-	// shader->attachShaderToProgram( shaderProgram, vertexShader );
-	// shader->attachShaderToProgram( shaderProgram, fragShader );
-
-	// // now we have associated that data we can link the shader
-	// shader->linkProgramObject( shaderProgram );
-	// // and make it active ready to load values
-
 	// create the gBuffer shader program
 	shader->loadShader("gBufferPass",
 		"shaders/gBuffer_vert.glsl",
@@ -94,16 +72,16 @@ void NGLScene::initializeGL()
 
 	shader->setUniform("camPos",m_cam.getEye());
 
-	for(size_t i=0; i<g_lightPositions.size(); ++i)
-	{
-		shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),g_lightPositions[i]);
-		shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),s_lightColors[i]);
-	}
+	// for(size_t i=0; i<g_lightPositions.size(); ++i)
+	// {
+	// 	shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),g_lightPositions[i]);
+	// 	shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),s_lightColors[i]);
+	// }
+
 	shader->setUniform("albedoMap", 0);
 	shader->setUniform("normalMap", 1);
 	shader->setUniform("metallicMap", 2);
 	shader->setUniform("roughnessMap", 3);
-	// shader->setUniform("aoMap", 4);
 
 	// create the output shader program
 	shader->loadShader("outputPass",
@@ -115,7 +93,7 @@ void NGLScene::initializeGL()
 	shader->setUniform("WSNormalTex", 1);
 	shader->setUniform("depthTex", 2);
 	shader->setUniform("albedoTex", 3);
-	shader->setUniform("metalRoughAoTex", 4);
+	shader->setUniform("metalRoughTex", 4);
 
 	// Grey Background
 	glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
@@ -135,18 +113,11 @@ void NGLScene::initializeGL()
 	// set the shape using FOV 45 Aspect Ratio based on Width and Height
 	// The final two are near and far clipping planes of 0.5 and 10
 	m_cam.setProjection(50,(float)1024/720,1.0f,800.0f);
-	// now to load the shader and set the values
-	// grab an instance of shader manager
 
+	// load mtl file
 	m_mtl.reset(new Mtl("models/sponza.mtl"));
-
+	// load obj file
 	m_model.reset(new GroupedObj("models/sponza.obj"));
-	//loaded=m_model->loadBinary("SponzaMesh.bin");
-	// if(loaded == false)
-	// {
-	// 	std::cerr<<"error loading obj file ";
-	// 	exit(EXIT_FAILURE);
-	// }
 
 	// generate screen aligned quad
 	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
@@ -168,7 +139,7 @@ void NGLScene::initFBO()
 		glDeleteTextures(1, &m_FBOWSNormalId);
 		glDeleteTextures(1, &m_FBODepthId);
 		glDeleteTextures(1, &m_FBOAlbedoId);
-		glDeleteTextures(1, &m_FBOMetalRoughAoId);
+		glDeleteTextures(1, &m_FBOMetalRoughId);
 		glDeleteFramebuffers(1, &m_gBufferFBOId);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
@@ -185,14 +156,14 @@ void NGLScene::initFBO()
 	glGenTextures(1, &m_FBOWSPositionId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
 	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGB16F,
-				 m_win.width,
-				 m_win.height,
-				 0,
-				 GL_RGB,
-				 GL_FLOAT,
-				 NULL);
+				0,
+				GL_RGB16F,
+				m_win.width,
+				m_win.height,
+				0,
+				GL_RGB,
+				GL_FLOAT,
+				NULL);
 	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -200,14 +171,14 @@ void NGLScene::initFBO()
 	glGenTextures(1, &m_FBOWSNormalId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSNormalId);
 	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGB16F,
-				 m_win.width,
-				 m_win.height,
-				 0,
-				 GL_RGB,
-				 GL_FLOAT,
-				 NULL);
+				0,
+				GL_RGB16F,
+				m_win.width,
+				m_win.height,
+				0,
+				GL_RGB,
+				GL_FLOAT,
+				NULL);
 	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -215,44 +186,44 @@ void NGLScene::initFBO()
 	glGenTextures(1, &m_FBODepthId);
 	glBindTexture(GL_TEXTURE_2D, m_FBODepthId);
 	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_DEPTH_COMPONENT,
-				 m_win.width,
-				 m_win.height,
-				 0,
-				 GL_DEPTH_COMPONENT,
-				 GL_UNSIGNED_BYTE,
-				 NULL);
+				0,
+				GL_DEPTH_COMPONENT,
+				m_win.width,
+				m_win.height,
+				0,
+				GL_DEPTH_COMPONENT,
+				GL_UNSIGNED_BYTE,
+				NULL);
 	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// Generate a texture to write the Position to
+	// Generate a texture to write the Albedo to
 	glGenTextures(1, &m_FBOAlbedoId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOAlbedoId);
 	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGB,
-				 m_win.width,
-				 m_win.height,
-				 0,
-				 GL_RGB,
-				 GL_FLOAT,
-				 NULL);
+				0,
+				GL_RGB,
+				m_win.width,
+				m_win.height,
+				0,
+				GL_RGB,
+				GL_FLOAT,
+				NULL);
 	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// Generate a texture to write the Position to
-	glGenTextures(1, &m_FBOMetalRoughAoId);
-	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughAoId);
+	// Generate a texture to write the Metallness and Roughness to
+	glGenTextures(1, &m_FBOMetalRoughId);
+	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
 	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGB,
-				 m_win.width,
-				 m_win.height,
-				 0,
-				 GL_RGB,
-				 GL_FLOAT,
-				 NULL);
+				0,
+				GL_RG,
+				m_win.width,
+				m_win.height,
+				0,
+				GL_RG,
+				GL_FLOAT,
+				NULL);
 	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -262,7 +233,7 @@ void NGLScene::initFBO()
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOWSPositionId, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_FBOWSNormalId, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_FBOAlbedoId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_FBOMetalRoughAoId, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_FBOMetalRoughId, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_FBODepthId, 0);
 
 	// Set the fragment shader output targets DEPTH_ATTACHMENT is done automatically apparently
@@ -434,7 +405,7 @@ void NGLScene::paintGL()
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, m_FBOAlbedoId);
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughAoId);
+	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
 
 	shader->use("outputPass");
 	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));

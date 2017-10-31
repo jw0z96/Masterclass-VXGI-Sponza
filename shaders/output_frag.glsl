@@ -5,7 +5,7 @@ uniform sampler2D WSNormalTex;
 uniform sampler2D depthTex;
 
 uniform sampler2D albedoTex;
-uniform sampler2D metalRoughAoTex;
+uniform sampler2D metalRoughTex;
 
 // We pass the window size to the shader.
 uniform vec2 windowSize;
@@ -33,7 +33,8 @@ void main()
 	// Access the albedo texture
 	vec3 albedo = texture(albedoTex, 2.0 * texpos).rgb;
 	// Access the metallic, roughness, AO texture
-	vec3 metalRoughAo = texture(metalRoughAoTex, 2.0 * texpos).rgb;
+	float metalness = texture(metalRoughTex, 2.0 * texpos).r;
+	float roughness = texture(metalRoughTex, 2.0 * texpos).g;
 
 	if (texpos.x >= 0.5)
 	{
@@ -54,7 +55,7 @@ void main()
 		}
 		else
 		{
-			fragColor = vec4(metalRoughAo, 1.0);
+			fragColor = vec4(metalness, roughness, 0.0, 1.0);
 		}
 	}
 }
