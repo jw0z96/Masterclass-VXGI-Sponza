@@ -3,7 +3,6 @@
 uniform sampler2D WSPositionTex;
 uniform sampler2D WSNormalTex;
 uniform sampler2D depthTex;
-
 uniform sampler2D albedoTex;
 uniform sampler2D metalRoughTex;
 
@@ -11,10 +10,10 @@ uniform sampler2D metalRoughTex;
 uniform vec2 windowSize;
 
 // // lights
-// uniform vec3 lightPositions[4];
+uniform vec3 lightPositions[4];
 // uniform vec3 lightColors[4];
 
-// uniform vec3 camPos;
+uniform vec3 camPos;
 
 // The output colour. At location 0 it will be sent to the screen.
 layout (location=0) out vec4 fragColor;

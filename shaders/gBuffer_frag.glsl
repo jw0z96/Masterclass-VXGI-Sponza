@@ -8,7 +8,6 @@ uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
-// uniform sampler2D aoMap;
 uniform float roughnessScale;
 
 // The output textures that make up our gBuffer
@@ -48,7 +47,6 @@ void main()
 	vec3 albedo = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
 	float metallic = texture(metallicMap, TexCoords).r;
 	float roughness = texture(roughnessMap, TexCoords).r;
-	// float ao = texture(aoMap, TexCoords).r;
 
 	// calculate normal-mapped world space normals
 	vec3 N = getNormalFromMap();

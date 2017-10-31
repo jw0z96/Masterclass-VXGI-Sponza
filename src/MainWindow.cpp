@@ -21,9 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	// connect(m_ui->m_scaleY,SIGNAL(valueChanged(double)),m_gl,SLOT(setYScale(double)));
 	// connect(m_ui->m_scaleZ,SIGNAL(valueChanged(double)),m_gl,SLOT(setZScale(double)));
 	// /// set the position signals
-	// connect(m_ui->m_positionX,SIGNAL(valueChanged(double)),m_gl,SLOT(setXPosition(double)));
-	// connect(m_ui->m_positionY,SIGNAL(valueChanged(double)),m_gl,SLOT(setYPosition(double)));
-	// connect(m_ui->m_positionZ,SIGNAL(valueChanged(double)),m_gl,SLOT(setZPosition(double)));
+	connect(m_ui->lightPositionX,SIGNAL(valueChanged(double)),m_gl,SLOT(setXPosition(double)));
+	connect(m_ui->lightPositionY,SIGNAL(valueChanged(double)),m_gl,SLOT(setYPosition(double)));
+	connect(m_ui->lightPositionZ,SIGNAL(valueChanged(double)),m_gl,SLOT(setZPosition(double)));
 	// /// set the combo box index change signal
 	// connect(m_ui->m_objectSelection,SIGNAL(currentIndexChanged(int)),m_gl,SLOT(setObjectMode(int)));
 	// connect(m_ui->m_colour,SIGNAL(clicked()),m_gl,SLOT(setColour()));

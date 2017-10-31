@@ -40,22 +40,24 @@ void NGLScene::resizeGL( int _w, int _h )
 	m_isFBODirty = true;
 }
 
-// lights
-static std::array<ngl::Vec3,4> g_lightPositions = {{
-	ngl::Vec3(1000.0f,220.0f,0.0f),
-	ngl::Vec3(300.0f,1320.0f,0.0f),
-	ngl::Vec3(-300.0f,1320.0f,0.0f),
-	ngl::Vec3(-1000.0f,220.0f,0.0f)
-}};
 
-constexpr float intensity=55000.0f;
-static std::array<ngl::Vec3,4>  s_lightColors = {{
-	ngl::Vec3(intensity, intensity, intensity),
-	ngl::Vec3(intensity*10, intensity*10, intensity*10),
-	ngl::Vec3(intensity*10, intensity*10, intensity*10),
-	ngl::Vec3(intensity, intensity, intensity)
 
-}};
+void NGLScene::setXPosition(double _val)
+{
+	m_lightPositions[0].m_x = _val;
+	update();
+}
+
+void NGLScene::setYPosition(double _val)
+{
+	m_lightPositions[0].m_y = _val;
+	update();
+}
+void NGLScene::setZPosition(double _val)
+{
+	m_lightPositions[0].m_z = _val;
+	update();
+}
 
 void NGLScene::initializeGL()
 {
@@ -72,10 +74,10 @@ void NGLScene::initializeGL()
 
 	shader->setUniform("camPos",m_cam.getEye());
 
-	// for(size_t i=0; i<g_lightPositions.size(); ++i)
+	// for(size_t i=0; i<m_lightPositions.size(); ++i)
 	// {
-	// 	shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),g_lightPositions[i]);
-	// 	shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),s_lightColors[i]);
+	// 	shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),m_lightPositions[i]);
+	// 	shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),m_lightColors[i]);
 	// }
 
 	shader->setUniform("albedoMap", 0);
@@ -125,6 +127,24 @@ void NGLScene::initializeGL()
 
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
+
+	m_lightPositions = {{
+		ngl::Vec3(0.0f,220.0f,0.0f) //,
+		// ngl::Vec3(300.0f,1320.0f,0.0f),
+		// ngl::Vec3(-300.0f,1320.0f,0.0f),
+		// ngl::Vec3(-1000.0f,220.0f,0.0f)
+	}};
+
+	float intensity=55000.0f;
+
+	m_lightColors = {{
+		ngl::Vec3(intensity, intensity, intensity) //,
+		// ngl::Vec3(intensity*10, intensity*10, intensity*10),
+		// ngl::Vec3(intensity*10, intensity*10, intensity*10),
+		// ngl::Vec3(intensity, intensity, intensity)
+
+	}};
+
 }
 
 void NGLScene::initFBO()
@@ -288,7 +308,6 @@ void NGLScene::paintGL()
 	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
 	// clear the screen and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// glDisable(GL_BLEND); // important!
 	glViewport(0,0,m_win.width,m_win.height);
 
 	shader->use("gBufferPass");
@@ -372,13 +391,14 @@ void NGLScene::paintGL()
 		( *shader )[ ngl::nglColourShader ]->use();
 		ngl::Mat4 MVP;
 		ngl::Transformation tx;
+		tx.setScale(10.0, 10.0, 10.0); //make the light bigger
 		shader->setUniform("Colour",1.0f,1.0f,1.0f,1.0f);
 
-		for(size_t i=0; i<g_lightPositions.size(); ++i)
+		for(size_t i=0; i<m_lightPositions.size(); ++i)
 		{
 			if(m_lightOn[i]==true)
 			{
-				tx.setPosition(g_lightPositions[i]);
+				tx.setPosition(m_lightPositions[i]);
 				MVP=m_cam.getVP()* m_mouseGlobalTX * tx.getMatrix() ;
 				shader->setUniform("MVP",MVP);
 				prim->draw("cube");
@@ -425,22 +445,22 @@ void NGLScene::paintGL()
 
 void NGLScene::keyPressEvent(QKeyEvent *_event)
 {
-	auto setLight=[](std::string _num,size_t _index,bool _mode)
-	{
-		ngl::ShaderLib *shader= ngl::ShaderLib::instance();
-		shader->use("PBR");
-		if(_mode == true)
-		{
-			shader->setUniform(_num,s_lightColors[_index]);
-		}
-		else
-		{
-			ngl::Vec3 colour={0.0f,0.0f,0.0f};
-			shader->setUniform(_num,colour);
+	// auto setLight=[](std::string _num,size_t _index,bool _mode)
+	// {
+	// 	ngl::ShaderLib *shader= ngl::ShaderLib::instance();
+	// 	shader->use("PBR");
+	// 	if(_mode == true)
+	// 	{
+	// 		shader->setUniform(_num,m_lightColors[_index]);
+	// 	}
+	// 	else
+	// 	{
+	// 		ngl::Vec3 colour={0.0f,0.0f,0.0f};
+	// 		shader->setUniform(_num,colour);
 
-		}
+	// 	}
 
-	};
+	// };
 
 	// add to our keypress set the values of any keys pressed
 	m_keysPressed += static_cast<Qt::Key>(_event->key());
@@ -461,14 +481,14 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
 		case Qt::Key_N : showNormal(); break;
 		case Qt::Key_L : m_drawLights^=true; break;
 		case Qt::Key_G : m_drawGeo^=true; break;
-		case Qt::Key_1 :
-		setLight("lightColors[0]",0,m_lightOn[0]^=true); break;
-		case Qt::Key_2 :
-		setLight("lightColors[1]",1,m_lightOn[1]^=true); break;
-		case Qt::Key_3 :
-		setLight("lightColors[2]",2,m_lightOn[2]^=true); break;
-		case Qt::Key_4 :
-		setLight("lightColors[3]",3,m_lightOn[3]^=true); break;
+		// case Qt::Key_1 :
+		// setLight("lightColors[0]",0,m_lightOn[0]^=true); break;
+		// case Qt::Key_2 :
+		// setLight("lightColors[1]",1,m_lightOn[1]^=true); break;
+		// case Qt::Key_3 :
+		// setLight("lightColors[2]",2,m_lightOn[2]^=true); break;
+		// case Qt::Key_4 :
+		// setLight("lightColors[3]",3,m_lightOn[3]^=true); break;
 
 		default : break;
 

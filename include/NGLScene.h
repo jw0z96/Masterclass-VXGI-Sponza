@@ -26,6 +26,7 @@
 
 class NGLScene : public QOpenGLWidget
 {
+Q_OBJECT
 public:
 	/// @brief Constructor for GLWindow
 	/// @param [in] _parent the parent window to create the GL context in
@@ -48,6 +49,14 @@ public:
 	/// @brief this is called everytime we resize
 	//----------------------------------------------------------------------------------------------------------------------
 	void resizeGL(int _w, int _h) override;
+
+public slots:
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief this is called to set the positions of the lights
+	//----------------------------------------------------------------------------------------------------------------------
+	void setXPosition(double _val);
+	void setYPosition(double _val);
+	void setZPosition(double _val);
 
 private:
 	//----------------------------------------------------------------------------------------------------------------------
@@ -105,6 +114,10 @@ private:
 	bool m_drawGeo=true;
 	// Light modes
 	std::array<bool,4> m_lightOn={{true,true,true,true}};
+	// lights
+	std::vector<ngl::Vec3> m_lightPositions;
+
+	std::vector<ngl::Vec3> m_lightColors;
 
 	/* RENDER PIPELINE HELPER FUNCTIONS */
 
