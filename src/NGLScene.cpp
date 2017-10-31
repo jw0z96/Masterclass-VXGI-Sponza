@@ -438,6 +438,12 @@ void NGLScene::paintGL()
 	// camera position
 	shader->setUniform("camPos",m_cam.getEye());
 
+	for(size_t i=0; i<m_lightPositions.size(); ++i)
+	{
+		shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),m_lightPositions[i]);
+		shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),m_lightColors[i]);
+	}
+
 	prim->draw("ScreenAlignedQuad");
 }
 

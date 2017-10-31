@@ -62,24 +62,24 @@ public:
 
         lightPositionX = new QDoubleSpinBox(s_transformGB);
         lightPositionX->setObjectName(QStringLiteral("lightPositionX"));
-        lightPositionX->setMinimum(-1000);
-        lightPositionX->setMaximum(1000);
+        lightPositionX->setMinimum(-10000);
+        lightPositionX->setMaximum(10000);
         lightPositionX->setSingleStep(20);
 
         gridLayout->addWidget(lightPositionX, 1, 0, 1, 1);
 
         lightPositionZ = new QDoubleSpinBox(s_transformGB);
         lightPositionZ->setObjectName(QStringLiteral("lightPositionZ"));
-        lightPositionZ->setMinimum(-1000);
-        lightPositionZ->setMaximum(1000);
+        lightPositionZ->setMinimum(-10000);
+        lightPositionZ->setMaximum(10000);
         lightPositionZ->setSingleStep(20);
 
         gridLayout->addWidget(lightPositionZ, 1, 2, 1, 1);
 
         lightPositionY = new QDoubleSpinBox(s_transformGB);
         lightPositionY->setObjectName(QStringLiteral("lightPositionY"));
-        lightPositionY->setMinimum(-1000);
-        lightPositionY->setMaximum(1000);
+        lightPositionY->setMinimum(-10000);
+        lightPositionY->setMaximum(10000);
         lightPositionY->setSingleStep(20);
         lightPositionY->setValue(200);
 
