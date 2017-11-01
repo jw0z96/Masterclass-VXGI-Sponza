@@ -24,6 +24,23 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 
 	ngl::VAOFactory::registerVAOCreator("sponzaVAO",VAO::create);
 	m_timer.start();
+
+		m_lightPositions = {{
+		ngl::Vec3(0.0f,220.0f,0.0f) //,
+		// ngl::Vec3(300.0f,1320.0f,0.0f),
+		// ngl::Vec3(-300.0f,1320.0f,0.0f),
+		// ngl::Vec3(-1000.0f,220.0f,0.0f)
+	}};
+
+	float intensity=55000.0f;
+
+	m_lightColors = {{
+		ngl::Vec3(intensity, intensity, intensity) //,
+		// ngl::Vec3(intensity*10, intensity*10, intensity*10),
+		// ngl::Vec3(intensity*10, intensity*10, intensity*10),
+		// ngl::Vec3(intensity, intensity, intensity)
+
+	}};
 }
 
 
@@ -127,24 +144,6 @@ void NGLScene::initializeGL()
 
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
-
-	m_lightPositions = {{
-		ngl::Vec3(0.0f,220.0f,0.0f) //,
-		// ngl::Vec3(300.0f,1320.0f,0.0f),
-		// ngl::Vec3(-300.0f,1320.0f,0.0f),
-		// ngl::Vec3(-1000.0f,220.0f,0.0f)
-	}};
-
-	float intensity=55000.0f;
-
-	m_lightColors = {{
-		ngl::Vec3(intensity, intensity, intensity) //,
-		// ngl::Vec3(intensity*10, intensity*10, intensity*10),
-		// ngl::Vec3(intensity*10, intensity*10, intensity*10),
-		// ngl::Vec3(intensity, intensity, intensity)
-
-	}};
-
 }
 
 void NGLScene::initFBO()
