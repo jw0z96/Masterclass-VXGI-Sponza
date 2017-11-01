@@ -5,31 +5,41 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	m_ui(new Ui::MainWindow)
 {
+	m_selectedLight = 0;
 	m_ui->setupUi(this);
-
 	m_gl = new NGLScene(this);
-
 	m_ui->s_mainWindowGridLayout->addWidget(m_gl,0,0,2,1);
 
-	// connect(m_ui->m_wireframe,SIGNAL(toggled(bool)),m_gl,SLOT(toggleWireframe(bool)));
-	// // set the rotation signals
-	// connect(m_ui->m_rotationX,SIGNAL(valueChanged(double)),m_gl,SLOT(setXRotation(double)));
-	// connect(m_ui->m_rotationY,SIGNAL(valueChanged(double)),m_gl,SLOT(setYRotation(double)));
-	// connect(m_ui->m_rotationZ,SIGNAL(valueChanged(double)),m_gl,SLOT(setZRotation(double)));
-	// /// set the scale signals
-	// connect(m_ui->m_scaleX,SIGNAL(valueChanged(double)),m_gl,SLOT(setXScale(double)));
-	// connect(m_ui->m_scaleY,SIGNAL(valueChanged(double)),m_gl,SLOT(setYScale(double)));
-	// connect(m_ui->m_scaleZ,SIGNAL(valueChanged(double)),m_gl,SLOT(setZScale(double)));
-	// /// set the position signals
-	connect(m_ui->lightPositionX,SIGNAL(valueChanged(double)),m_gl,SLOT(setXPosition(double)));
-	connect(m_ui->lightPositionY,SIGNAL(valueChanged(double)),m_gl,SLOT(setYPosition(double)));
-	connect(m_ui->lightPositionZ,SIGNAL(valueChanged(double)),m_gl,SLOT(setZPosition(double)));
-	// /// set the combo box index change signal
-	// connect(m_ui->m_objectSelection,SIGNAL(currentIndexChanged(int)),m_gl,SLOT(setObjectMode(int)));
-	// connect(m_ui->m_colour,SIGNAL(clicked()),m_gl,SLOT(setColour()));
+	/// set the light index signal
+	connect(m_ui->lightIndexSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setSelectedLight()));
+	/// set the position signals
+	connect(m_ui->lightPositionX, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
+	connect(m_ui->lightPositionY, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
+	connect(m_ui->lightPositionZ, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
 }
 
 MainWindow::~MainWindow()
 {
 	delete m_ui;
+	delete m_gl;
 }
+
+void MainWindow::setLightPosition()
+{
+	ngl::Vec3 pos = ngl::Vec3(
+		m_ui->lightPositionX->value(),
+		m_ui->lightPositionY->value(),
+		m_ui->lightPositionZ->value()
+		);
+	m_gl->setLightPosition(m_selectedLight, pos);
+}
+
+void MainWindow::setSelectedLight()
+{
+	m_selectedLight = m_ui->lightIndexSpinBox->value() - 1; //ui is 1-indexed
+	ngl::Vec3 pos = m_gl->getLightPosition(m_selectedLight);
+	m_ui->lightPositionX->setValue(pos.m_x);
+	m_ui->lightPositionY->setValue(pos.m_y);
+	m_ui->lightPositionZ->setValue(pos.m_z);
+}
+

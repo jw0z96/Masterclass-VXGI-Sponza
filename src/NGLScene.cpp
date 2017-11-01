@@ -26,20 +26,19 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_timer.start();
 
 		m_lightPositions = {{
-		ngl::Vec3(0.0f,220.0f,0.0f) //,
-		// ngl::Vec3(300.0f,1320.0f,0.0f),
-		// ngl::Vec3(-300.0f,1320.0f,0.0f),
-		// ngl::Vec3(-1000.0f,220.0f,0.0f)
+		ngl::Vec3(1000.0f,200.0f,0.0f),
+		ngl::Vec3(400.0f,1400.0f,0.0f),
+		ngl::Vec3(-400.0f,1400.0f,0.0f),
+		ngl::Vec3(-1000.0f,200.0f,0.0f)
 	}};
 
 	float intensity=55000.0f;
 
 	m_lightColors = {{
-		ngl::Vec3(intensity, intensity, intensity) //,
-		// ngl::Vec3(intensity*10, intensity*10, intensity*10),
-		// ngl::Vec3(intensity*10, intensity*10, intensity*10),
-		// ngl::Vec3(intensity, intensity, intensity)
-
+		ngl::Vec3(intensity, intensity, intensity),
+		ngl::Vec3(intensity*10, intensity*10, intensity*10),
+		ngl::Vec3(intensity*10, intensity*10, intensity*10),
+		ngl::Vec3(intensity, intensity, intensity)
 	}};
 }
 
@@ -59,20 +58,9 @@ void NGLScene::resizeGL( int _w, int _h )
 
 
 
-void NGLScene::setXPosition(double _val)
+void NGLScene::setLightPosition(int _i, ngl::Vec3 _pos)
 {
-	m_lightPositions[0].m_x = _val;
-	update();
-}
-
-void NGLScene::setYPosition(double _val)
-{
-	m_lightPositions[0].m_y = _val;
-	update();
-}
-void NGLScene::setZPosition(double _val)
-{
-	m_lightPositions[0].m_z = _val;
+	m_lightPositions[_i] = _pos;
 	update();
 }
 
@@ -88,14 +76,6 @@ void NGLScene::initializeGL()
 		"shaders/gBuffer_vert.glsl",
 		"shaders/gBuffer_frag.glsl");
 	shader->use("gBufferPass");
-
-	shader->setUniform("camPos",m_cam.getEye());
-
-	// for(size_t i=0; i<m_lightPositions.size(); ++i)
-	// {
-	// 	shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),m_lightPositions[i]);
-	// 	shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),m_lightColors[i]);
-	// }
 
 	shader->setUniform("albedoMap", 0);
 	shader->setUniform("normalMap", 1);
@@ -292,7 +272,6 @@ void NGLScene::paintGL()
 	{
 		initFBO();
 		m_isFBODirty = false;
-		// m_mtl->debugPrint();
 	}
 
 	// get singleton instances
@@ -312,7 +291,7 @@ void NGLScene::paintGL()
 	shader->use("gBufferPass");
 
 	float currentFrame = m_timer.elapsed()*0.001f;
-	// std::cout<<"Current Frame "<<currentFrame<<'\n';
+	std::cout<<"Current Frame "<<currentFrame<<'\n';
 	m_deltaTime = currentFrame - m_lastFrame;
 	m_lastFrame = currentFrame;
 	/// first we reset the movement values
@@ -450,22 +429,22 @@ void NGLScene::paintGL()
 
 void NGLScene::keyPressEvent(QKeyEvent *_event)
 {
-	// auto setLight=[](std::string _num,size_t _index,bool _mode)
-	// {
-	// 	ngl::ShaderLib *shader= ngl::ShaderLib::instance();
-	// 	shader->use("PBR");
-	// 	if(_mode == true)
-	// 	{
-	// 		shader->setUniform(_num,m_lightColors[_index]);
-	// 	}
-	// 	else
-	// 	{
-	// 		ngl::Vec3 colour={0.0f,0.0f,0.0f};
-	// 		shader->setUniform(_num,colour);
+	auto setLight=[&](std::string _num,size_t _index,bool _mode)
+	{
+		ngl::ShaderLib *shader= ngl::ShaderLib::instance();
+		shader->use("PBR");
+		if(_mode == true)
+		{
+			shader->setUniform(_num,m_lightColors[_index]);
+		}
+		else
+		{
+			ngl::Vec3 colour={0.0f,0.0f,0.0f};
+			shader->setUniform(_num,colour);
 
-	// 	}
+		}
 
-	// };
+	};
 
 	// add to our keypress set the values of any keys pressed
 	m_keysPressed += static_cast<Qt::Key>(_event->key());
@@ -486,14 +465,14 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
 		case Qt::Key_N : showNormal(); break;
 		case Qt::Key_L : m_drawLights^=true; break;
 		case Qt::Key_G : m_drawGeo^=true; break;
-		// case Qt::Key_1 :
-		// setLight("lightColors[0]",0,m_lightOn[0]^=true); break;
-		// case Qt::Key_2 :
-		// setLight("lightColors[1]",1,m_lightOn[1]^=true); break;
-		// case Qt::Key_3 :
-		// setLight("lightColors[2]",2,m_lightOn[2]^=true); break;
-		// case Qt::Key_4 :
-		// setLight("lightColors[3]",3,m_lightOn[3]^=true); break;
+		case Qt::Key_1 :
+		setLight("lightColors[0]",0,m_lightOn[0]^=true); break;
+		case Qt::Key_2 :
+		setLight("lightColors[1]",1,m_lightOn[1]^=true); break;
+		case Qt::Key_3 :
+		setLight("lightColors[2]",2,m_lightOn[2]^=true); break;
+		case Qt::Key_4 :
+		setLight("lightColors[3]",3,m_lightOn[3]^=true); break;
 
 		default : break;
 

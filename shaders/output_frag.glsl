@@ -88,7 +88,7 @@ void main()
 
 	// reflectance equation
 	vec3 Lo = vec3(0.0);
-	for(int i = 0; i < 1; ++i)
+	for(int i = 0; i < 4; ++i)
 	{
 		// calculate per-light radiance
 		vec3 lightVector = normalize(lightPositions[i] - WSPos);
@@ -128,7 +128,7 @@ void main()
 	// this will probably be where i put my VXGI
 	vec3 ambient = vec3(0.03) * albedo;
 
-	vec3 fragShaded = Lo;// + ambient;
+	vec3 fragShaded = Lo + ambient;
 
 	// HDR tonemapping
 	fragShaded = fragShaded / (fragShaded + vec3(1.0));

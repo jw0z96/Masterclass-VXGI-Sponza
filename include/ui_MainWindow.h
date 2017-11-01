@@ -21,6 +21,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QWidget>
 
@@ -33,11 +34,15 @@ public:
     QGridLayout *s_mainWindowGridLayout;
     QGroupBox *s_transformGB;
     QGridLayout *gridLayout;
-    QLabel *lightPositionLabel;
-    QDoubleSpinBox *lightPositionX;
-    QDoubleSpinBox *lightPositionZ;
-    QDoubleSpinBox *lightPositionY;
     QSpacerItem *verticalSpacer;
+    QSpinBox *lightIndexSpinBox;
+    QDoubleSpinBox *lightPositionX;
+    QDoubleSpinBox *lightPositionY;
+    QDoubleSpinBox *lightPositionZ;
+    QLabel *lightPositionLabel_2;
+    QLabel *lightPositionLabel_1;
+    QLabel *lightPositionLabel_3;
+    QLabel *lightPositionLabel_4;
     QSpacerItem *horizontalSpacer;
     QMenuBar *menubar;
     QStatusBar *statusbar;
@@ -46,7 +51,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(972, 656);
+        MainWindow->resize(972, 649);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         s_mainWindowGridLayout = new QGridLayout(centralwidget);
@@ -55,39 +60,66 @@ public:
         s_transformGB->setObjectName(QStringLiteral("s_transformGB"));
         gridLayout = new QGridLayout(s_transformGB);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        lightPositionLabel = new QLabel(s_transformGB);
-        lightPositionLabel->setObjectName(QStringLiteral("lightPositionLabel"));
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        gridLayout->addWidget(lightPositionLabel, 0, 0, 1, 1);
+        gridLayout->addItem(verticalSpacer, 6, 0, 1, 1);
+
+        lightIndexSpinBox = new QSpinBox(s_transformGB);
+        lightIndexSpinBox->setObjectName(QStringLiteral("lightIndexSpinBox"));
+        lightIndexSpinBox->setValue(1);
+        lightIndexSpinBox->setMinimum(1);
+        lightIndexSpinBox->setMaximum(4);
+
+        gridLayout->addWidget(lightIndexSpinBox, 0, 2, 1, 1);
 
         lightPositionX = new QDoubleSpinBox(s_transformGB);
         lightPositionX->setObjectName(QStringLiteral("lightPositionX"));
+        lightPositionX->setDecimals(2);
         lightPositionX->setMinimum(-10000);
         lightPositionX->setMaximum(10000);
         lightPositionX->setSingleStep(20);
+        lightPositionX->setValue(1000.0);
 
-        gridLayout->addWidget(lightPositionX, 1, 0, 1, 1);
-
-        lightPositionZ = new QDoubleSpinBox(s_transformGB);
-        lightPositionZ->setObjectName(QStringLiteral("lightPositionZ"));
-        lightPositionZ->setMinimum(-10000);
-        lightPositionZ->setMaximum(10000);
-        lightPositionZ->setSingleStep(20);
-
-        gridLayout->addWidget(lightPositionZ, 1, 2, 1, 1);
+        gridLayout->addWidget(lightPositionX, 3, 2, 1, 1);
 
         lightPositionY = new QDoubleSpinBox(s_transformGB);
         lightPositionY->setObjectName(QStringLiteral("lightPositionY"));
+        lightPositionY->setDecimals(2);
         lightPositionY->setMinimum(-10000);
         lightPositionY->setMaximum(10000);
         lightPositionY->setSingleStep(20);
         lightPositionY->setValue(200);
 
-        gridLayout->addWidget(lightPositionY, 1, 1, 1, 1);
+        gridLayout->addWidget(lightPositionY, 4, 2, 1, 1);
 
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        lightPositionZ = new QDoubleSpinBox(s_transformGB);
+        lightPositionZ->setObjectName(QStringLiteral("lightPositionZ"));
+        lightPositionZ->setDecimals(2);
+        lightPositionZ->setMinimum(-10000);
+        lightPositionZ->setMaximum(10000);
+        lightPositionZ->setSingleStep(20);
 
-        gridLayout->addItem(verticalSpacer, 2, 0, 1, 1);
+        gridLayout->addWidget(lightPositionZ, 5, 2, 1, 1);
+
+        lightPositionLabel_2 = new QLabel(s_transformGB);
+        lightPositionLabel_2->setObjectName(QStringLiteral("lightPositionLabel_2"));
+
+        gridLayout->addWidget(lightPositionLabel_2, 0, 0, 1, 1);
+
+        lightPositionLabel_1 = new QLabel(s_transformGB);
+        lightPositionLabel_1->setObjectName(QStringLiteral("lightPositionLabel_1"));
+
+        gridLayout->addWidget(lightPositionLabel_1, 3, 0, 1, 1);
+
+        lightPositionLabel_3 = new QLabel(s_transformGB);
+        lightPositionLabel_3->setObjectName(QStringLiteral("lightPositionLabel_3"));
+
+        gridLayout->addWidget(lightPositionLabel_3, 4, 0, 1, 1);
+
+        lightPositionLabel_4 = new QLabel(s_transformGB);
+        lightPositionLabel_4->setObjectName(QStringLiteral("lightPositionLabel_4"));
+
+        gridLayout->addWidget(lightPositionLabel_4, 5, 0, 1, 1);
 
 
         s_mainWindowGridLayout->addWidget(s_transformGB, 0, 1, 1, 1);
@@ -113,8 +145,11 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Sponza VXGI Demo", Q_NULLPTR));
-        s_transformGB->setTitle(QApplication::translate("MainWindow", "Light", Q_NULLPTR));
-        lightPositionLabel->setText(QApplication::translate("MainWindow", "Position", Q_NULLPTR));
+        s_transformGB->setTitle(QApplication::translate("MainWindow", "Light Controls", Q_NULLPTR));
+        lightPositionLabel_2->setText(QApplication::translate("MainWindow", "Light", Q_NULLPTR));
+        lightPositionLabel_1->setText(QApplication::translate("MainWindow", "Pos X", Q_NULLPTR));
+        lightPositionLabel_3->setText(QApplication::translate("MainWindow", "Pos Y", Q_NULLPTR));
+        lightPositionLabel_4->setText(QApplication::translate("MainWindow", "Pos Z", Q_NULLPTR));
     } // retranslateUi
 
 };
