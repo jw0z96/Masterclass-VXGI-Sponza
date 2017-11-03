@@ -14,6 +14,7 @@ uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 
 uniform vec3 camPos;
+uniform bool gBufferView;
 
 const float PI = 3.14159265359;
 
@@ -135,29 +136,33 @@ void main()
 	// gamma correct
 	// fragShaded = pow(fragShaded, vec3(1.0/2.2));
 
-	fragColor = vec4(fragShaded, 1.0);
-
-	// if (texpos.x >= 0.5)
-	// {
-	// 	if (texpos.y >= 0.5)
-	// 	{
-	// 		fragColor = vec4(WSPos / 1000.0, 1.0);
-	// 	}
-	// 	else
-	// 	{
-	// 		fragColor = vec4(fragShaded, 1.0);
-	// 	}
-	// }
-	// else
-	// {
-	// 	if (texpos.y >= 0.5)
-	// 	{
-	// 		fragColor = vec4(WSNormal, 1.0);
-	// 	}
-	// 	else
-	// 	{
-	// 		fragColor = vec4(metalness, roughness, 0.0, 1.0);
-	// 	}
-	// }
+	if(gBufferView)
+	{
+		if (texpos.x >= 0.5)
+		{
+			if (texpos.y >= 0.5)
+			{
+				fragColor = vec4(WSPos / 1000.0, 1.0);
+			}
+			else
+			{
+				fragColor = vec4(fragShaded, 1.0);
+			}
+		}
+		else
+		{
+			if (texpos.y >= 0.5)
+			{
+				fragColor = vec4(WSNormal, 1.0);
+			}
+			else
+			{
+				fragColor = vec4(metalness, roughness, 0.0, 1.0);
+			}
+		}
+	}
+	else
+	{
+		fragColor = vec4(fragShaded, 1.0);
+	}
 }
-

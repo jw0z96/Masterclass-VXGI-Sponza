@@ -414,7 +414,9 @@ void NGLScene::paintGL()
 	shader->setUniform("MVP", SSMVP);
 
 	// camera position
-	shader->setUniform("camPos",m_cam.getEye());
+	shader->setUniform("camPos", m_cam.getEye());
+	// debug mode bool
+	shader->setUniform("gBufferView", m_gBufferView);
 
 	for(size_t i=0; i<m_lightPositions.size(); ++i)
 	{

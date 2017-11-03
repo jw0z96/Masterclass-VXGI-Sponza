@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_gl = new NGLScene(this);
 	m_ui->s_mainWindowGridLayout->addWidget(m_gl,0,0,2,1);
 
+	/// set the debug view toggle signal
+	connect(m_ui->gBufferCheckBox, SIGNAL(stateChanged(int)), m_gl, SLOT(toggleGBufferView()));
 	/// set the light index signal
 	connect(m_ui->lightIndexSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setSelectedLight()));
 	/// set the position signals
