@@ -15,6 +15,18 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void checkGLerror()
+{
+	// check OpenGL error
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		std::cout <<"OpenGL error: "<<err<<"\n";
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 {
 	// set this widget to have the initial keyboard focus
@@ -71,6 +83,21 @@ void NGLScene::initializeGL()
 	ngl::NGLInit::instance();
 	ngl::ShaderLib *shader=ngl::ShaderLib::instance();
 
+	// create the voxelization shader program
+	// shader->loadShader("voxelizationShader",
+	// 	"shaders/voxelize_vert.glsl",
+	// 	"shaders/voxelize_frag.glsl",
+	// 	"shaders/voxelize_geo.glsl");
+
+	shader->loadShader("voxelizationShader",
+		"shaders/voxelize_vert.glsl",
+		"shaders/voxelize_frag.glsl");
+
+	shader->setUniform("albedoMap", 0);
+	shader->setUniform("normalMap", 1);
+	shader->setUniform("metallicMap", 2);
+	shader->setUniform("roughnessMap", 3);
+
 	// create the gBuffer shader program
 	shader->loadShader("gBufferPass",
 		"shaders/gBuffer_vert.glsl",
@@ -94,16 +121,24 @@ void NGLScene::initializeGL()
 	shader->setUniform("albedoTex", 3);
 	shader->setUniform("metalRoughTex", 4);
 
+	// create the output shader program
+	shader->loadShader("outputTestPass",
+		"shaders/screen_space_vert.glsl",
+		"shaders/test_frag.glsl");
+
+	shader->use("outputTestPass");
+	shader->setUniform("inTex", 0);
+
 	// Grey Background
-	glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// enable depth testing for drawing
-	glEnable(GL_DEPTH_TEST);
+	// glEnable(GL_DEPTH_TEST);
 	// enable multisampling for smoother drawing
 	glEnable(GL_MULTISAMPLE);
 
 	// glEnable(GL_BLEND);
 	// glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_BLEND);
+	// glDisable(GL_BLEND);
 
 	ngl::Vec3 from(0,40,-140);
 	ngl::Vec3 to(0,40,0);
@@ -111,7 +146,7 @@ void NGLScene::initializeGL()
 	m_cam.set(from,to,up);
 	// set the shape using FOV 45 Aspect Ratio based on Width and Height
 	// The final two are near and far clipping planes of 0.5 and 10
-	m_cam.setProjection(50,(float)1024/720,1.0f,800.0f);
+	m_cam.setProjection(50,(float)m_win.width/m_win.height,1.0f,800.0f);
 
 	// load mtl file
 	m_mtl.reset(new Mtl("models/sponza.mtl"));
@@ -124,12 +159,13 @@ void NGLScene::initializeGL()
 
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
+
+	m_voxelDim = 512;
 }
 
 void NGLScene::initFBO()
 {
 	std::cout<<"initFBO call\n";
-
 	// SETUP THE G-BUFFER FBOS
 	// First delete the FBO if it has been created previously
 	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
@@ -141,7 +177,8 @@ void NGLScene::initFBO()
 		glDeleteTextures(1, &m_FBOMetalRoughId);
 		glDeleteFramebuffers(1, &m_gBufferFBOId);
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 1);
+	// glBindFramebuffer(GL_FRAMEBUFFER, 1);
+	checkGLerror();
 
 	auto setParams=[]()
 	{
@@ -241,7 +278,57 @@ void NGLScene::initFBO()
 
 	// Check it is ready to rock and roll
 	CheckFrameBuffer();
+	// Unbind the framebuffer to revert to default render pipeline
+	glBindFramebuffer(GL_FRAMEBUFFER, 1);
+}
 
+void NGLScene::initTestFBO()
+{
+	std::cout<<"initTestFBO call\n";
+	// SETUP THE TEST FBOS
+	// First delete the FBO if it has been created previously
+	glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE) {
+		glDeleteTextures(1, &m_testTexture);
+		glDeleteFramebuffers(1, &m_testFBO);
+	}
+	// glBindFramebuffer(GL_FRAMEBUFFER, 1);
+	checkGLerror();
+
+	auto setParams=[]()
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	};
+
+	// Generate a texture to write the Position to
+	glGenTextures(1, &m_testTexture);
+	glBindTexture(GL_TEXTURE_2D, m_testTexture);
+	glTexImage2D(GL_TEXTURE_2D,
+				0,
+				GL_RGB16F,
+				m_voxelDim,
+				m_voxelDim,
+				0,
+				GL_RGB,
+				GL_FLOAT,
+				NULL);
+	setParams();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Create the frame buffer
+	glGenFramebuffers(1, &m_testFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_testTexture, 0);
+
+	// Set the fragment shader output targets DEPTH_ATTACHMENT is done automatically apparently
+	GLenum drawBufs[] = {GL_COLOR_ATTACHMENT0};
+	glDrawBuffers(1, drawBufs);
+
+	// Check it is ready to rock and roll
+	CheckFrameBuffer();
 	// Unbind the framebuffer to revert to default render pipeline
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 }
@@ -265,59 +352,11 @@ void NGLScene::loadMatricesToShader()
 	shader->setUniform("camPos",m_cam.getEye());
 }
 
-void NGLScene::paintGL()
+void NGLScene::drawScene()
 {
-	// Check if the FBO needs to be recreated. This occurs after a resize.
-	if (m_isFBODirty)
-	{
-		initFBO();
-		m_isFBODirty = false;
-	}
-
 	// get singleton instances
 	ngl::ShaderLib* shader = ngl::ShaderLib::instance();
 	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
-
-	//----------------------------------------------------------------------------------------------------------------------
-	/// G BUFFER PASS START
-	//----------------------------------------------------------------------------------------------------------------------
-
-	// bind the gBuffer FBO
-	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
-	// clear the screen and depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0,0,m_win.width,m_win.height);
-
-	shader->use("gBufferPass");
-
-	float currentFrame = m_timer.elapsed()*0.001f;
-	std::cout<<"Current Frame "<<currentFrame<<'\n';
-	m_deltaTime = currentFrame - m_lastFrame;
-	m_lastFrame = currentFrame;
-	/// first we reset the movement values
-	float xDirection=0.0;
-	float yDirection=0.0;
-	// now we loop for each of the pressed keys in the the set
-	// and see which ones have been pressed. If they have been pressed
-	// we set the movement value to be an incremental value
-	constexpr float s_update = 100.0f;
-	foreach(Qt::Key key, m_keysPressed)
-	{
-		switch (key)
-		{
-			case Qt::Key_Left :  { yDirection=-s_update; break;}
-			case Qt::Key_Right : { yDirection=s_update; break;}
-			case Qt::Key_Up :		 { xDirection=s_update; break;}
-			case Qt::Key_Down :  { xDirection=-s_update; break;}
-			default : break;
-		}
-	}
-	// if the set is non zero size we can update the ship movement
-	// then tell openGL to re-draw
-	if(m_keysPressed.size() !=0)
-	{
-		m_cam.move(xDirection,yDirection,m_deltaTime);
-	}
 
 	auto end=m_model->numMeshes();
 	std::string matName;
@@ -363,31 +402,133 @@ void NGLScene::paintGL()
 		}
 	}
 
-	// Draw Lights
-	if(m_drawLights)
-	{
-		( *shader )[ ngl::nglColourShader ]->use();
-		ngl::Mat4 MVP;
-		ngl::Transformation tx;
-		tx.setScale(10.0, 10.0, 10.0); //make the light bigger
-		shader->setUniform("Colour",1.0f,1.0f,1.0f,1.0f);
+	// // Draw Lights
+	// if(m_drawLights)
+	// {
+	// 	( *shader )[ ngl::nglColourShader ]->use();
+	// 	ngl::Mat4 MVP;
+	// 	ngl::Transformation tx;
+	// 	tx.setScale(10.0, 10.0, 10.0); //make the light bigger
+	// 	shader->setUniform("Colour",1.0f,1.0f,1.0f,1.0f);
 
-		for(size_t i=0; i<m_lightPositions.size(); ++i)
-		{
-			if(m_lightOn[i]==true)
-			{
-				tx.setPosition(m_lightPositions[i]);
-				MVP=m_cam.getVP()* m_mouseGlobalTX * tx.getMatrix() ;
-				shader->setUniform("MVP",MVP);
-				prim->draw("cube");
-			}
-		}
+	// 	for(size_t i=0; i<m_lightPositions.size(); ++i)
+	// 	{
+	// 		if(m_lightOn[i]==true)
+	// 		{
+	// 			tx.setPosition(m_lightPositions[i]);
+	// 			MVP=m_cam.getVP()* m_mouseGlobalTX * tx.getMatrix() ;
+	// 			shader->setUniform("MVP",MVP);
+	// 			prim->draw("cube");
+	// 		}
+	// 	}
+	// }
+}
+
+void NGLScene::paintGL()
+{
+	// get singleton instances
+	ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
+
+	float currentFrame = m_timer.elapsed()*0.001f;
+	std::cout<<"Current Frame "<<currentFrame<<'\n';
+	m_deltaTime = currentFrame - m_lastFrame;
+	m_lastFrame = currentFrame;
+
+	//----------------------------------------------------------------------------------------------------------------------
+	/// VOXELIZE SCENE
+	//----------------------------------------------------------------------------------------------------------------------
+	initTestFBO();
+	// unbind FBO (for testing)
+	// glBindFramebuffer(GL_FRAMEBUFFER, 1);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, m_voxelDim, m_voxelDim);
+	// Disable some fixed-function opeartions
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	// glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+	shader->use("voxelizationShader");
+	// shader->use("gBufferPass");
+
+	// Orthograhic projection
+	ngl::Mat4 Ortho;
+	// Ortho = ngl::ortho(-1000.0, 1000.0, -1000.0, 1000.0, 10.0f, 1000.0f);
+	Ortho = ngl::ortho(-2000.0, 2000.0, -2000.0, 2000.0, -2000.0f, 2000.0f);
+	ngl::Vec3 objectCenter = ngl::Vec3(-100.0, 200.0, 0.0);
+
+	// Create an modelview-orthographic projection matrix see fr\om +X axis
+	ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(1, 0, 0), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
+
+	// Create an modelview-orthographic projection matrix see from +Y axis
+	ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 1, 0), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 0, -1));
+
+	// Create an modelview-orthographic projection matrix see from +Z axis
+	ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 1), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
+
+	// shader->setUniform("mvpX", mvpX);
+	// shader->setUniform("mvpY", mvpY);
+	// shader->setUniform("mvpZ", mvpZ);
+	shader->setUniform("orthoMVP", mvpZ);
+
+	// draw our scene geometry
+	drawScene();
+
+	//----------------------------------------------------------------------------------------------------------------------
+	/// G BUFFER PASS START
+	//----------------------------------------------------------------------------------------------------------------------
+	/*
+	// Check if the FBO needs to be recreated. This occurs after a resize.
+	if (m_isFBODirty)
+	{
+		initFBO();
+		m_isFBODirty = false;
 	}
 
+	// bind the gBuffer FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+	// clear the screen and depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0,0,m_win.width,m_win.height);
+	// enable depth testing for drawing
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+	shader->use("gBufferPass");
+
+	/// first we reset the movement values
+	float xDirection=0.0;
+	float yDirection=0.0;
+	// now we loop for each of the pressed keys in the the set
+	// and see which ones have been pressed. If they have been pressed
+	// we set the movement value to be an incremental value
+	constexpr float s_update = 100.0f;
+	foreach(Qt::Key key, m_keysPressed)
+	{
+		switch (key)
+		{
+			case Qt::Key_Left :  { yDirection=-s_update; break;}
+			case Qt::Key_Right : { yDirection=s_update; break;}
+			case Qt::Key_Up :		 { xDirection=s_update; break;}
+			case Qt::Key_Down :  { xDirection=-s_update; break;}
+			default : break;
+		}
+	}
+	// if the set is non zero size we can update the camera movement
+	if(m_keysPressed.size() !=0)
+	{
+		m_cam.move(xDirection,yDirection,m_deltaTime);
+	}
+
+	// draw our scene geometry
+	drawScene();
+	*/
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT PASS START
 	//----------------------------------------------------------------------------------------------------------------------
-
+	/*
 	// unbind FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -423,6 +564,32 @@ void NGLScene::paintGL()
 		shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),m_lightPositions[i]);
 		shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),m_lightColors[i]);
 	}
+
+	prim->draw("ScreenAlignedQuad");
+	*/
+	//----------------------------------------------------------------------------------------------------------------------
+	/// OUTPUT TESTING PASS START
+	//----------------------------------------------------------------------------------------------------------------------
+
+	// unbind FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, 1);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glViewport(0,0,m_win.width,m_win.height);
+
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	// glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_testTexture);
+
+	shader->use("outputTestPass");
+	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
+
+	// MVP for screenspace effects
+	ngl::Mat4 SSMVP = ngl::Mat4(1.0f);
+	SSMVP.rotateX(90);
+	shader->setUniform("MVP", SSMVP);
 
 	prim->draw("ScreenAlignedQuad");
 }

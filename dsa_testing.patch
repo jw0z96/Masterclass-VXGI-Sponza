@@ -1,0 +1,187 @@
+diff --git a/src/NGLScene.cpp b/src/NGLScene.cpp
+index 7f11309..46f6dbe 100644
+--- a/src/NGLScene.cpp
++++ b/src/NGLScene.cpp
+@@ -56,8 +56,6 @@ void NGLScene::resizeGL( int _w, int _h )
+ 	m_isFBODirty = true;
+ }
+ 
+-
+-
+ void NGLScene::setLightPosition(int _i, ngl::Vec3 _pos)
+ {
+ 	m_lightPositions[_i] = _pos;
+@@ -132,101 +130,81 @@ void NGLScene::initFBO()
+ 
+ 	// SETUP THE G-BUFFER FBOS
+ 	// First delete the FBO if it has been created previously
+-	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE) {
+-		glDeleteTextures(1, &m_FBOWSPositionId);
+-		glDeleteTextures(1, &m_FBOWSNormalId);
+-		glDeleteTextures(1, &m_FBODepthId);
+-		glDeleteTextures(1, &m_FBOAlbedoId);
+-		glDeleteTextures(1, &m_FBOMetalRoughId);
+-		glDeleteFramebuffers(1, &m_gBufferFBOId);
+-	}
+-	glBindFramebuffer(GL_FRAMEBUFFER, 1);
+-
+-	auto setParams=[]()
++	// glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
++	// if (glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE) {
++	// 	glDeleteTextures(1, &m_FBOWSPositionId);
++	// 	glDeleteTextures(1, &m_FBOWSNormalId);
++	// 	glDeleteTextures(1, &m_FBODepthId);
++	// 	glDeleteTextures(1, &m_FBOAlbedoId);
++	// 	glDeleteTextures(1, &m_FBOMetalRoughId);
++	// 	glDeleteFramebuffers(1, &m_gBufferFBOId);
++	// }
++	// glBindFramebuffer(GL_FRAMEBUFFER, 1);
++
++
++	auto setParams=[](GLuint id)
+ 	{
+-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
++		glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++		glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
++		glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_REPEAT);
++		glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_REPEAT);
+ 	};
+ 
+ 	// Generate a texture to write the Position to
+-	glGenTextures(1, &m_FBOWSPositionId);
+-	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
+-	glTexImage2D(GL_TEXTURE_2D,
+-				0,
+-				GL_RGB16F,
+-				m_win.width,
+-				m_win.height,
+-				0,
+-				GL_RGB,
+-				GL_FLOAT,
+-				NULL);
+-	setParams();
+-	glBindTexture(GL_TEXTURE_2D, 0);
++	std::vector<GLfloat> emptyDataRGB(m_win.width * m_win.height * 3, 0);
++	glCreateTextures(GL_TEXTURE_2D, 1, &m_FBOWSPositionId);
++	setParams(m_FBOWSPositionId);
++	glTextureStorage2D(m_FBOWSPositionId, 1, GL_RGB16F, m_win.width, m_win.height);
++	glTextureSubImage2D(m_FBOWSPositionId, 0, 0, 0, m_win.width, m_win.height, GL_RGB, GL_FLOAT, &emptyDataRGB[0]);
++
+ 
+ 	// Generate a texture to write the Normals to
+-	glGenTextures(1, &m_FBOWSNormalId);
+-	glBindTexture(GL_TEXTURE_2D, m_FBOWSNormalId);
+-	glTexImage2D(GL_TEXTURE_2D,
+-				0,
+-				GL_RGB16F,
+-				m_win.width,
+-				m_win.height,
+-				0,
+-				GL_RGB,
+-				GL_FLOAT,
+-				NULL);
+-	setParams();
+-	glBindTexture(GL_TEXTURE_2D, 0);
++	glCreateTextures(GL_TEXTURE_2D, 1, &m_FBOWSNormalId);
++	setParams(m_FBOWSNormalId);
++	glTextureStorage2D(m_FBOWSNormalId, 1, GL_RGB16F, m_win.width, m_win.height);
++	glTextureSubImage2D(m_FBOWSNormalId, 0, 0, 0, m_win.width, m_win.height, GL_RGB, GL_FLOAT, &emptyDataRGB[0]);
+ 
+ 	// The depth buffer is rendered to a texture buffer too,
+-	glGenTextures(1, &m_FBODepthId);
+-	glBindTexture(GL_TEXTURE_2D, m_FBODepthId);
+-	glTexImage2D(GL_TEXTURE_2D,
+-				0,
+-				GL_DEPTH_COMPONENT,
+-				m_win.width,
+-				m_win.height,
+-				0,
+-				GL_DEPTH_COMPONENT,
+-				GL_UNSIGNED_BYTE,
+-				NULL);
+-	setParams();
+-	glBindTexture(GL_TEXTURE_2D, 0);
++	std::vector<GLubyte> emptyDataDepth(m_win.width * m_win.height * 3, 0);
++	glCreateTextures(GL_TEXTURE_2D, 1, &m_FBODepthId);
++	setParams(m_FBODepthId);
++	glTextureStorage2D(m_FBODepthId, 1, GL_DEPTH_COMPONENT, m_win.width, m_win.height);
++	glTextureSubImage2D(m_FBODepthId, 0, 0, 0, m_win.width, m_win.height, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, &emptyDataDepth[0]);
+ 
+ 	// Generate a texture to write the Albedo to
+-	glGenTextures(1, &m_FBOAlbedoId);
+-	glBindTexture(GL_TEXTURE_2D, m_FBOAlbedoId);
+-	glTexImage2D(GL_TEXTURE_2D,
+-				0,
+-				GL_RGB,
+-				m_win.width,
+-				m_win.height,
+-				0,
+-				GL_RGB,
+-				GL_FLOAT,
+-				NULL);
+-	setParams();
+-	glBindTexture(GL_TEXTURE_2D, 0);
++	glCreateTextures(GL_TEXTURE_2D, 1, &m_FBOAlbedoId);
++	setParams(m_FBOAlbedoId);
++	glTextureStorage2D(m_FBOAlbedoId, 1, GL_RGB, m_win.width, m_win.height);
++	glTextureSubImage2D(m_FBOAlbedoId, 0, 0, 0, m_win.width, m_win.height, GL_RGB, GL_FLOAT, &emptyDataRGB[0]);
+ 
+ 	// Generate a texture to write the Metallness and Roughness to
+-	glGenTextures(1, &m_FBOMetalRoughId);
+-	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
+-	glTexImage2D(GL_TEXTURE_2D,
+-				0,
+-				GL_RG,
+-				m_win.width,
+-				m_win.height,
+-				0,
+-				GL_RG,
+-				GL_FLOAT,
+-				NULL);
+-	setParams();
+-	glBindTexture(GL_TEXTURE_2D, 0);
+-
+-	// Create the frame buffer
++	std::vector<GLfloat> emptyDataRG(m_win.width * m_win.height * 3, 0);
++	glCreateTextures(GL_TEXTURE_2D, 1, &m_FBOMetalRoughId);
++	setParams(m_FBOMetalRoughId);
++	glTextureStorage2D(m_FBOMetalRoughId, 1, GL_RG, m_win.width, m_win.height);
++	glTextureSubImage2D(m_FBOMetalRoughId, 0, 0, 0, m_win.width, m_win.height, GL_RG, GL_FLOAT, &emptyDataRG[0]);
++
++	glCreateFramebuffers(1, &m_gBufferFBOId);
++
++	glNamedFramebufferTexture(m_gBufferFBOId, GL_COLOR_ATTACHMENT0, m_FBOWSPositionId, 0);
++	glNamedFramebufferTexture(m_gBufferFBOId, GL_COLOR_ATTACHMENT1, m_FBOWSNormalId, 0);
++	glNamedFramebufferTexture(m_gBufferFBOId, GL_COLOR_ATTACHMENT2, m_FBOAlbedoId, 0);
++	glNamedFramebufferTexture(m_gBufferFBOId, GL_COLOR_ATTACHMENT3, m_FBOMetalRoughId, 0);
++	glNamedFramebufferTexture(m_gBufferFBOId, GL_DEPTH_ATTACHMENT, m_FBODepthId, 0);
++
++	// check OpenGL error
++	GLenum err;
++	while ((err = glGetError()) != GL_NO_ERROR)
++	{
++		std::cout <<"OpenGL error: "<<err<<"\n";
++	}
++
++	if(glCheckNamedFramebufferStatus(m_gBufferFBOId, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
++		std::cout<<"framebuffer error\n";
++
++	std::cout<<"BOOM\n";
++
++	/*// Create the frame buffer
+ 	glGenFramebuffers(1, &m_gBufferFBOId);
+ 	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+ 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOWSPositionId, 0);
+@@ -240,7 +218,7 @@ void NGLScene::initFBO()
+ 	glDrawBuffers(4, drawBufs);
+ 
+ 	// Check it is ready to rock and roll
+-	CheckFrameBuffer();
++	CheckFrameBuffer();*/
+ 
+ 	// Unbind the framebuffer to revert to default render pipeline
+ 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
