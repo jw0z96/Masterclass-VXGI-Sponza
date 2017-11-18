@@ -92,7 +92,7 @@ public:
         lightPositionX->setDecimals(2);
         lightPositionX->setMinimum(-10000);
         lightPositionX->setMaximum(10000);
-        lightPositionX->setSingleStep(20);
+        lightPositionX->setSingleStep(1);
         lightPositionX->setValue(1000);
 
         gridLayout->addWidget(lightPositionX, 3, 2, 1, 1);
@@ -102,7 +102,7 @@ public:
         lightPositionY->setDecimals(2);
         lightPositionY->setMinimum(-10000);
         lightPositionY->setMaximum(10000);
-        lightPositionY->setSingleStep(20);
+        lightPositionY->setSingleStep(1);
         lightPositionY->setValue(200);
 
         gridLayout->addWidget(lightPositionY, 4, 2, 1, 1);
@@ -112,7 +112,7 @@ public:
         lightPositionZ->setDecimals(2);
         lightPositionZ->setMinimum(-10000);
         lightPositionZ->setMaximum(10000);
-        lightPositionZ->setSingleStep(20);
+        lightPositionZ->setSingleStep(1);
 
         gridLayout->addWidget(lightPositionZ, 5, 2, 1, 1);
 

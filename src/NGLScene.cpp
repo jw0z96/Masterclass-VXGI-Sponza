@@ -15,6 +15,29 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+unsigned int gen3DTexture(int dim)
+{
+    unsigned int* data = new unsigned int[4*dim*dim*dim];
+    memset(data, 0, sizeof(unsigned int)*4*dim*dim*dim);
+
+    GLuint texId;
+    glGenTextures(1, &texId );
+    glBindTexture(GL_TEXTURE_3D, texId);
+    //glActiveTexture(GL_TEXTURE0 );
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA8, dim, dim, dim, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+    glBindTexture(GL_TEXTURE_3D, 0);
+    GLenum err = glGetError();
+    std::cout<<glewGetErrorString(err)<<" "<<err<<std::endl;
+    delete [] data;
+    return texId;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void checkGLerror()
 {
 	// check OpenGL error
@@ -68,8 +91,6 @@ void NGLScene::resizeGL( int _w, int _h )
 	m_isFBODirty = true;
 }
 
-
-
 void NGLScene::setLightPosition(int _i, ngl::Vec3 _pos)
 {
 	m_lightPositions[_i] = _pos;
@@ -84,14 +105,14 @@ void NGLScene::initializeGL()
 	ngl::ShaderLib *shader=ngl::ShaderLib::instance();
 
 	// create the voxelization shader program
-	// shader->loadShader("voxelizationShader",
-	// 	"shaders/voxelize_vert.glsl",
-	// 	"shaders/voxelize_frag.glsl",
-	// 	"shaders/voxelize_geo.glsl");
-
 	shader->loadShader("voxelizationShader",
 		"shaders/voxelize_vert.glsl",
-		"shaders/voxelize_frag.glsl");
+		"shaders/voxelize_frag.glsl",
+		"shaders/voxelize_geo.glsl");
+
+	// shader->loadShader("voxelizationShader",
+	// 	"shaders/voxelize_vert.glsl",
+	// 	"shaders/voxelize_frag.glsl");
 
 	shader->setUniform("albedoMap", 0);
 	shader->setUniform("normalMap", 1);
@@ -120,6 +141,7 @@ void NGLScene::initializeGL()
 	shader->setUniform("depthTex", 2);
 	shader->setUniform("albedoTex", 3);
 	shader->setUniform("metalRoughTex", 4);
+	shader->setUniform("voxelTex", 5);
 
 	// create the output shader program
 	shader->loadShader("outputTestPass",
@@ -132,11 +154,11 @@ void NGLScene::initializeGL()
 	// Grey Background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// enable depth testing for drawing
-	// glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	// enable multisampling for smoother drawing
 	glEnable(GL_MULTISAMPLE);
 
-	// glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
 	// glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 	// glDisable(GL_BLEND);
 
@@ -160,7 +182,9 @@ void NGLScene::initializeGL()
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
 
-	m_voxelDim = 512;
+	m_voxelDim = 128;
+	m_voxel3DTex = gen3DTexture(m_voxelDim);
+	// initTestFBO();
 }
 
 void NGLScene::initFBO()
@@ -438,10 +462,10 @@ void NGLScene::paintGL()
 	//----------------------------------------------------------------------------------------------------------------------
 	/// VOXELIZE SCENE
 	//----------------------------------------------------------------------------------------------------------------------
-	initTestFBO();
+
 	// unbind FBO (for testing)
-	// glBindFramebuffer(GL_FRAMEBUFFER, 1);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, 1);
+	// glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, m_voxelDim, m_voxelDim);
 	// Disable some fixed-function opeartions
@@ -455,8 +479,9 @@ void NGLScene::paintGL()
 	// Orthograhic projection
 	ngl::Mat4 Ortho;
 	// Ortho = ngl::ortho(-1000.0, 1000.0, -1000.0, 1000.0, 10.0f, 1000.0f);
-	Ortho = ngl::ortho(-2000.0, 2000.0, -2000.0, 2000.0, -2000.0f, 2000.0f);
-	ngl::Vec3 objectCenter = ngl::Vec3(-100.0, 200.0, 0.0);
+	float orthoWidth = 1400.0;
+	Ortho = ngl::ortho(-orthoWidth, orthoWidth, -orthoWidth, orthoWidth, -orthoWidth, orthoWidth);
+	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0); //ngl::Vec3(-100.0, 200.0, 0.0);
 
 	// Create an modelview-orthographic projection matrix see fr\om +X axis
 	ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(1, 0, 0), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
@@ -467,10 +492,15 @@ void NGLScene::paintGL()
 	// Create an modelview-orthographic projection matrix see from +Z axis
 	ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 1), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
 
-	// shader->setUniform("mvpX", mvpX);
-	// shader->setUniform("mvpY", mvpY);
-	// shader->setUniform("mvpZ", mvpZ);
-	shader->setUniform("orthoMVP", mvpZ);
+	shader->setUniform("mvpX", mvpX);
+	shader->setUniform("mvpY", mvpY);
+	shader->setUniform("mvpZ", mvpZ);
+	shader->setUniform("voxelDim", m_voxelDim);
+	shader->setUniform("orthoWidth", orthoWidth);
+	shader->setUniform("sceneCenter", objectCenter);
+
+	glBindTexture(GL_TEXTURE_3D, m_voxel3DTex);
+	glBindImageTexture(0, m_voxel3DTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
 	// draw our scene geometry
 	drawScene();
@@ -478,7 +508,7 @@ void NGLScene::paintGL()
 	//----------------------------------------------------------------------------------------------------------------------
 	/// G BUFFER PASS START
 	//----------------------------------------------------------------------------------------------------------------------
-	/*
+
 	// Check if the FBO needs to be recreated. This occurs after a resize.
 	if (m_isFBODirty)
 	{
@@ -494,7 +524,7 @@ void NGLScene::paintGL()
 	// enable depth testing for drawing
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	// glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	shader->use("gBufferPass");
 
@@ -524,11 +554,11 @@ void NGLScene::paintGL()
 
 	// draw our scene geometry
 	drawScene();
-	*/
+
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT PASS START
 	//----------------------------------------------------------------------------------------------------------------------
-	/*
+
 	// unbind FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -546,6 +576,9 @@ void NGLScene::paintGL()
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
 
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_3D, m_voxel3DTex);
+
 	shader->use("outputPass");
 	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
 
@@ -559,6 +592,11 @@ void NGLScene::paintGL()
 	// debug mode bool
 	shader->setUniform("gBufferView", m_gBufferView);
 
+	shader->setUniform("voxelDim", m_voxelDim);
+	shader->setUniform("orthoWidth", orthoWidth);
+	shader->setUniform("sceneCenter", objectCenter);
+	shader->setUniform("debugPos", m_lightPositions[0]);
+
 	for(size_t i=0; i<m_lightPositions.size(); ++i)
 	{
 		shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),m_lightPositions[i]);
@@ -566,11 +604,11 @@ void NGLScene::paintGL()
 	}
 
 	prim->draw("ScreenAlignedQuad");
-	*/
+
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT TESTING PASS START
 	//----------------------------------------------------------------------------------------------------------------------
-
+	/*
 	// unbind FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -592,6 +630,7 @@ void NGLScene::paintGL()
 	shader->setUniform("MVP", SSMVP);
 
 	prim->draw("ScreenAlignedQuad");
+	*/
 }
 
 //----------------------------------------------------------------------------------------------------------------------

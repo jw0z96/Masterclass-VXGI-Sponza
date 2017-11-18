@@ -5,6 +5,12 @@ uniform sampler2D WSNormalTex;
 uniform sampler2D depthTex;
 uniform sampler2D albedoTex;
 uniform sampler2D metalRoughTex;
+uniform sampler3D voxelTex;
+
+uniform int voxelDim;
+uniform float orthoWidth;
+uniform vec3 sceneCenter;
+uniform vec3 debugPos;
 
 // We pass the window size to the shader.
 uniform vec2 windowSize;
@@ -82,7 +88,22 @@ void main()
 
 	vec3 viewVector = normalize(camPos - WSPos);
 
-	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
+	vec3 textureIndex = WSPos;
+	textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
+	textureIndex += (debugPos * 10); // (-134.00, 80.00, -133)
+	textureIndex /= (orthoWidth * 2);
+	// fragColor = vec4(WSPos, 1.0);
+
+	if(gBufferView)
+	{
+		fragColor = vec4(albedo, 1.0);
+	}
+	else
+	{
+		fragColor = vec4(texture(voxelTex, textureIndex).rgb, 1.0);
+	}
+
+/*	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
 	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
 	vec3 F0 = vec3(0.04);
 	F0 = mix(F0, albedo, metalness);
@@ -164,5 +185,5 @@ void main()
 	else
 	{
 		fragColor = vec4(fragShaded, 1.0);
-	}
+	}*/
 }

@@ -7,20 +7,18 @@ layout (location = 2) in vec3 inNormal;
 /// @brief the in uv
 layout (location = 1) in vec2 inUV;
 
-out vec2 TexCoords;
-out vec3 WorldPos;
-out vec3 Normal;
-
-uniform mat4 orthoMVP;
+out vec2 v_TexCoords;
+out vec3 v_Pos;
+out vec3 v_Normal;
 
 void main()
 {
 	// pass texture coordinate to geometry shader
-	TexCoords = inUV;
+	v_TexCoords = inUV;
 	// pass worldspace position to geometry shader
-	WorldPos = inVert;
+	v_Pos = inVert;
 	// pass worldspace normal to geometry shader
-	Normal = inNormal;
+	v_Normal = inNormal;
 	// transform input vertex
-	gl_Position = orthoMVP * vec4(inVert, 1.0);
+	gl_Position = vec4(inVert, 1.0);
 }
