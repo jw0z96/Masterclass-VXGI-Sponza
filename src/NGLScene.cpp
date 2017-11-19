@@ -26,9 +26,9 @@ unsigned int gen3DTexture(int dim)
     //glActiveTexture(GL_TEXTURE0 );
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA8, dim, dim, dim, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA8, dim, dim, dim, 0, GL_RGBA, GL_UNSIGNED_INT, data );
     glBindTexture(GL_TEXTURE_3D, 0);
     GLenum err = glGetError();
     std::cout<<glewGetErrorString(err)<<" "<<err<<std::endl;
@@ -182,7 +182,7 @@ void NGLScene::initializeGL()
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
 
-	m_voxelDim = 128;
+	m_voxelDim = 256;
 	m_voxel3DTex = gen3DTexture(m_voxelDim);
 	// initTestFBO();
 }
@@ -463,47 +463,46 @@ void NGLScene::paintGL()
 	/// VOXELIZE SCENE
 	//----------------------------------------------------------------------------------------------------------------------
 
-	// unbind FBO (for testing)
-	glBindFramebuffer(GL_FRAMEBUFFER, 1);
-	// glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, m_voxelDim, m_voxelDim);
-	// Disable some fixed-function opeartions
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	// glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-	shader->use("voxelizationShader");
-	// shader->use("gBufferPass");
-
-	// Orthograhic projection
-	ngl::Mat4 Ortho;
-	// Ortho = ngl::ortho(-1000.0, 1000.0, -1000.0, 1000.0, 10.0f, 1000.0f);
 	float orthoWidth = 1400.0;
-	Ortho = ngl::ortho(-orthoWidth, orthoWidth, -orthoWidth, orthoWidth, -orthoWidth, orthoWidth);
 	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0); //ngl::Vec3(-100.0, 200.0, 0.0);
 
-	// Create an modelview-orthographic projection matrix see fr\om +X axis
-	ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(1, 0, 0), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
+	if (!m_isVoxelTexConstructed)
+	{
+		// unbind FBO (for testing)
+		glBindFramebuffer(GL_FRAMEBUFFER, 1);
+		// glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, m_voxelDim, m_voxelDim);
+		// Disable some fixed-function opeartions
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+		// glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		shader->use("voxelizationShader");
 
-	// Create an modelview-orthographic projection matrix see from +Y axis
-	ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 1, 0), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 0, -1));
+		// Orthograhic projection
+		ngl::Mat4 Ortho;
+		Ortho = ngl::ortho(-orthoWidth, orthoWidth, -orthoWidth, orthoWidth, -orthoWidth, orthoWidth);
+		// Create an modelview-orthographic projection matrix see fr\om +X axis
+		ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(1, 0, 0), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
+		// Create an modelview-orthographic projection matrix see from +Y axis
+		ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 1, 0), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 0, -1));
+		// Create an modelview-orthographic projection matrix see from +Z axis
+		ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 1), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
+		shader->setUniform("mvpX", mvpX);
+		shader->setUniform("mvpY", mvpY);
+		shader->setUniform("mvpZ", mvpZ);
+		shader->setUniform("voxelDim", m_voxelDim);
+		shader->setUniform("orthoWidth", orthoWidth);
+		shader->setUniform("sceneCenter", objectCenter);
 
-	// Create an modelview-orthographic projection matrix see from +Z axis
-	ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 1), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
+		glBindTexture(GL_TEXTURE_3D, m_voxel3DTex);
+		glBindImageTexture(0, m_voxel3DTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
-	shader->setUniform("mvpX", mvpX);
-	shader->setUniform("mvpY", mvpY);
-	shader->setUniform("mvpZ", mvpZ);
-	shader->setUniform("voxelDim", m_voxelDim);
-	shader->setUniform("orthoWidth", orthoWidth);
-	shader->setUniform("sceneCenter", objectCenter);
+		// draw our scene geometry
+		drawScene();
 
-	glBindTexture(GL_TEXTURE_3D, m_voxel3DTex);
-	glBindImageTexture(0, m_voxel3DTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
-	// draw our scene geometry
-	drawScene();
+		m_isVoxelTexConstructed = true;
+	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// G BUFFER PASS START

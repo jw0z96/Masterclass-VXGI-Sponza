@@ -90,9 +90,9 @@ void main()
 
 	vec3 textureIndex = WSPos;
 	textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
-	textureIndex += (debugPos * 10); // (-134.00, 80.00, -133)
+	// textureIndex += (debugPos * 10); // (-134.00, 80.00, -133)
+	textureIndex += vec3(orthoWidth) - sceneCenter; // + (debugPos);
 	textureIndex /= (orthoWidth * 2);
-	// fragColor = vec4(WSPos, 1.0);
 
 	if(gBufferView)
 	{

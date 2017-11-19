@@ -76,7 +76,7 @@ void main()
 	// f_AABB =AABB;
 
 	// //find 3 triangle edge plane
- //    vec3 e0 = vec3( newVertPos[1].xy - newVertPos[0].xy, 0 );
+	// vec3 e0 = vec3( newVertPos[1].xy - newVertPos[0].xy, 0 );
 	// vec3 e1 = vec3( newVertPos[2].xy - newVertPos[1].xy, 0 );
 	// vec3 e2 = vec3( newVertPos[0].xy - newVertPos[2].xy, 0 );
 	// vec3 n0 = cross( e0, vec3(0,0,1) );
