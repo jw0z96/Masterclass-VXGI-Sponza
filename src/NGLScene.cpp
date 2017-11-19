@@ -1,6 +1,3 @@
-#include <QMouseEvent>
-#include <QApplication>
-
 #include "NGLScene.h"
 
 #include <ngl/Camera.h>
@@ -8,45 +5,9 @@
 #include <ngl/Transformation.h>
 #include <ngl/Material.h>
 #include <ngl/NGLInit.h>
-#include <ngl/VAOPrimitives.h>
 #include <ngl/ShaderLib.h>
 #include <ngl/VAOFactory.h>
 #include "VAO.h"
-
-//----------------------------------------------------------------------------------------------------------------------
-
-unsigned int gen3DTexture(int dim)
-{
-    unsigned int* data = new unsigned int[4*dim*dim*dim];
-    memset(data, 0, sizeof(unsigned int)*4*dim*dim*dim);
-
-    GLuint texId;
-    glGenTextures(1, &texId );
-    glBindTexture(GL_TEXTURE_3D, texId);
-    //glActiveTexture(GL_TEXTURE0 );
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA8, dim, dim, dim, 0, GL_RGBA, GL_UNSIGNED_INT, data );
-    glBindTexture(GL_TEXTURE_3D, 0);
-    GLenum err = glGetError();
-    std::cout<<glewGetErrorString(err)<<" "<<err<<std::endl;
-    delete [] data;
-    return texId;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void checkGLerror()
-{
-	// check OpenGL error
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		std::cout <<"OpenGL error: "<<err<<"\n";
-	}
-}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -60,42 +21,39 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	ngl::VAOFactory::registerVAOCreator("sponzaVAO",VAO::create);
 	m_timer.start();
 
-		m_lightPositions = {{
+	m_lightPositions = {
 		ngl::Vec3(1000.0f,200.0f,0.0f),
 		ngl::Vec3(400.0f,1400.0f,0.0f),
 		ngl::Vec3(-400.0f,1400.0f,0.0f),
 		ngl::Vec3(-1000.0f,200.0f,0.0f)
-	}};
+	};
 
 	float intensity=55000.0f;
 
-	m_lightColors = {{
+	m_lightColors = {
 		ngl::Vec3(intensity, intensity, intensity),
 		ngl::Vec3(intensity*10, intensity*10, intensity*10),
 		ngl::Vec3(intensity*10, intensity*10, intensity*10),
 		ngl::Vec3(intensity, intensity, intensity)
-	}};
+	};
+
+	ngl::Vec3 from(0,40,-140);
+	ngl::Vec3 to(0,40,0);
+	ngl::Vec3 up(0,1,0);
+	m_cam.set(from,to,up);
+	// set the shape using FOV 50, Aspect Ratio based on Width and Height, near & far clip
+	m_cam.setProjection(50,(float)m_win.width/m_win.height,1.0f,800.0f);
+
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 NGLScene::~NGLScene()
 {
 	std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
 }
 
-void NGLScene::resizeGL( int _w, int _h )
-{
-	m_cam.setProjection( 45.0f, static_cast<float>( _w ) / _h, 0.5f, 3500.0f );
-	m_win.width  = static_cast<int>( _w * devicePixelRatio() );
-	m_win.height = static_cast<int>( _h * devicePixelRatio() );
-	m_isFBODirty = true;
-}
-
-void NGLScene::setLightPosition(int _i, ngl::Vec3 _pos)
-{
-	m_lightPositions[_i] = _pos;
-	update();
-}
+//----------------------------------------------------------------------------------------------------------------------
 
 void NGLScene::initializeGL()
 {
@@ -109,10 +67,6 @@ void NGLScene::initializeGL()
 		"shaders/voxelize_vert.glsl",
 		"shaders/voxelize_frag.glsl",
 		"shaders/voxelize_geo.glsl");
-
-	// shader->loadShader("voxelizationShader",
-	// 	"shaders/voxelize_vert.glsl",
-	// 	"shaders/voxelize_frag.glsl");
 
 	shader->setUniform("albedoMap", 0);
 	shader->setUniform("normalMap", 1);
@@ -157,296 +111,31 @@ void NGLScene::initializeGL()
 	glEnable(GL_DEPTH_TEST);
 	// enable multisampling for smoother drawing
 	glEnable(GL_MULTISAMPLE);
-
+	// set the blending mode??
 	glEnable(GL_BLEND);
 	// glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 	// glDisable(GL_BLEND);
 
-	ngl::Vec3 from(0,40,-140);
-	ngl::Vec3 to(0,40,0);
-	ngl::Vec3 up(0,1,0);
-	m_cam.set(from,to,up);
-	// set the shape using FOV 45 Aspect Ratio based on Width and Height
-	// The final two are near and far clipping planes of 0.5 and 10
-	m_cam.setProjection(50,(float)m_win.width/m_win.height,1.0f,800.0f);
+	// generate screen aligned quad
+	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
+	prim->createTrianglePlane("ScreenAlignedQuad", 2, 2, 1, 1, ngl::Vec3(0,1,0));
 
 	// load mtl file
 	m_mtl.reset(new Mtl("models/sponza.mtl"));
 	// load obj file
 	m_model.reset(new GroupedObj("models/sponza.obj"));
 
-	// generate screen aligned quad
-	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
-	prim->createTrianglePlane("ScreenAlignedQuad", 2, 2, 1, 1, ngl::Vec3(0,1,0));
+	// initialize voxel texture params
+	m_voxelDim = 256;
+	m_voxel3DTex = gen3DTexture(m_voxelDim);
 
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
 
-	m_voxelDim = 256;
-	m_voxel3DTex = gen3DTexture(m_voxelDim);
 	// initTestFBO();
 }
 
-void NGLScene::initFBO()
-{
-	std::cout<<"initFBO call\n";
-	// SETUP THE G-BUFFER FBOS
-	// First delete the FBO if it has been created previously
-	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE) {
-		glDeleteTextures(1, &m_FBOWSPositionId);
-		glDeleteTextures(1, &m_FBOWSNormalId);
-		glDeleteTextures(1, &m_FBODepthId);
-		glDeleteTextures(1, &m_FBOAlbedoId);
-		glDeleteTextures(1, &m_FBOMetalRoughId);
-		glDeleteFramebuffers(1, &m_gBufferFBOId);
-	}
-	// glBindFramebuffer(GL_FRAMEBUFFER, 1);
-	checkGLerror();
-
-	auto setParams=[]()
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	};
-
-	// Generate a texture to write the Position to
-	glGenTextures(1, &m_FBOWSPositionId);
-	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
-	glTexImage2D(GL_TEXTURE_2D,
-				0,
-				GL_RGB16F,
-				m_win.width,
-				m_win.height,
-				0,
-				GL_RGB,
-				GL_FLOAT,
-				NULL);
-	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Generate a texture to write the Normals to
-	glGenTextures(1, &m_FBOWSNormalId);
-	glBindTexture(GL_TEXTURE_2D, m_FBOWSNormalId);
-	glTexImage2D(GL_TEXTURE_2D,
-				0,
-				GL_RGB16F,
-				m_win.width,
-				m_win.height,
-				0,
-				GL_RGB,
-				GL_FLOAT,
-				NULL);
-	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// The depth buffer is rendered to a texture buffer too,
-	glGenTextures(1, &m_FBODepthId);
-	glBindTexture(GL_TEXTURE_2D, m_FBODepthId);
-	glTexImage2D(GL_TEXTURE_2D,
-				0,
-				GL_DEPTH_COMPONENT,
-				m_win.width,
-				m_win.height,
-				0,
-				GL_DEPTH_COMPONENT,
-				GL_UNSIGNED_BYTE,
-				NULL);
-	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Generate a texture to write the Albedo to
-	glGenTextures(1, &m_FBOAlbedoId);
-	glBindTexture(GL_TEXTURE_2D, m_FBOAlbedoId);
-	glTexImage2D(GL_TEXTURE_2D,
-				0,
-				GL_RGB,
-				m_win.width,
-				m_win.height,
-				0,
-				GL_RGB,
-				GL_FLOAT,
-				NULL);
-	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Generate a texture to write the Metallness and Roughness to
-	glGenTextures(1, &m_FBOMetalRoughId);
-	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
-	glTexImage2D(GL_TEXTURE_2D,
-				0,
-				GL_RG,
-				m_win.width,
-				m_win.height,
-				0,
-				GL_RG,
-				GL_FLOAT,
-				NULL);
-	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Create the frame buffer
-	glGenFramebuffers(1, &m_gBufferFBOId);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOWSPositionId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_FBOWSNormalId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_FBOAlbedoId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_FBOMetalRoughId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_FBODepthId, 0);
-
-	// Set the fragment shader output targets DEPTH_ATTACHMENT is done automatically apparently
-	GLenum drawBufs[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
-	glDrawBuffers(4, drawBufs);
-
-	// Check it is ready to rock and roll
-	CheckFrameBuffer();
-	// Unbind the framebuffer to revert to default render pipeline
-	glBindFramebuffer(GL_FRAMEBUFFER, 1);
-}
-
-void NGLScene::initTestFBO()
-{
-	std::cout<<"initTestFBO call\n";
-	// SETUP THE TEST FBOS
-	// First delete the FBO if it has been created previously
-	glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE) {
-		glDeleteTextures(1, &m_testTexture);
-		glDeleteFramebuffers(1, &m_testFBO);
-	}
-	// glBindFramebuffer(GL_FRAMEBUFFER, 1);
-	checkGLerror();
-
-	auto setParams=[]()
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	};
-
-	// Generate a texture to write the Position to
-	glGenTextures(1, &m_testTexture);
-	glBindTexture(GL_TEXTURE_2D, m_testTexture);
-	glTexImage2D(GL_TEXTURE_2D,
-				0,
-				GL_RGB16F,
-				m_voxelDim,
-				m_voxelDim,
-				0,
-				GL_RGB,
-				GL_FLOAT,
-				NULL);
-	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Create the frame buffer
-	glGenFramebuffers(1, &m_testFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_testTexture, 0);
-
-	// Set the fragment shader output targets DEPTH_ATTACHMENT is done automatically apparently
-	GLenum drawBufs[] = {GL_COLOR_ATTACHMENT0};
-	glDrawBuffers(1, drawBufs);
-
-	// Check it is ready to rock and roll
-	CheckFrameBuffer();
-	// Unbind the framebuffer to revert to default render pipeline
-	glBindFramebuffer(GL_FRAMEBUFFER, 1);
-}
-
-void NGLScene::loadMatricesToShader()
-{
-	ngl::ShaderLib* shader = ngl::ShaderLib::instance();
-	ngl::Mat4 MV;
-	ngl::Mat4 MVP;
-	ngl::Mat3 normalMatrix;
-	ngl::Mat4 M;
-	M            = m_transform.getMatrix() * m_mouseGlobalTX ;
-	MV           = m_cam.getView() * M;
-	MVP          = m_cam.getVP() * M;
-
-	normalMatrix = MV;
-	normalMatrix.inverse().transpose();
-	shader->setUniform( "MVP", MVP );
-	shader->setUniform( "normalMatrix", normalMatrix );
-	shader->setUniform( "M", M );
-	shader->setUniform("camPos",m_cam.getEye());
-}
-
-void NGLScene::drawScene()
-{
-	// get singleton instances
-	ngl::ShaderLib* shader = ngl::ShaderLib::instance();
-	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
-
-	auto end=m_model->numMeshes();
-	std::string matName;
-
-	if(m_drawGeo == true)
-	{
-		for(unsigned int i=0; i<end; ++i)
-		{
-			//m_mtl->use(m_model->getMaterial(i));
-			mtlItem *currMaterial=m_mtl->find(m_model->getMaterial(i));
-			if(currMaterial == 0) continue;
-			// see if we need to switch the material or not this saves on OpenGL calls and
-			// should speed things up
-			if(matName !=m_model->getMaterial(i))
-			{
-				auto setParams=[]()
-				{
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-
-				};
-				// bind albedo texture to texture unit 0
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, currMaterial->map_KdId);
-				setParams();
-				// bind normal texture to texture unit 1
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, currMaterial->map_bumpId);
-				setParams();
-				// bind metallic texture to texture unit 2
-				glActiveTexture(GL_TEXTURE2);
-				glBindTexture(GL_TEXTURE_2D, currMaterial->map_KaId);
-				setParams();
-				// bind roughness texture to texture unit 3
-				glActiveTexture(GL_TEXTURE3);
-				glBindTexture(GL_TEXTURE_2D, currMaterial->map_NsId);
-				setParams();
-				loadMatricesToShader();
-			}
-			m_model->draw(i);
-		}
-	}
-
-	// // Draw Lights
-	// if(m_drawLights)
-	// {
-	// 	( *shader )[ ngl::nglColourShader ]->use();
-	// 	ngl::Mat4 MVP;
-	// 	ngl::Transformation tx;
-	// 	tx.setScale(10.0, 10.0, 10.0); //make the light bigger
-	// 	shader->setUniform("Colour",1.0f,1.0f,1.0f,1.0f);
-
-	// 	for(size_t i=0; i<m_lightPositions.size(); ++i)
-	// 	{
-	// 		if(m_lightOn[i]==true)
-	// 		{
-	// 			tx.setPosition(m_lightPositions[i]);
-	// 			MVP=m_cam.getVP()* m_mouseGlobalTX * tx.getMatrix() ;
-	// 			shader->setUniform("MVP",MVP);
-	// 			prim->draw("cube");
-	// 		}
-	// 	}
-	// }
-}
+//----------------------------------------------------------------------------------------------------------------------
 
 void NGLScene::paintGL()
 {
@@ -455,7 +144,7 @@ void NGLScene::paintGL()
 	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
 
 	float currentFrame = m_timer.elapsed()*0.001f;
-	std::cout<<"Current Frame "<<currentFrame<<'\n';
+	std::cout<<"FPS: "<<1.0f / m_deltaTime<<'\n';
 	m_deltaTime = currentFrame - m_lastFrame;
 	m_lastFrame = currentFrame;
 
@@ -463,8 +152,8 @@ void NGLScene::paintGL()
 	/// VOXELIZE SCENE
 	//----------------------------------------------------------------------------------------------------------------------
 
-	float orthoWidth = 1400.0;
-	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0); //ngl::Vec3(-100.0, 200.0, 0.0);
+	float orthoWidth = 2048.0;
+	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0); // gives a good fit for the voxel projections
 
 	if (!m_isVoxelTexConstructed)
 	{
@@ -476,18 +165,17 @@ void NGLScene::paintGL()
 		// Disable some fixed-function opeartions
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
-		// glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		shader->use("voxelizationShader");
-
 		// Orthograhic projection
 		ngl::Mat4 Ortho;
 		Ortho = ngl::ortho(-orthoWidth, orthoWidth, -orthoWidth, orthoWidth, -orthoWidth, orthoWidth);
 		// Create an modelview-orthographic projection matrix see fr\om +X axis
-		ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(1, 0, 0), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
+		ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(-1, 0, 0), ngl::Vec3(0, 1, 0));
 		// Create an modelview-orthographic projection matrix see from +Y axis
-		ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 1, 0), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 0, -1));
+		ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, -1, 0), ngl::Vec3(0, 0, -1));
 		// Create an modelview-orthographic projection matrix see from +Z axis
-		ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 1), objectCenter + ngl::Vec3(0, 0, 0), ngl::Vec3(0, 1, 0));
+		ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, 0, -1), ngl::Vec3(0, 1, 0));
 		shader->setUniform("mvpX", mvpX);
 		shader->setUniform("mvpY", mvpY);
 		shader->setUniform("mvpZ", mvpZ);
@@ -523,7 +211,7 @@ void NGLScene::paintGL()
 	// enable depth testing for drawing
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	// glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	shader->use("gBufferPass");
 
@@ -630,105 +318,4 @@ void NGLScene::paintGL()
 
 	prim->draw("ScreenAlignedQuad");
 	*/
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void NGLScene::keyPressEvent(QKeyEvent *_event)
-{
-	auto setLight=[&](std::string _num,size_t _index,bool _mode)
-	{
-		ngl::ShaderLib *shader= ngl::ShaderLib::instance();
-		shader->use("PBR");
-		if(_mode == true)
-		{
-			shader->setUniform(_num,m_lightColors[_index]);
-		}
-		else
-		{
-			ngl::Vec3 colour={0.0f,0.0f,0.0f};
-			shader->setUniform(_num,colour);
-
-		}
-
-	};
-
-	// add to our keypress set the values of any keys pressed
-	m_keysPressed += static_cast<Qt::Key>(_event->key());
-
-	// this method is called every time the main window recives a key event.
-	// we then switch on the key value and set the camera in the GLWindow
-	switch (_event->key())
-	{
-	// escape key to quite
-		case Qt::Key_Escape : QGuiApplication::exit(EXIT_SUCCESS); break;
-	// turn on wirframe rendering
-		case Qt::Key_W : glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); break;
-	// turn off wire frame
-		case Qt::Key_S : glPolygonMode(GL_FRONT_AND_BACK,GL_FILL); break;
-	// show full screen
-		case Qt::Key_F : showFullScreen(); break;
-	// show windowed
-		case Qt::Key_N : showNormal(); break;
-		case Qt::Key_L : m_drawLights^=true; break;
-		case Qt::Key_G : m_drawGeo^=true; break;
-		case Qt::Key_1 :
-		setLight("lightColors[0]",0,m_lightOn[0]^=true); break;
-		case Qt::Key_2 :
-		setLight("lightColors[1]",1,m_lightOn[1]^=true); break;
-		case Qt::Key_3 :
-		setLight("lightColors[2]",2,m_lightOn[2]^=true); break;
-		case Qt::Key_4 :
-		setLight("lightColors[3]",3,m_lightOn[3]^=true); break;
-
-		default : break;
-
-
-	}
-	// finally update the GLWindow and re-draw
-	//if (isExposed())
-	update();
-}
-
-void NGLScene::keyReleaseEvent( QKeyEvent *_event	)
-{
-	// remove from our key set any keys that have been released
-	m_keysPressed -= static_cast<Qt::Key>(_event->key());
-}
-
-/**
- * @brief Scene::CheckFrameBuffer Outputs result of test on the Framebuffer as nice string.
- * @return Nothing!
- */
-void NGLScene::CheckFrameBuffer() noexcept
-{
-	switch(glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
-	case GL_FRAMEBUFFER_UNDEFINED:
-		std::cerr<<"GL_FRAMEBUFFER_UNDEFINED: returned if target is the default framebuffer, but the default framebuffer does not exist.\n";
-		break;
-	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: returned if any of the framebuffer attachment points are framebuffer incomplete.\n";
-		break;
-	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: returned if the framebuffer does not have at least one image attached to it.\n";
-		break;
-	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: returned if the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for any color attachment point(s) named by GL_DRAWBUFFERi.\n";
-		break;
-	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: returned if GL_READ_BUFFER is not GL_NONE and the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for the color attachment point named by GL_READ_BUFFER.\n";
-		break;
-	case GL_FRAMEBUFFER_UNSUPPORTED:
-		std::cerr<<"GL_FRAMEBUFFER_UNSUPPORTED: returned if the combination of internal formats of the attached images violates an implementation-dependent set of restrictions. GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is also returned if the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not the same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not GL_TRUE for all attached textures.\n";
-		break;
-	case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-		std::cerr<<"GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: returned if any framebuffer attachment is layered, and any populated attachment is not layered, or if all populated color attachments are not from textures of the same target.\n";
-		break;
-	case GL_FRAMEBUFFER_COMPLETE:
-		std::cerr<<"GL_FRAMEBUFFER_COMPLETE: returned if everything is groovy!\n";
-		break;
-	default:
-		std::cerr<<glCheckFramebufferStatus(GL_FRAMEBUFFER)<<": Undefined framebuffer return value: possible error elsewhere?\n";
-		break;
-	}
 }

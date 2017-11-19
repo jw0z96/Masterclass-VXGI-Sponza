@@ -90,20 +90,12 @@ void main()
 
 	vec3 textureIndex = WSPos;
 	textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
-	// textureIndex += (debugPos * 10); // (-134.00, 80.00, -133)
 	textureIndex += vec3(orthoWidth) - sceneCenter; // + (debugPos);
 	textureIndex /= (orthoWidth * 2);
 
-	if(gBufferView)
-	{
-		fragColor = vec4(albedo, 1.0);
-	}
-	else
-	{
-		fragColor = vec4(texture(voxelTex, textureIndex).rgb, 1.0);
-	}
+	vec4 voxelTexColour = vec4(texture(voxelTex, textureIndex).rgb, 1.0);
 
-/*	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
+	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
 	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
 	vec3 F0 = vec3(0.04);
 	F0 = mix(F0, albedo, metalness);
@@ -157,33 +149,33 @@ void main()
 	// gamma correct
 	// fragShaded = pow(fragShaded, vec3(1.0/2.2));
 
-	if(gBufferView)
-	{
-		if (texpos.x >= 0.5)
-		{
-			if (texpos.y >= 0.5)
-			{
-				fragColor = vec4(WSPos / 1000.0, 1.0);
-			}
-			else
-			{
-				fragColor = vec4(fragShaded, 1.0);
-			}
-		}
-		else
-		{
-			if (texpos.y >= 0.5)
-			{
-				fragColor = vec4(WSNormal, 1.0);
-			}
-			else
-			{
-				fragColor = vec4(metalness, roughness, 0.0, 1.0);
-			}
-		}
-	}
-	else
-	{
+	// if(gBufferView)
+	// {
+	// 	if (texpos.x >= 0.5)
+	// 	{
+	// 		if (texpos.y >= 0.5)
+	// 		{
+	// 			fragColor = vec4(WSPos / 1000.0, 1.0);
+	// 		}
+	// 		else
+	// 		{
+	// 			fragColor = voxelTexColour;
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		if (texpos.y >= 0.5)
+	// 		{
+	// 			fragColor = vec4(WSNormal, 1.0);
+	// 		}
+	// 		else
+	// 		{
+	// 			fragColor = vec4(metalness, roughness, 0.0, 1.0);
+	// 		}
+	// 	}
+	// }
+	// else
+	// {
 		fragColor = vec4(fragShaded, 1.0);
-	}*/
+	// }
 }

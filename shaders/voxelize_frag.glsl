@@ -13,12 +13,6 @@ uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 
-// // The output textures that make up our gBuffer
-// layout (location=0) out vec3 fragWSPosition;
-// layout (location=1) out vec3 fragWSNormal;
-// layout (location=2) out vec3 fragAlbedo;
-// layout (location=3) out vec2 fragMetalRough;
-
 uniform layout(binding = 0, rgba8) writeonly image3D u_voxelTex;
 // uniform layout(binding = 0, r32ui) coherent uimage3D u_voxelTex;
 
