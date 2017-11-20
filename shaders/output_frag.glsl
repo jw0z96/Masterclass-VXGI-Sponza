@@ -159,7 +159,7 @@ void main()
 	// 		}
 	// 		else
 	// 		{
-	// 			fragColor = voxelTexColour;
+				fragColor = voxelTexColour;
 	// 		}
 	// 	}
 	// 	else
@@ -176,6 +176,6 @@ void main()
 	// }
 	// else
 	// {
-		fragColor = vec4(fragShaded, 1.0);
+		// fragColor = vec4(fragShaded, 1.0);
 	// }
 }
