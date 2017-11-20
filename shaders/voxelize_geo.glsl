@@ -54,39 +54,42 @@ void main()
 
 	//---------------------------------------------------------------------------------
 
-	// //Next we enlarge the triangle to enable conservative rasterization
-	// vec4 AABB;
-	// vec2 hPixel = vec2( 1.0/voxelDim, 1.0/voxelDim );
-	// float pl = 1.4142135637309 / voxelDim ;
+	/*
+	//Next we enlarge the triangle to enable conservative rasterization
+	vec4 AABB;
+	vec2 hPixel = vec2( 1.0/voxelDim, 1.0/voxelDim );
+	float pl = 1.4142135637309 / voxelDim ;
 
-	// //calculate AABB of this triangle
-	// AABB.xy = newVertPos[0].xy;
-	// AABB.zw = newVertPos[0].xy;
+	//calculate AABB of this triangle
+	AABB.xy = newVertPos[0].xy;
+	AABB.zw = newVertPos[0].xy;
 
-	// AABB.xy = min( newVertPos[1].xy, AABB.xy );
-	// AABB.zw = max( newVertPos[1].xy, AABB.zw );
+	AABB.xy = min( newVertPos[1].xy, AABB.xy );
+	AABB.zw = max( newVertPos[1].xy, AABB.zw );
 
-	// AABB.xy = min( newVertPos[2].xy, AABB.xy );
-	// AABB.zw = max( newVertPos[2].xy, AABB.zw );
+	AABB.xy = min( newVertPos[2].xy, AABB.xy );
+	AABB.zw = max( newVertPos[2].xy, AABB.zw );
 
-	// //Enlarge half-pixel
-	// AABB.xy -= hPixel;
-	// AABB.zw += hPixel;
+	//Enlarge half-pixel
+	AABB.xy -= hPixel;
+	AABB.zw += hPixel;
 
-	// f_AABB =AABB;
+	f_AABB =AABB;
 
-	// //find 3 triangle edge plane
-	// vec3 e0 = vec3( newVertPos[1].xy - newVertPos[0].xy, 0 );
-	// vec3 e1 = vec3( newVertPos[2].xy - newVertPos[1].xy, 0 );
-	// vec3 e2 = vec3( newVertPos[0].xy - newVertPos[2].xy, 0 );
-	// vec3 n0 = cross( e0, vec3(0,0,1) );
-	// vec3 n1 = cross( e1, vec3(0,0,1) );
-	// vec3 n2 = cross( e2, vec3(0,0,1) );
+	// find 3 triangle edge plane
+	vec3 e0 = vec3( newVertPos[1].xy - newVertPos[0].xy, 0 );
+	vec3 e1 = vec3( newVertPos[2].xy - newVertPos[1].xy, 0 );
+	vec3 e2 = vec3( newVertPos[0].xy - newVertPos[2].xy, 0 );
+	vec3 n0 = cross( e0, vec3(0,0,1) );
+	vec3 n1 = cross( e1, vec3(0,0,1) );
+	vec3 n2 = cross( e2, vec3(0,0,1) );
 
 	// //dilate the triangle
-	// newVertPos[0].xy = newVertPos[0].xy + pl*( (e2.xy/dot(e2.xy,n0.xy)) + (e0.xy/dot(e0.xy,n2.xy)) );
-	// newVertPos[1].xy = newVertPos[1].xy + pl*( (e0.xy/dot(e0.xy,n1.xy)) + (e1.xy/dot(e1.xy,n0.xy)) );
-	// newVertPos[2].xy = newVertPos[2].xy + pl*( (e1.xy/dot(e1.xy,n2.xy)) + (e2.xy/dot(e2.xy,n1.xy)) );
+
+	newVertPos[0].xy = newVertPos[0].xy + pl*( (e2.xy/dot(e2.xy,n0.xy)) + (e0.xy/dot(e0.xy,n2.xy)) );
+	newVertPos[1].xy = newVertPos[1].xy + pl*( (e0.xy/dot(e0.xy,n1.xy)) + (e1.xy/dot(e1.xy,n0.xy)) );
+	newVertPos[2].xy = newVertPos[2].xy + pl*( (e1.xy/dot(e1.xy,n2.xy)) + (e2.xy/dot(e2.xy,n1.xy)) );
+	*/
 
 	//---------------------------------------------------------------------------------
 

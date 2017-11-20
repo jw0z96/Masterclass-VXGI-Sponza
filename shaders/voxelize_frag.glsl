@@ -5,7 +5,9 @@
 in vec2 f_TexCoords;
 in vec3 f_Pos;
 in vec3 f_Normal;
+
 flat in int f_axis; //indicate which axis the projection uses
+flat in vec4 f_AABB;
 
 // material parameters
 uniform sampler2D albedoMap;
@@ -13,8 +15,8 @@ uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 
-uniform layout(binding = 0, rgba8) writeonly image3D u_voxelTex;
-// uniform layout(binding = 0, r32ui) coherent uimage3D u_voxelTex;
+layout(binding = 0, r32ui) uniform volatile coherent uimage3D u_voxelAlbedoTex;
+layout(binding = 1, r32ui) uniform volatile coherent uimage3D u_voxelNormalTex;
 
 uniform int voxelDim;
 uniform float orthoWidth;
@@ -41,37 +43,18 @@ void imageAtomicRGBA8Avg(layout(r32ui) coherent volatile uimage3D imgUI, ivec3 c
 	{
 		prevStoredVal = curStoredVal;
 		vec4 rval = convRGBA8ToVec4(curStoredVal);
-		rval.xyz = (rval.xyz * rval .w); // Denormalize
+		rval.xyz = (rval.xyz * rval.w); // Denormalize
 		vec4 curValF = rval + val; // Add new value
-		curValF. xyz /=(curValF.w); // Renormalize
+		curValF.xyz /=(curValF.w); // Renormalize
 		newVal = convVec4ToRGBA8(curValF);
 	}
 }
 
-// ----------------------------------------------------------------------------
-// Easy trick to get tangent-normals to world-space to keep PBR code simplified.
-// Don't worry if you don't get what's going on; you generally want to do normal
-// mapping the usual way for performance anways; I do plan make a note of this
-// technique somewhere later in the normal mapping tutorial.
-vec3 getNormalFromMap()
-{
-	vec3 tangentNormal = texture(normalMap, f_TexCoords).xyz * 2.0 - 1.0;
-
-	vec3 Q1 = dFdx(f_Pos);
-	vec3 Q2 = dFdy(f_Pos);
-	vec2 st1 = dFdx(f_TexCoords);
-	vec2 st2 = dFdy(f_TexCoords);
-
-	vec3 N = normalize(f_Normal);
-	vec3 T = normalize(Q1*st2.t - Q2*st1.t);
-	vec3 B = -normalize(cross(N, T));
-	mat3 TBN = mat3(T, B, N);
-
-	return normalize(TBN * tangentNormal);
-}
-
 void main()
 {
+	// if( f_Pos.x < f_AABB.x || f_Pos.y < f_AABB.y || f_Pos.x > f_AABB.z || f_Pos.y > f_AABB.w )
+	// 	discard ;
+
 	if(texture(albedoMap, f_TexCoords).a==0)
 		discard;
 
@@ -81,7 +64,7 @@ void main()
 	float roughness = texture(roughnessMap, f_TexCoords).r;
 
 	// calculate normal-mapped world space normals
-	vec3 N = getNormalFromMap();
+	vec3 N = f_Normal;
 
 	vec3 temp = vec3(gl_FragCoord.x, gl_FragCoord.y, voxelDim * gl_FragCoord.z);
 	// temp -= sceneCenter;
@@ -103,18 +86,6 @@ void main()
 	else
 		texcoord = ivec3(temp);
 
-	imageStore(u_voxelTex, texcoord, vec4(albedo, 1.0));
-	// imageAtomicExchange(u_voxelTex, texcoord, convVec4ToRGBA8(vec4(albedo, 1.0)));
-	// imageAtomicRGBA8Avg(u_voxelTex, texcoord, vec4(albedo, 0.0));
-	// imageStore(u_voxelTex, ivec3(0, 0, 0), vec4(vec3(1.0, 0.0, 0.0), 1.0));
-	// imageStore(u_voxelTex, ivec3(-1000, -1000, -1000), vec4(vec3(0.0, 1.0, 0.0), 1.0));
-
-	// // world space position out
-	// fragWSPosition = f_Pos;
-	// // world space normal out
-	// fragWSNormal = N;
-	// // textured fragment albedo out
-	// fragAlbedo = albedo;
-	// // packed fragment metallic, roughness, ao textures
-	// fragMetalRough = vec2(metallic, roughness);
+	imageAtomicRGBA8Avg(u_voxelAlbedoTex, texcoord, vec4(albedo, 1.0));
+	imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(N, 1.0));
 }

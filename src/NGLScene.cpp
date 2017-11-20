@@ -95,7 +95,8 @@ void NGLScene::initializeGL()
 	shader->setUniform("depthTex", 2);
 	shader->setUniform("albedoTex", 3);
 	shader->setUniform("metalRoughTex", 4);
-	shader->setUniform("voxelTex", 5);
+	shader->setUniform("voxelAlbedoTex", 5);
+	shader->setUniform("voxelNormalTex", 6);
 
 	// create the output shader program
 	shader->loadShader("outputTestPass",
@@ -127,7 +128,8 @@ void NGLScene::initializeGL()
 
 	// initialize voxel texture params
 	m_voxelDim = 256;
-	m_voxel3DTex = gen3DTexture(m_voxelDim);
+	m_voxelAlbedoTex = gen3DTexture(m_voxelDim);
+	m_voxelNormalTex = gen3DTexture(m_voxelDim);
 
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
@@ -152,7 +154,7 @@ void NGLScene::paintGL()
 	/// VOXELIZE SCENE
 	//----------------------------------------------------------------------------------------------------------------------
 
-	float orthoWidth = 2048.0;
+	float orthoWidth = 1400.0;
 	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0); // gives a good fit for the voxel projections
 
 	if (!m_isVoxelTexConstructed)
@@ -183,8 +185,12 @@ void NGLScene::paintGL()
 		shader->setUniform("orthoWidth", orthoWidth);
 		shader->setUniform("sceneCenter", objectCenter);
 
-		glBindTexture(GL_TEXTURE_3D, m_voxel3DTex);
-		glBindImageTexture(0, m_voxel3DTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+		glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
+		glBindImageTexture(0, m_voxelAlbedoTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+		glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
+		glBindImageTexture(1, m_voxelNormalTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
 
 		// draw our scene geometry
 		drawScene();
@@ -264,7 +270,9 @@ void NGLScene::paintGL()
 	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
 
 	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_3D, m_voxel3DTex);
+	glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
 
 	shader->use("outputPass");
 	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));

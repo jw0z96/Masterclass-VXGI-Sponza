@@ -5,7 +5,9 @@ uniform sampler2D WSNormalTex;
 uniform sampler2D depthTex;
 uniform sampler2D albedoTex;
 uniform sampler2D metalRoughTex;
-uniform sampler3D voxelTex;
+
+uniform sampler3D voxelAlbedoTex;
+uniform sampler3D voxelNormalTex;
 
 uniform int voxelDim;
 uniform float orthoWidth;
@@ -91,9 +93,11 @@ void main()
 	vec3 textureIndex = WSPos;
 	textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
 	textureIndex += vec3(orthoWidth) - sceneCenter; // + (debugPos);
+	// textureIndex += debugPos;
 	textureIndex /= (orthoWidth * 2);
 
-	vec4 voxelTexColour = vec4(texture(voxelTex, textureIndex).rgb, 1.0);
+	vec4 voxelTexAlbedo = vec4(texture(voxelAlbedoTex, textureIndex).rgb, 1.0);
+	vec4 voxelTexNormal = vec4(texture(voxelNormalTex, textureIndex).rgb, 1.0);
 
 	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
 	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
@@ -149,33 +153,35 @@ void main()
 	// gamma correct
 	// fragShaded = pow(fragShaded, vec3(1.0/2.2));
 
-	// if(gBufferView)
-	// {
-	// 	if (texpos.x >= 0.5)
-	// 	{
-	// 		if (texpos.y >= 0.5)
-	// 		{
-	// 			fragColor = vec4(WSPos / 1000.0, 1.0);
-	// 		}
-	// 		else
-	// 		{
-				fragColor = voxelTexColour;
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		if (texpos.y >= 0.5)
-	// 		{
-	// 			fragColor = vec4(WSNormal, 1.0);
-	// 		}
-	// 		else
-	// 		{
-	// 			fragColor = vec4(metalness, roughness, 0.0, 1.0);
-	// 		}
-	// 	}
-	// }
-	// else
-	// {
-		// fragColor = vec4(fragShaded, 1.0);
-	// }
+	if(gBufferView)
+	{
+		if (texpos.x >= 0.5)
+		{
+			if (texpos.y >= 0.5)
+			{
+				fragColor = voxelTexAlbedo;
+			}
+			else
+			{
+				fragColor = voxelTexNormal;
+			}
+		}
+		else
+		{
+			if (texpos.y >= 0.5)
+			{
+				fragColor = vec4(albedo, 1.0);
+				// fragColor = vec4(WSPos / 1000.0, 1.0);
+			}
+			else
+			{
+				fragColor = vec4(WSNormal, 1.0);
+				// fragColor = vec4(metalness, roughness, 0.0, 1.0);
+			}
+		}
+	}
+	else
+	{
+		fragColor = vec4(fragShaded, 1.0);
+	}
 }
