@@ -15,6 +15,9 @@ uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 
+layout (location = 0) out vec4 gl_FragColor;
+layout (pixel_center_integer) in vec4 gl_FragCoord;
+
 layout(binding = 0, r32ui) uniform volatile coherent uimage3D u_voxelAlbedoTex;
 layout(binding = 1, r32ui) uniform volatile coherent uimage3D u_voxelNormalTex;
 
