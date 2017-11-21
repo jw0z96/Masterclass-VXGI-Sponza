@@ -7,7 +7,7 @@ in vec3 f_Pos;
 in vec3 f_Normal;
 
 flat in int f_axis; //indicate which axis the projection uses
-flat in vec4 f_AABB;
+// flat in vec4 f_AABB;
 
 // material parameters
 uniform sampler2D albedoMap;

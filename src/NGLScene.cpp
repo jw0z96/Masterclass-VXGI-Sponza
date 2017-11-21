@@ -42,6 +42,7 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	// set the shape using FOV 50, Aspect Ratio based on Width and Height, near & far clip
 	m_cam.setProjection(50,(float)m_win.width/m_win.height,1.0f,800.0f);
 
+	startTimer(10);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

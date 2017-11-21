@@ -86,3 +86,10 @@ void NGLScene::keyReleaseEvent( QKeyEvent *_event	)
 	// remove from our key set any keys that have been released
 	m_keysPressed -= static_cast<Qt::Key>(_event->key());
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void NGLScene::timerEvent( QTimerEvent *)
+{
+	update();
+}
