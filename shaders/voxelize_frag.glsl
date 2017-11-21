@@ -45,7 +45,7 @@ void imageAtomicRGBA8Avg(layout(r32ui) coherent volatile uimage3D imgUI, ivec3 c
 		vec4 rval = convRGBA8ToVec4(curStoredVal);
 		rval.xyz = (rval.xyz * rval.w); // Denormalize
 		vec4 curValF = rval + val; // Add new value
-		curValF.xyz /=(curValF.w); // Renormalize
+		curValF.xyz /= (curValF.w); // Renormalize
 		newVal = convVec4ToRGBA8(curValF);
 	}
 }

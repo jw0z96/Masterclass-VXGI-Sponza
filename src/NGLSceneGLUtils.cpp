@@ -224,8 +224,8 @@ void NGLScene::loadMatricesToShader()
 void NGLScene::drawScene()
 {
 	// get singleton instances
-	ngl::ShaderLib* shader = ngl::ShaderLib::instance();
-	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
+	// ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+	// ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
 
 	auto end=m_model->numMeshes();
 	std::string matName;
@@ -244,10 +244,9 @@ void NGLScene::drawScene()
 				auto setParams=[]()
 				{
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-
 				};
 				// bind albedo texture to texture unit 0
 				glActiveTexture(GL_TEXTURE0);

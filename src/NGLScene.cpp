@@ -1,9 +1,7 @@
 #include "NGLScene.h"
 
 #include <ngl/Camera.h>
-#include <ngl/Light.h>
 #include <ngl/Transformation.h>
-#include <ngl/Material.h>
 #include <ngl/NGLInit.h>
 #include <ngl/ShaderLib.h>
 #include <ngl/VAOFactory.h>
