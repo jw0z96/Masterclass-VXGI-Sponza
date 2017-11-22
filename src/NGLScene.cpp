@@ -84,8 +84,8 @@ void NGLScene::initializeGL()
 	shader->setUniform("metallicMap", 2);
 	shader->setUniform("roughnessMap", 3);
 
-	shader->setUniform("voxelAlbedoTex", 4);
-	shader->setUniform("voxelNormalTex", 5);
+	// shader->setUniform("voxelAlbedoTex", 4);
+	// shader->setUniform("voxelNormalTex", 5);
 
 	// create the output shader program
 	shader->loadShader("outputPass",
@@ -191,7 +191,6 @@ void NGLScene::paintGL()
 
 		glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
 		glBindImageTexture(0, m_voxelAlbedoTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
 		glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
 		glBindImageTexture(1, m_voxelNormalTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
@@ -206,14 +205,14 @@ void NGLScene::paintGL()
 	//----------------------------------------------------------------------------------------------------------------------
 
 	// Check if the FBO needs to be recreated. This occurs after a resize.
-	// if (m_isFBODirty)
-	// {
-	// 	initFBO();
-	// 	m_isFBODirty = false;
-	// }
+	if (m_isFBODirty)
+	{
+		initFBO();
+		m_isFBODirty = false;
+	}
 
 	// bind the gBuffer FBO
-	// glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
 	// clear the screen and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0,0,m_win.width,m_win.height);
@@ -248,21 +247,21 @@ void NGLScene::paintGL()
 		m_cam.move(xDirection,yDirection,m_deltaTime);
 	}
 
-	shader->setUniform("voxelDim", m_voxelDim);
-	shader->setUniform("orthoWidth", orthoWidth);
-	shader->setUniform("sceneCenter", objectCenter);
+	// shader->setUniform("voxelDim", m_voxelDim);
+	// shader->setUniform("orthoWidth", orthoWidth);
+	// shader->setUniform("sceneCenter", objectCenter);
 
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
+	// glActiveTexture(GL_TEXTURE4);
+	// glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
+	// glActiveTexture(GL_TEXTURE5);
+	// glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
 	// draw our scene geometry
 	drawScene();
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT PASS START
 	//----------------------------------------------------------------------------------------------------------------------
-	/*
+
 	// unbind FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -310,7 +309,7 @@ void NGLScene::paintGL()
 	}
 
 	prim->draw("ScreenAlignedQuad");
-	*/
+
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT TESTING PASS START
 	//----------------------------------------------------------------------------------------------------------------------

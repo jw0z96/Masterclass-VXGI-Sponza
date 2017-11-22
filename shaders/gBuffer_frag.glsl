@@ -10,10 +10,10 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform float roughnessScale;
 
-uniform float orthoWidth;
-uniform vec3 sceneCenter;
-uniform sampler3D voxelAlbedoTex;
-uniform sampler3D voxelNormalTex;
+// uniform float orthoWidth;
+// uniform vec3 sceneCenter;
+// uniform sampler3D voxelAlbedoTex;
+// uniform sampler3D voxelNormalTex;
 
 // The output textures that make up our gBuffer
 layout (location=0) out vec3 fragWSPosition;
@@ -57,18 +57,18 @@ void main()
 	vec3 N = getNormalFromMap();
 
 
-	vec3 textureIndex = WorldPos;
-	textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
-	textureIndex += vec3(orthoWidth) - sceneCenter; // + (debugPos);
-	// textureIndex += debugPos;
-	textureIndex /= (orthoWidth * 2);
+	// vec3 textureIndex = WorldPos;
+	// textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
+	// textureIndex += vec3(orthoWidth) - sceneCenter; // + (debugPos);
+	// // textureIndex += debugPos;
+	// textureIndex /= (orthoWidth * 2);
 
-	vec4 voxelTexAlbedo = vec4(texture(voxelAlbedoTex, textureIndex).rgb, 1.0);
-	vec4 voxelTexNormal = vec4(texture(voxelNormalTex, textureIndex).rgb, 1.0);
+	// vec4 voxelTexAlbedo = vec4(texture(voxelAlbedoTex, textureIndex).rgb, 1.0);
+	// vec4 voxelTexNormal = vec4(texture(voxelNormalTex, textureIndex).rgb, 1.0);
 
 
 	// world space position out
-	fragWSPosition = voxelTexAlbedo.rgb;
+	fragWSPosition = WorldPos;
 	// world space normal out
 	fragWSNormal = N;
 	// textured fragment albedo out

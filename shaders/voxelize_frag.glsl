@@ -81,5 +81,5 @@ void main()
 		texcoord = ivec3(temp);
 
 	imageAtomicRGBA8Avg(u_voxelAlbedoTex, texcoord, vec4(albedo, 1.0));
-	// imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(N, 1.0));
+	imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(N, 1.0));
 }

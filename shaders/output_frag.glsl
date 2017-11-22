@@ -92,7 +92,7 @@ void main()
 
 	vec3 textureIndex = WSPos;
 	textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
-	textureIndex += vec3(orthoWidth) - sceneCenter; // + (debugPos);
+	textureIndex += vec3(orthoWidth) - sceneCenter;
 	// textureIndex += debugPos;
 	textureIndex /= (orthoWidth * 2);
 
