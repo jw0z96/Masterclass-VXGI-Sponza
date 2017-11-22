@@ -7,23 +7,17 @@
 
 unsigned int NGLScene::gen3DTexture(int dim) const
 {
-    unsigned int* data = new unsigned int[4*dim*dim*dim];
-    memset(data, 0, sizeof(unsigned int)*4*dim*dim*dim);
-
-    GLuint texId;
-    glGenTextures(1, &texId );
-    glBindTexture(GL_TEXTURE_3D, texId);
-    //glActiveTexture(GL_TEXTURE0 );
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA8, dim, dim, dim, 0, GL_RGBA, GL_UNSIGNED_INT, data );
-    glBindTexture(GL_TEXTURE_3D, 0);
-    GLenum err = glGetError();
-    std::cout<<glewGetErrorString(err)<<" "<<err<<std::endl;
-    delete [] data;
-    return texId;
+	std::vector<GLfloat> emptyData(dim * dim * dim * 4, 0.0);
+	GLuint texId;
+	glGenTextures(1, &texId );
+	glBindTexture(GL_TEXTURE_3D, texId);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA8, dim, dim, dim, 0, GL_RGBA, GL_FLOAT, &emptyData[0]);
+	glBindTexture(GL_TEXTURE_3D, 0);
+	return texId;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -50,6 +50,8 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 NGLScene::~NGLScene()
 {
 	std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
+	glDeleteTextures(1, &m_voxelAlbedoTex);
+	glDeleteTextures(1, &m_voxelNormalTex);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -68,7 +70,6 @@ void NGLScene::initializeGL()
 		"shaders/voxelize_geo.glsl");
 
 	shader->setUniform("albedoMap", 0);
-	shader->setUniform("normalMap", 1);
 	shader->setUniform("metallicMap", 2);
 	shader->setUniform("roughnessMap", 3);
 
@@ -170,7 +171,7 @@ void NGLScene::paintGL()
 		// Disable some fixed-function opeartions
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
-		// glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		shader->use("voxelizationShader");
 		// Orthograhic projection
 		ngl::Mat4 Ortho;
@@ -204,12 +205,12 @@ void NGLScene::paintGL()
 	/// G BUFFER PASS START
 	//----------------------------------------------------------------------------------------------------------------------
 
-	/*// Check if the FBO needs to be recreated. This occurs after a resize.
-	if (m_isFBODirty)
-	{
-		initFBO();
-		m_isFBODirty = false;
-	}
+	// Check if the FBO needs to be recreated. This occurs after a resize.
+	// if (m_isFBODirty)
+	// {
+	// 	initFBO();
+	// 	m_isFBODirty = false;
+	// }
 
 	// bind the gBuffer FBO
 	// glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
@@ -217,8 +218,8 @@ void NGLScene::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0,0,m_win.width,m_win.height);
 	// enable depth testing for drawing
-	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	shader->use("gBufferPass");
@@ -256,7 +257,7 @@ void NGLScene::paintGL()
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
 	// draw our scene geometry
-	drawScene();*/
+	drawScene();
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT PASS START

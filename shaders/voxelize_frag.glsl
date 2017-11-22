@@ -1,6 +1,7 @@
 #version 430 core
 
 // #extension GL_NV_conservative_raster : enable
+#define MAX_COLOR_VALUES 256.0
 
 in vec2 f_TexCoords;
 in vec3 f_Pos;
@@ -11,7 +12,6 @@ flat in int f_axis; //indicate which axis the projection uses
 
 // material parameters
 uniform sampler2D albedoMap;
-uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 
@@ -25,31 +25,22 @@ uniform int voxelDim;
 uniform float orthoWidth;
 uniform vec3 sceneCenter;
 
-vec4 convRGBA8ToVec4(uint val)
-{
-	return vec4(float((val &0x000000FF)), float((val &0x0000FF00)>>8U), float((val &0x00FF0000)>>16U), float((val &0xFF000000)>>24U));
-}
-
-uint convVec4ToRGBA8(vec4 val)
-{
-	return (uint(val.w) &0x000000FF)<<24U | (uint(val.z) &0x000000FF)<<16U | (uint(val.y) &0x000000FF)<<8U | (uint(val.x) &0x000000FF);
-}
-
 void imageAtomicRGBA8Avg(layout(r32ui) coherent volatile uimage3D imgUI, ivec3 coords, vec4 val)
 {
-	val.rgb *= 255.0f; // Optimise following calculations
-	uint newVal = convVec4ToRGBA8(val);
+	uint newVal = packUnorm4x8(val);
 	uint prevStoredVal = 0;
 	uint curStoredVal;
 	// Loop as long as destination value gets changed by other threads
 	while ((curStoredVal = imageAtomicCompSwap(imgUI, coords, prevStoredVal, newVal)) != prevStoredVal)
 	{
 		prevStoredVal = curStoredVal;
-		vec4 rval = convRGBA8ToVec4(curStoredVal);
+		vec4 rval = unpackUnorm4x8(curStoredVal);
+		rval.w *= MAX_COLOR_VALUES;
 		rval.xyz = (rval.xyz * rval.w); // Denormalize
 		vec4 curValF = rval + val; // Add new value
 		curValF.xyz /= (curValF.w); // Renormalize
-		newVal = convVec4ToRGBA8(curValF);
+		curValF.w /= MAX_COLOR_VALUES;
+		newVal = packUnorm4x8(curValF);
 	}
 }
 
@@ -90,5 +81,5 @@ void main()
 		texcoord = ivec3(temp);
 
 	imageAtomicRGBA8Avg(u_voxelAlbedoTex, texcoord, vec4(albedo, 1.0));
-	imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(N, 1.0));
+	// imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(N, 1.0));
 }
