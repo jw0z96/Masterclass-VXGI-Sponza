@@ -160,6 +160,7 @@ void main()
 			if (texpos.y >= 0.5)
 			{
 				fragColor = voxelTexAlbedo;
+				// fragColor = vec4(WSPos/1000.0, 1.0);
 			}
 			else
 			{

@@ -84,9 +84,6 @@ void NGLScene::initializeGL()
 	shader->setUniform("metallicMap", 2);
 	shader->setUniform("roughnessMap", 3);
 
-	// shader->setUniform("voxelAlbedoTex", 4);
-	// shader->setUniform("voxelNormalTex", 5);
-
 	// create the output shader program
 	shader->loadShader("outputPass",
 		"shaders/screen_space_vert.glsl",
@@ -102,12 +99,12 @@ void NGLScene::initializeGL()
 	shader->setUniform("voxelNormalTex", 6);
 
 	// create the output shader program
-	shader->loadShader("outputTestPass",
-		"shaders/screen_space_vert.glsl",
-		"shaders/test_frag.glsl");
+	// shader->loadShader("outputTestPass",
+	// 	"shaders/screen_space_vert.glsl",
+	// 	"shaders/test_frag.glsl");
 
-	shader->use("outputTestPass");
-	shader->setUniform("inTex", 0);
+	// shader->use("outputTestPass");
+	// shader->setUniform("inTex", 0);
 
 	// Grey Background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -247,14 +244,6 @@ void NGLScene::paintGL()
 		m_cam.move(xDirection,yDirection,m_deltaTime);
 	}
 
-	// shader->setUniform("voxelDim", m_voxelDim);
-	// shader->setUniform("orthoWidth", orthoWidth);
-	// shader->setUniform("sceneCenter", objectCenter);
-
-	// glActiveTexture(GL_TEXTURE4);
-	// glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
-	// glActiveTexture(GL_TEXTURE5);
-	// glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
 	// draw our scene geometry
 	drawScene();
 

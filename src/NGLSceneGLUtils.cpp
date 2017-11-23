@@ -1,5 +1,4 @@
 #include "NGLScene.h"
-
 #include <ngl/ShaderLib.h>
 #include <ngl/VAOPrimitives.h>
 
@@ -49,7 +48,7 @@ void NGLScene::initFBO()
 	// Generate a texture to write the Position to
 	glGenTextures(1, &m_FBOWSPositionId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, m_win.width, m_win.height, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, m_win.width, m_win.height, 0, GL_RGB, GL_FLOAT, NULL);
 	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -70,14 +69,14 @@ void NGLScene::initFBO()
 	// Generate a texture to write the Albedo to
 	glGenTextures(1, &m_FBOAlbedoId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOAlbedoId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_win.width, m_win.height, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_win.width, m_win.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Generate a texture to write the Metallness and Roughness to
 	glGenTextures(1, &m_FBOMetalRoughId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, m_win.width, m_win.height, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, m_win.width, m_win.height, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
 	setParams();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
