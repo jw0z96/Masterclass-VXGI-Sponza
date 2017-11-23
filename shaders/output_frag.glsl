@@ -96,8 +96,8 @@ void main()
 	// textureIndex += debugPos;
 	textureIndex /= (orthoWidth * 2);
 
-	vec4 voxelTexAlbedo = vec4(texture(voxelAlbedoTex, textureIndex).rgb, 1.0);
-	vec4 voxelTexNormal = vec4(texture(voxelNormalTex, textureIndex).rgb, 1.0);
+	vec3 voxelTexAlbedo = texture(voxelAlbedoTex, textureIndex).rgb;
+	vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
 
 	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
 	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
@@ -159,12 +159,12 @@ void main()
 		{
 			if (texpos.y >= 0.5)
 			{
-				fragColor = voxelTexAlbedo;
+				fragColor = vec4(voxelTexAlbedo, 1.0);
 				// fragColor = vec4(WSPos/1000.0, 1.0);
 			}
 			else
 			{
-				fragColor = voxelTexNormal;
+				fragColor = vec4(voxelTexNormal, 1.0);
 			}
 		}
 		else

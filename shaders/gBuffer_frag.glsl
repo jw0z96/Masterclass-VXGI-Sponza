@@ -46,7 +46,6 @@ void main()
 	vec3 albedo = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
 	float metallic = texture(metallicMap, TexCoords).r;
 	float roughness = texture(roughnessMap, TexCoords).r;
-
 	// calculate normal-mapped world space normals
 	vec3 N = getNormalFromMap();
 

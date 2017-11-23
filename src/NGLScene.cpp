@@ -52,6 +52,13 @@ NGLScene::~NGLScene()
 	std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
 	glDeleteTextures(1, &m_voxelAlbedoTex);
 	glDeleteTextures(1, &m_voxelNormalTex);
+
+	glDeleteTextures(1, &m_FBOWSPositionId);
+	glDeleteTextures(1, &m_FBOWSNormalId);
+	glDeleteTextures(1, &m_FBODepthId);
+	glDeleteTextures(1, &m_FBOAlbedoId);
+	glDeleteTextures(1, &m_FBOMetalRoughId);
+	glDeleteFramebuffers(1, &m_gBufferFBOId);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -154,15 +161,11 @@ void NGLScene::paintGL()
 	/// VOXELIZE SCENE
 	//----------------------------------------------------------------------------------------------------------------------
 
-
 	float orthoWidth = 1400.0;
 	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0); // gives a good fit for the voxel projections
 
 	// if (!m_isVoxelTexConstructed)
 	// {
-		// unbind FBO (for testing)
-		glBindFramebuffer(GL_FRAMEBUFFER, 1);
-		// glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, m_voxelDim, m_voxelDim);
 		// Disable some fixed-function opeartions
@@ -173,7 +176,7 @@ void NGLScene::paintGL()
 		// Orthograhic projection
 		ngl::Mat4 Ortho;
 		Ortho = ngl::ortho(-orthoWidth, orthoWidth, -orthoWidth, orthoWidth, -orthoWidth, orthoWidth);
-		// Create an modelview-orthographic projection matrix see fr\om +X axis
+		// Create an modelview-orthographic projection matrix see from +X axis
 		ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(-1, 0, 0), ngl::Vec3(0, 1, 0));
 		// Create an modelview-orthographic projection matrix see from +Y axis
 		ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, -1, 0), ngl::Vec3(0, 0, -1));
@@ -194,7 +197,12 @@ void NGLScene::paintGL()
 		// draw our scene geometry
 		drawScene();
 
+		// set our voxel construction flag
 		m_isVoxelTexConstructed = true;
+		// re enable depth testing for drawing
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	// }
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -213,10 +221,6 @@ void NGLScene::paintGL()
 	// clear the screen and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0,0,m_win.width,m_win.height);
-	// enable depth testing for drawing
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	shader->use("gBufferPass");
 
