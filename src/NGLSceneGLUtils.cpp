@@ -27,7 +27,7 @@ void NGLScene::initFBO()
 
 	// First delete the FBO if it has been created previously
 	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE)
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
 	{
 		glDeleteTextures(1, &m_FBOWSPositionId);
 		glDeleteTextures(1, &m_FBOWSNormalId);
@@ -45,58 +45,60 @@ void NGLScene::initFBO()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	};
 
+	// Create the frame buffer
+	glGenFramebuffers(1, &m_gBufferFBOId);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+
 	// Generate a texture to write the Position to
 	glGenTextures(1, &m_FBOWSPositionId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, m_win.width, m_win.height, 0, GL_RGB, GL_FLOAT, NULL);
 	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOWSPositionId, 0);
+	// glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Generate a texture to write the Normals to
 	glGenTextures(1, &m_FBOWSNormalId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSNormalId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, m_win.width, m_win.height, 0, GL_RGB, GL_FLOAT, NULL);
 	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_FBOWSNormalId, 0);
+	// glBindTexture(GL_TEXTURE_2D, 0);
 
 	// The depth buffer is rendered to a texture buffer too,
 	glGenTextures(1, &m_FBODepthId);
 	glBindTexture(GL_TEXTURE_2D, m_FBODepthId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_win.width, m_win.height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_FBODepthId, 0);
+	// glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Generate a texture to write the Albedo to
 	glGenTextures(1, &m_FBOAlbedoId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOAlbedoId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_win.width, m_win.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_FBOAlbedoId, 0);
+	// glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Generate a texture to write the Metallness and Roughness to
 	glGenTextures(1, &m_FBOMetalRoughId);
 	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, m_win.width, m_win.height, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
 	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Create the frame buffer
-	glGenFramebuffers(1, &m_gBufferFBOId);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOWSPositionId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_FBOWSNormalId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_FBOAlbedoId, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_FBOMetalRoughId, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_FBODepthId, 0);
+	// glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Set the fragment shader output targets DEPTH_ATTACHMENT is done automatically apparently
-	GLenum drawBufs[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+	unsigned int drawBufs[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
 	glDrawBuffers(4, drawBufs);
 
 	// Check it is ready to rock and roll
 	checkFrameBuffer();
 	// Unbind the framebuffer to revert to default render pipeline
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
+
+	m_isFBODirty = false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

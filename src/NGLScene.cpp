@@ -43,6 +43,7 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_cam.setProjection(50,(float)m_win.width/m_win.height,1.0f,800.0f);
 
 	startTimer(10);
+	m_isFBODirty = true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -153,7 +154,7 @@ void NGLScene::paintGL()
 	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
 
 	float currentFrame = m_timer.elapsed()*0.001f;
-	std::cout<<"FPS: "<<1.0f / m_deltaTime<<'\n';
+	// std::cout<<"FPS: "<<1.0f / m_deltaTime<<'\n';
 	m_deltaTime = currentFrame - m_lastFrame;
 	m_lastFrame = currentFrame;
 
@@ -213,7 +214,6 @@ void NGLScene::paintGL()
 	if (m_isFBODirty)
 	{
 		initFBO();
-		m_isFBODirty = false;
 	}
 
 	// bind the gBuffer FBO
