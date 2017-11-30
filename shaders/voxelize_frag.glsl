@@ -44,6 +44,11 @@ void imageAtomicRGBA8Avg(layout(r32ui) coherent volatile uimage3D imgUI, ivec3 c
 	}
 }
 
+vec3 packNormal(vec3 normal)
+{
+	return vec3(0.5) + (normal / 2.0);
+}
+
 void main()
 {
 	// if( f_Pos.x < f_AABB.x || f_Pos.y < f_AABB.y || f_Pos.x > f_AABB.z || f_Pos.y > f_AABB.w )
@@ -81,5 +86,5 @@ void main()
 		texcoord = ivec3(temp);
 
 	imageAtomicRGBA8Avg(u_voxelAlbedoTex, texcoord, vec4(albedo, 1.0));
-	imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(N, 1.0));
+	imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(packNormal(N), 1.0));
 }

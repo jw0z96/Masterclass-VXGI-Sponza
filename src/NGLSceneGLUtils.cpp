@@ -4,7 +4,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-unsigned int NGLScene::gen3DTexture(int dim) const
+unsigned int NGLScene::gen3DTextureRGBA8(int dim) const
 {
 	std::vector<GLfloat> emptyData(dim * dim * dim * 4, 0.0);
 	GLuint texId;
@@ -14,7 +14,7 @@ unsigned int NGLScene::gen3DTexture(int dim) const
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA8, dim, dim, dim, 0, GL_RGBA, GL_FLOAT, &emptyData[0]);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, dim, dim, dim, 0, GL_RGBA, GL_FLOAT, &emptyData[0]);
 	glBindTexture(GL_TEXTURE_3D, 0);
 	return texId;
 }
@@ -219,8 +219,8 @@ void NGLScene::loadMatricesToShader()
 void NGLScene::drawScene()
 {
 	// get singleton instances
-	// ngl::ShaderLib* shader = ngl::ShaderLib::instance();
-	// ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
+	ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
 
 	auto end=m_model->numMeshes();
 	std::string matName;
@@ -266,24 +266,24 @@ void NGLScene::drawScene()
 		}
 	}
 
-	// // Draw Lights
-	// if(m_drawLights)
-	// {
-	// 	( *shader )[ ngl::nglColourShader ]->use();
-	// 	ngl::Mat4 MVP;
-	// 	ngl::Transformation tx;
-	// 	tx.setScale(10.0, 10.0, 10.0); //make the light bigger
-	// 	shader->setUniform("Colour",1.0f,1.0f,1.0f,1.0f);
+	// Draw Lights
+	if(m_drawLights)
+	{
+		( *shader )[ ngl::nglColourShader ]->use();
+		ngl::Mat4 MVP;
+		ngl::Transformation tx;
+		tx.setScale(10.0, 10.0, 10.0); //make the light bigger
+		shader->setUniform("Colour",1.0f,1.0f,1.0f,1.0f);
 
-	// 	for(size_t i=0; i<m_lightPositions.size(); ++i)
-	// 	{
-	// 		if(m_lightOn[i]==true)
-	// 		{
-	// 			tx.setPosition(m_lightPositions[i]);
-	// 			MVP=m_cam.getVP()* m_mouseGlobalTX * tx.getMatrix() ;
-	// 			shader->setUniform("MVP",MVP);
-	// 			prim->draw("cube");
-	// 		}
-	// 	}
-	// }
+		for(size_t i=0; i<m_lightPositions.size(); ++i)
+		{
+			if(m_lightOn[i]==true)
+			{
+				tx.setPosition(m_lightPositions[i]);
+				MVP=m_cam.getVP()* m_mouseGlobalTX * tx.getMatrix() ;
+				shader->setUniform("MVP",MVP);
+				prim->draw("cube");
+			}
+		}
+	}
 }

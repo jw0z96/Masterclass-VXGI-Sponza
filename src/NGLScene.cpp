@@ -6,6 +6,7 @@
 #include <ngl/ShaderLib.h>
 #include <ngl/VAOFactory.h>
 #include "VAO.h"
+#include <math.h>
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -91,6 +92,9 @@ void NGLScene::initializeGL()
 	shader->setUniform("normalMap", 1);
 	shader->setUniform("metallicMap", 2);
 	shader->setUniform("roughnessMap", 3);
+	shader->setUniform("voxelAlbedoTex", 5);
+	shader->setUniform("voxelNormalTex", 6);
+	shader->setUniform("voxelEmissiveTex", 7);
 
 	// create the output shader program
 	shader->loadShader("outputPass",
@@ -114,6 +118,18 @@ void NGLScene::initializeGL()
 	// shader->use("outputTestPass");
 	// shader->setUniform("inTex", 0);
 
+	// create the compute shader program
+	shader->createShaderProgram("lightInjectionPass");
+	shader->attachShader("lightInjectionPassComp", ngl::ShaderType::COMPUTE );
+	shader->loadShaderSource("lightInjectionPassComp", "shaders/lightInjectionComp.glsl" );
+	shader->compileShader("lightInjectionPassComp");
+	shader->attachShaderToProgram("lightInjectionPass", "lightInjectionPassComp");
+	shader->linkProgramObject("lightInjectionPass");
+
+	shader->use("lightInjectionPass");
+	shader->setUniform("voxelAlbedoTex", 1);
+	shader->setUniform("voxelNormalTex", 2);
+
 	// Grey Background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// enable depth testing for drawing
@@ -136,8 +152,9 @@ void NGLScene::initializeGL()
 
 	// initialize voxel texture params
 	m_voxelDim = 256;
-	m_voxelAlbedoTex = gen3DTexture(m_voxelDim);
-	m_voxelNormalTex = gen3DTexture(m_voxelDim);
+	m_voxelAlbedoTex = gen3DTextureRGBA8(m_voxelDim);
+	m_voxelNormalTex = gen3DTextureRGBA8(m_voxelDim);
+	m_voxelEmissiveTex = gen3DTextureRGBA8(m_voxelDim);
 
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
@@ -154,7 +171,7 @@ void NGLScene::paintGL()
 	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
 
 	float currentFrame = m_timer.elapsed()*0.001f;
-	// std::cout<<"FPS: "<<1.0f / m_deltaTime<<'\n';
+	std::cout<<"FPS: "<<1.0f / m_deltaTime<<'\n';
 	m_deltaTime = currentFrame - m_lastFrame;
 	m_lastFrame = currentFrame;
 
@@ -207,22 +224,51 @@ void NGLScene::paintGL()
 	// }
 
 	//----------------------------------------------------------------------------------------------------------------------
+	/// LIGHT INJECTION PASS START
+	//----------------------------------------------------------------------------------------------------------------------
+
+	shader->use("lightInjectionPass");
+
+	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
+	glBindImageTexture(0, m_voxelEmissiveTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
+
+	shader->setUniform("voxelDim", m_voxelDim);
+	shader->setUniform("orthoWidth", orthoWidth);
+	shader->setUniform("sceneCenter", objectCenter);
+
+	for(size_t i=0; i<m_lightPositions.size(); ++i)
+	{
+		shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),m_lightPositions[i]);
+		shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),m_lightColors[i]);
+	}
+
+	glDispatchCompute(ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0));
+
+	//----------------------------------------------------------------------------------------------------------------------
 	/// G BUFFER PASS START
 	//----------------------------------------------------------------------------------------------------------------------
 
 	// Check if the FBO needs to be recreated. This occurs after a resize.
-	if (m_isFBODirty)
-	{
-		initFBO();
-	}
+	// if (m_isFBODirty)
+	// {
+	// 	initFBO();
+	// }
 
 	// bind the gBuffer FBO
-	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+	glBindFramebuffer(GL_FRAMEBUFFER, 1);
+	// glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
 	// clear the screen and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0,0,m_win.width,m_win.height);
 
 	shader->use("gBufferPass");
+	shader->setUniform("orthoWidth", orthoWidth);
+	shader->setUniform("sceneCenter", objectCenter);
 
 	/// first we reset the movement values
 	float xDirection=0.0;
@@ -248,12 +294,24 @@ void NGLScene::paintGL()
 		m_cam.move(xDirection,yDirection,m_deltaTime);
 	}
 
+	shader->setUniform("voxelDim", m_voxelDim);
+	shader->setUniform("orthoWidth", orthoWidth);
+	shader->setUniform("sceneCenter", objectCenter);
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
+
 	// draw our scene geometry
 	drawScene();
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT PASS START
 	//----------------------------------------------------------------------------------------------------------------------
+	/*
 
 	// unbind FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);

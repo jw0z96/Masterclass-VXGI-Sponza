@@ -12,12 +12,11 @@ uniform sampler3D voxelNormalTex;
 uniform int voxelDim;
 uniform float orthoWidth;
 uniform vec3 sceneCenter;
-uniform vec3 debugPos;
 
 // We pass the window size to the shader.
 uniform vec2 windowSize;
 
-// // lights
+// lights
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 

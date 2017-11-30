@@ -9,11 +9,20 @@ uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 
+uniform sampler3D voxelAlbedoTex;
+uniform sampler3D voxelNormalTex;
+uniform sampler3D voxelEmissiveTex;
+
+uniform int voxelDim;
+uniform float orthoWidth;
+uniform vec3 sceneCenter;
+
 // The output textures that make up our gBuffer
-layout (location=0) out vec3 fragWSPosition;
-layout (location=1) out vec3 fragWSNormal;
-layout (location=2) out vec3 fragAlbedo;
-layout (location=3) out vec2 fragMetalRough;
+layout (location=0) out vec4 fragColor;
+// layout (location=0) out vec3 fragWSPosition;
+// layout (location=1) out vec3 fragWSNormal;
+// layout (location=2) out vec3 fragAlbedo;
+// layout (location=3) out vec2 fragMetalRough;
 
 // ----------------------------------------------------------------------------
 // Easy trick to get tangent-normals to world-space to keep PBR code simplified.
@@ -49,12 +58,24 @@ void main()
 	// calculate normal-mapped world space normals
 	vec3 N = getNormalFromMap();
 
-	// world space position out
-	fragWSPosition = WorldPos;
-	// world space normal out
-	fragWSNormal = N;
-	// textured fragment albedo out
-	fragAlbedo = albedo;
-	// packed fragment metallic, roughness, ao textures
-	fragMetalRough = vec2(metallic, roughness);
+	vec3 textureIndex = WorldPos;
+	textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
+	textureIndex += vec3(orthoWidth) - sceneCenter;
+	// textureIndex += debugPos;
+	textureIndex /= (orthoWidth * 2);
+
+	vec3 voxelTexAlbedo = texture(voxelAlbedoTex, textureIndex).rgb;
+	vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
+	vec3 voxelTexEmissive = texture(voxelEmissiveTex, textureIndex).rgb;
+
+	fragColor = vec4(voxelTexEmissive, 0.0);
+
+	// // world space position out
+	// fragWSPosition = WorldPos;
+	// // world space normal out
+	// fragWSNormal = N;
+	// // textured fragment albedo out
+	// fragAlbedo = albedo;
+	// // packed fragment metallic, roughness, ao textures
+	// fragMetalRough = vec2(metallic, roughness);
 }
