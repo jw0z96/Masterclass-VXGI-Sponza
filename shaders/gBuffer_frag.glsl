@@ -46,6 +46,17 @@ vec3 getNormalFromMap()
 	return normalize(TBN * tangentNormal);
 }
 
+vec3 worldToTexCoord(vec3 pos)
+{
+	float textureSize = (2.0 * orthoWidth);
+	vec3 worldMinPoint = sceneCenter - vec3(orthoWidth);
+	vec3 result = pos;
+	result *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
+	result -= worldMinPoint;
+	result /= textureSize;
+	return result;
+}
+
 void main()
 {
 	if(texture(albedoMap, TexCoords).a==0)
@@ -58,11 +69,7 @@ void main()
 	// calculate normal-mapped world space normals
 	vec3 N = getNormalFromMap();
 
-	vec3 textureIndex = WorldPos;
-	textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
-	textureIndex += vec3(orthoWidth) - sceneCenter;
-	// textureIndex += debugPos;
-	textureIndex /= (orthoWidth * 2);
+	vec3 textureIndex = worldToTexCoord(WorldPos);
 
 	vec3 voxelTexAlbedo = texture(voxelAlbedoTex, textureIndex).rgb;
 	vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
