@@ -151,7 +151,7 @@ void NGLScene::initializeGL()
 	m_model.reset(new GroupedObj("models/sponza.obj"));
 
 	// initialize voxel texture params
-	m_voxelDim = 256;
+	m_voxelDim = 128;
 	m_voxelAlbedoTex = gen3DTextureRGBA8(m_voxelDim);
 	m_voxelNormalTex = gen3DTextureRGBA8(m_voxelDim);
 	m_voxelEmissiveTex = gen3DTextureRGBA8(m_voxelDim);
