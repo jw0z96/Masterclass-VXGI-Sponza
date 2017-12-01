@@ -27,7 +27,7 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 		ngl::Vec3(-1000.0f,200.0f,0.0f)
 	};
 
-	float intensity=55000.0f;
+	float intensity= 1.0;
 
 	m_lightColors = {
 		ngl::Vec3(intensity, intensity, intensity),
@@ -241,7 +241,11 @@ void NGLScene::paintGL()
 	shader->setUniform("orthoWidth", orthoWidth);
 	shader->setUniform("sceneCenter", objectCenter);
 
-	for(size_t i=0; i<m_lightPositions.size(); ++i)
+	int numLights = m_lightPositions.size();
+
+	shader->setUniform("numLights", numLights);
+
+	for(size_t i = 0; i < numLights; ++i)
 	{
 		shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),m_lightPositions[i]);
 		shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),m_lightColors[i]);

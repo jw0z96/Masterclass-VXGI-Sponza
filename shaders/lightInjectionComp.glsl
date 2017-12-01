@@ -14,6 +14,8 @@ uniform vec3 sceneCenter;
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 
+uniform int numLights;
+
 vec3 indexToWorld(ivec3 pos)
 {
 	float voxelSize = (2.0 * orthoWidth) / float(voxelDim);
@@ -38,24 +40,24 @@ ivec3 worldToIndex(vec3 pos)
 
 vec3 unpackNormal(vec3 normal)
 {
-	return vec3(-1.0) + (normal * 2.0);
+	return (normal * 2.0) - vec3(1.0);
 }
 
 // trace the shadow in voxel space
-float traceShadow(vec3 position, vec3 lightPos)
+float traceShadow(vec3 position, vec3 direction, float maxTracingDistance)
 {
-	float maxTracingDistance = distance(lightPos, position);
-	vec3 direction = normalize(lightPos - position);
 	// navigation
-	float voxelTexSize = 1.0f / float(voxelDim);
-	// float voxelTexSize = 0.01;
+	float voxelTexSize = 1.0 / float(voxelDim);
+	// float voxelTexSize = 10.0f;
+	// float voxelTexSize = (2.0 * orthoWidth) / float(voxelDim);
 	// move one voxel further to avoid self collision
 	float dst = voxelTexSize * 2.0;
-	vec3 samplePos = position + direction * dst;
+	// float dst = 10.0;
+	// vec3 samplePos = position + direction * dst * 2.0;
 	// control variables
 	float occlusion = 0.0;
 
-	while (occlusion <= 1.0 && dst <= maxTracingDistance)
+	while (dst <= maxTracingDistance)
 	{
 		// if (samplePos.x < 0.0 || samplePos.y < 0.0
 		// 	|| samplePos.z < 0.0 || samplePos.x > 1.0
@@ -64,49 +66,58 @@ float traceShadow(vec3 position, vec3 lightPos)
 		// 	break;
 		// }
 
-		// float shadow = 0.1;
-		float shadow = texelFetch(voxelAlbedoTex, ivec3(samplePos), 0).a;
-
-		occlusion += shadow;
-
 		// move further into volume
 		dst += voxelTexSize;
-		samplePos = direction * dst + position;
+		vec3 samplePos = position + (direction * dst);
+
+		if (texelFetch(voxelAlbedoTex, ivec3(samplePos), 0).a > 0.0)
+		{
+			occlusion = 1.0;
+			break;
+		}
 	}
 
-	// float distance = lightDir.length();
-	// float distance = sqrt(dot(lightDir, lightDir));
-
 	return 1.0 - occlusion;
-	// return occlusion;
 }
 
-vec3 calculatePointLight(vec3 lightPos, vec3 position, vec3 normal)
+vec3 calculatePointLight(vec3 lightIntensity, vec3 lightPos, vec3 position, vec3 normal)
 {
-	// vec3 lightDir = lightPos - position;
-	// float lightDistance = (lightDir * 0.00001).length();
-	// lightDir = normalize(lightDir);
+	vec3 lightDir = lightPos - position;
+	lightDir = normalize(lightDir);
+
+	float NdotL = max(dot(normal, lightDir), 0.0);
 
 	vec3 voxelPos = worldToIndex(position);
 	vec3 lightVoxelPos = worldToIndex(lightPos);
-	// vec3 lightVoxelDir = lightVoxelPos - voxelPos;
+	vec3 lightVoxelDir = lightVoxelPos - voxelPos;
+	float lightVoxelDistance = distance(lightVoxelPos, voxelPos);
+	lightVoxelDir = normalize(lightVoxelDir);
 
-	float visibility = traceShadow(voxelPos, lightVoxelPos);
+	float visibility = traceShadow(voxelPos, lightVoxelDir, lightVoxelDistance);
 
-	vec3 lightIntensity = vec3(1.0);
-	return visibility * lightIntensity;
+	float lightDistance = distance(lightPos, position);
+	lightDistance /= 1000.0;
+	float falloff = 1.0 - (lightDistance * lightDistance);
+	falloff = clamp(falloff, 0.0, 1.0);
+
+	return lightIntensity * visibility * NdotL * falloff;
 }
 
 vec3 calculateDirectLighting(vec3 position, vec3 normal)
 {
 	normal = normalize(normal);
-	// float voxelSize = (2.0 * orthoWidth) / float(voxelDim);
+	float voxelSize = (2.0 * orthoWidth) / float(voxelDim);
 
-	// position = position + (normal * voxelSize);
+	position = position + (normal * voxelSize);
 
-	vec3 directLight = calculatePointLight(lightPositions[0], position, normal);
+	vec3 directLight = vec3(0.0);
 
-	return directLight;
+	for (int i = 0; i < numLights; ++i)
+	{
+		directLight += calculatePointLight(lightColors[i], lightPositions[i], position, normal);
+	}
+
+	return directLight / numLights;
 }
 
 void main()
@@ -120,21 +131,15 @@ void main()
 
 	vec3 albedo = texelFetch(voxelAlbedoTex, writePos, 0).rgb;
 
-	// vec3 lightVector = lightPositions[0] - worldPos;
-	// float lightVectorLength = dot(lightVector, lightVector) * 0.00001;
-	// float NdotL = max(dot(normal, normalize(lightVector)), 0.0);
-	// float radiance = NdotL * (1.0 - lightVectorLength);
-	// albedo *= radiance;
-
 	vec3 radiance = vec3(0.0);
 
-	// if (any(notEqual(albedo, vec3(0.0, 0.0, 0.0))))
-	// {
+	if (any(notEqual(albedo, vec3(0.0, 0.0, 0.0))))
+	{
 		vec3 normal = texelFetch(voxelNormalTex, writePos, 0).rgb;
 		normal = unpackNormal(normal);
 		vec3 worldPos = indexToWorld(writePos);
 		radiance = calculateDirectLighting(worldPos, normal);
-	// }
+	}
 
 	radiance *= albedo;
 
