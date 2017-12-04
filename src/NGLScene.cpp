@@ -151,7 +151,7 @@ void NGLScene::initializeGL()
 	m_model.reset(new GroupedObj("models/sponza.obj"));
 
 	// initialize voxel texture params
-	m_voxelDim = 128;
+	m_voxelDim = 256;
 	m_voxelAlbedoTex = gen3DTextureRGBA8(m_voxelDim);
 	m_voxelNormalTex = gen3DTextureRGBA8(m_voxelDim);
 	m_voxelEmissiveTex = gen3DTextureRGBA8(m_voxelDim);
@@ -182,8 +182,8 @@ void NGLScene::paintGL()
 	float orthoWidth = 1400.0;
 	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0); // gives a good fit for the voxel projections
 
-	// if (!m_isVoxelTexConstructed)
-	// {
+	if (!m_isVoxelTexConstructed)
+	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, m_voxelDim, m_voxelDim);
 		// Disable some fixed-function opeartions
@@ -221,7 +221,7 @@ void NGLScene::paintGL()
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	// }
+	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// LIGHT INJECTION PASS START

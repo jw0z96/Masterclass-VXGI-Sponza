@@ -46,35 +46,32 @@ vec3 unpackNormal(vec3 normal)
 // trace the shadow in voxel space
 float traceShadow(vec3 position, vec3 direction, float maxTracingDistance)
 {
-	// navigation
-	float voxelTexSize = 1.0 / float(voxelDim);
-	// float voxelTexSize = 10.0f;
-	// float voxelTexSize = (2.0 * orthoWidth) / float(voxelDim);
+	// navigate through the texture using the size of a single voxel
+	float voxelTexSize = 1.0;
+	// float voxelTexSize = 1.0 / float(voxelDim);
 	// move one voxel further to avoid self collision
-	float dst = voxelTexSize * 2.0;
-	// float dst = 10.0;
-	// vec3 samplePos = position + direction * dst * 2.0;
+	float dst = voxelTexSize;
+	// float dst = voxelTexSize * 2.0;
+
 	// control variables
 	float occlusion = 0.0;
+	vec3 samplePos = position + (direction * dst);
 
 	while (dst <= maxTracingDistance)
 	{
-		// if (samplePos.x < 0.0 || samplePos.y < 0.0
-		// 	|| samplePos.z < 0.0 || samplePos.x > 1.0
-		// 	|| samplePos.y > 1.0 || samplePos.z > 1.0)
-		// {
-		// 	break;
-		// }
-
-		// move further into volume
-		dst += voxelTexSize;
-		vec3 samplePos = position + (direction * dst);
+		if (any(lessThan(samplePos, vec3(0.0))) ||
+			any(greaterThan(samplePos, vec3(voxelDim))))
+			break;
 
 		if (texelFetch(voxelAlbedoTex, ivec3(samplePos), 0).a > 0.0)
 		{
 			occlusion = 1.0;
 			break;
 		}
+
+		// move further into volume
+		dst += voxelTexSize;
+		samplePos = position + (direction * dst);
 	}
 
 	return 1.0 - occlusion;
@@ -82,42 +79,54 @@ float traceShadow(vec3 position, vec3 direction, float maxTracingDistance)
 
 vec3 calculatePointLight(vec3 lightIntensity, vec3 lightPos, vec3 position, vec3 normal)
 {
+	// vector between light and position in world space
 	vec3 lightDir = lightPos - position;
 	lightDir = normalize(lightDir);
 
+	// dot product of surface normal and light vector, gives n.l term
 	float NdotL = max(dot(normal, lightDir), 0.0);
 
+	// get the surface position and light position voxels in texture
+	// coordinates [0,0,0 - 256,256,256]
 	vec3 voxelPos = worldToIndex(position);
 	vec3 lightVoxelPos = worldToIndex(lightPos);
+	// vector between light and position in texture coordinate space
 	vec3 lightVoxelDir = lightVoxelPos - voxelPos;
-	float lightVoxelDistance = distance(lightVoxelPos, voxelPos);
 	lightVoxelDir = normalize(lightVoxelDir);
+	// distance between light and position in texture coordinate space
+	float lightVoxelDistance = distance(lightVoxelPos, voxelPos);
 
+	// calculate whether the position voxel is in shadow through raytracing
 	float visibility = traceShadow(voxelPos, lightVoxelDir, lightVoxelDistance);
 
-	float lightDistance = distance(lightPos, position);
-	lightDistance /= 1000.0;
-	float falloff = 1.0 - (lightDistance * lightDistance);
-	falloff = clamp(falloff, 0.0, 1.0);
+	// float lightDistance = distance(lightPos, position);
+	// lightDistance /= 1000.0;
+	// float falloff = 1.0 - (lightDistance * lightDistance);
+	// falloff = clamp(falloff, 0.0, 1.0);
 
-	return lightIntensity * visibility * NdotL * falloff;
+	lightIntensity = vec3(1.0);
+
+	return lightIntensity * visibility * NdotL; // * falloff;
 }
 
 vec3 calculateDirectLighting(vec3 position, vec3 normal)
 {
 	normal = normalize(normal);
+	// calculate the size of one voxel in world space
 	float voxelSize = (2.0 * orthoWidth) / float(voxelDim);
-
-	position = position + (normal * voxelSize);
+	// move to the next voxel above the surface in world space,
+	// to avoid self shadowing artefact
+	position = position + (normal * ceil(voxelSize));
 
 	vec3 directLight = vec3(0.0);
 
-	for (int i = 0; i < numLights; ++i)
+	// for (int i = 0; i < numLights; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		directLight += calculatePointLight(lightColors[i], lightPositions[i], position, normal);
 	}
 
-	return directLight / numLights;
+	return directLight; // / numLights;
 }
 
 void main()
