@@ -1,5 +1,7 @@
 #version 430
 
+const float EPSILON = 1e-30;
+
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 layout(binding = 0, rgba8) uniform image3D u_voxelEmissiveTex;
 
@@ -13,7 +15,6 @@ uniform vec3 sceneCenter;
 // lights
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
-
 uniform int numLights;
 
 vec3 indexToWorld(ivec3 pos)
@@ -48,10 +49,9 @@ float traceShadow(vec3 position, vec3 direction, float maxTracingDistance)
 {
 	// navigate through the texture using the size of a single voxel
 	float voxelTexSize = 1.0;
-	// float voxelTexSize = 1.0 / float(voxelDim);
 	// move one voxel further to avoid self collision
-	float dst = voxelTexSize;
-	// float dst = voxelTexSize * 2.0;
+	float dst = voxelTexSize * 2.0;
+	// float dst = voxelTexSize;
 
 	// control variables
 	float occlusion = 0.0;
@@ -63,10 +63,11 @@ float traceShadow(vec3 position, vec3 direction, float maxTracingDistance)
 			any(greaterThan(samplePos, vec3(voxelDim))))
 			break;
 
-		if (texelFetch(voxelAlbedoTex, ivec3(samplePos), 0).a > 0.0)
+		float texelOpacity = texelFetch(voxelAlbedoTex, ivec3(samplePos), 0).a;
+
+		if (texelOpacity > EPSILON)
 		{
-			occlusion = 1.0;
-			break;
+			return 0.0;
 		}
 
 		// move further into volume

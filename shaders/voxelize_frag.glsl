@@ -46,7 +46,7 @@ void imageAtomicRGBA8Avg(layout(r32ui) coherent volatile uimage3D imgUI, ivec3 c
 
 vec3 packNormal(vec3 normal)
 {
-	return vec3(0.5) + (normal / 2.0);
+	return (normal * 0.5)  + vec3(0.5);
 }
 
 void main()
