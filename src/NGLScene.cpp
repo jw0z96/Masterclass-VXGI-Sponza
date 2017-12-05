@@ -92,9 +92,9 @@ void NGLScene::initializeGL()
 	shader->setUniform("normalMap", 1);
 	shader->setUniform("metallicMap", 2);
 	shader->setUniform("roughnessMap", 3);
-	shader->setUniform("voxelAlbedoTex", 5);
-	shader->setUniform("voxelNormalTex", 6);
-	shader->setUniform("voxelEmissiveTex", 7);
+	// shader->setUniform("voxelAlbedoTex", 5);
+	// shader->setUniform("voxelNormalTex", 6);
+	// shader->setUniform("voxelEmissiveTex", 7);
 
 	// create the output shader program
 	shader->loadShader("outputPass",
@@ -109,6 +109,7 @@ void NGLScene::initializeGL()
 	shader->setUniform("metalRoughTex", 4);
 	shader->setUniform("voxelAlbedoTex", 5);
 	shader->setUniform("voxelNormalTex", 6);
+	shader->setUniform("voxelEmissiveTex", 7);
 
 	// create the output shader program
 	// shader->loadShader("outputTestPass",
@@ -258,14 +259,14 @@ void NGLScene::paintGL()
 	//----------------------------------------------------------------------------------------------------------------------
 
 	// Check if the FBO needs to be recreated. This occurs after a resize.
-	// if (m_isFBODirty)
-	// {
-	// 	initFBO();
-	// }
+	if (m_isFBODirty)
+	{
+		initFBO();
+	}
 
 	// bind the gBuffer FBO
-	glBindFramebuffer(GL_FRAMEBUFFER, 1);
-	// glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
+	// glBindFramebuffer(GL_FRAMEBUFFER, 1);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
 	// clear the screen and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0,0,m_win.width,m_win.height);
@@ -302,12 +303,12 @@ void NGLScene::paintGL()
 	shader->setUniform("orthoWidth", orthoWidth);
 	shader->setUniform("sceneCenter", objectCenter);
 
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
-	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
+	// glActiveTexture(GL_TEXTURE5);
+	// glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
+	// glActiveTexture(GL_TEXTURE6);
+	// glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
+	// glActiveTexture(GL_TEXTURE7);
+	// glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
 
 	// draw our scene geometry
 	drawScene();
@@ -315,7 +316,6 @@ void NGLScene::paintGL()
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT PASS START
 	//----------------------------------------------------------------------------------------------------------------------
-	/*
 
 	// unbind FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
@@ -338,6 +338,8 @@ void NGLScene::paintGL()
 	glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
 
 	shader->use("outputPass");
 	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
@@ -356,6 +358,7 @@ void NGLScene::paintGL()
 	shader->setUniform("orthoWidth", orthoWidth);
 	shader->setUniform("sceneCenter", objectCenter);
 	shader->setUniform("debugPos", m_lightPositions[0]);
+	shader->setUniform("numLights", numLights);
 
 	for(size_t i=0; i<m_lightPositions.size(); ++i)
 	{

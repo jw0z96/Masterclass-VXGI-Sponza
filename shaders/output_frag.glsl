@@ -8,6 +8,7 @@ uniform sampler2D metalRoughTex;
 
 uniform sampler3D voxelAlbedoTex;
 uniform sampler3D voxelNormalTex;
+uniform sampler3D voxelEmissiveTex;
 
 uniform int voxelDim;
 uniform float orthoWidth;
@@ -17,16 +18,23 @@ uniform vec3 sceneCenter;
 uniform vec2 windowSize;
 
 // lights
+uniform int numLights;
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 
 uniform vec3 camPos;
 uniform bool gBufferView;
+uniform vec3 debugPos;
 
 const float PI = 3.14159265359;
 
 // The output colour. At location 0 it will be sent to the screen.
 layout (location=0) out vec4 fragColor;
+
+vec3 unpackNormal(vec3 normal)
+{
+	return (normal * 2.0) - vec3(1.0);
+}
 
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -97,6 +105,7 @@ void main()
 
 	vec3 voxelTexAlbedo = texture(voxelAlbedoTex, textureIndex).rgb;
 	vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
+	vec3 voxelTexEmissive = texture(voxelEmissiveTex, textureIndex).rgb;
 
 	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
 	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
@@ -105,7 +114,7 @@ void main()
 
 	// reflectance equation
 	vec3 Lo = vec3(0.0);
-	for(int i = 0; i < 4; ++i)
+	for(int i = 0; i < numLights; ++i)
 	{
 		// calculate per-light radiance
 		vec3 lightVector = normalize(lightPositions[i] - WSPos);
@@ -158,12 +167,12 @@ void main()
 		{
 			if (texpos.y >= 0.5)
 			{
-				fragColor = vec4(voxelTexAlbedo, 1.0);
+				fragColor = vec4(voxelTexEmissive, 1.0);
 				// fragColor = vec4(WSPos/1000.0, 1.0);
 			}
 			else
 			{
-				fragColor = vec4(voxelTexNormal, 1.0);
+				fragColor = vec4(unpackNormal(voxelTexNormal), 1.0);
 			}
 		}
 		else

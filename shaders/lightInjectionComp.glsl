@@ -13,9 +13,9 @@ uniform float orthoWidth;
 uniform vec3 sceneCenter;
 
 // lights
+uniform int numLights;
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
-uniform int numLights;
 
 vec3 indexToWorld(ivec3 pos)
 {
