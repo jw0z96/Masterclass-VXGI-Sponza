@@ -119,7 +119,7 @@ void NGLScene::initializeGL()
 	// shader->use("outputTestPass");
 	// shader->setUniform("inTex", 0);
 
-	// create the compute shader program
+	// create the light injection compute shader program
 	shader->createShaderProgram("lightInjectionPass");
 	shader->attachShader("lightInjectionPassComp", ngl::ShaderType::COMPUTE );
 	shader->loadShaderSource("lightInjectionPassComp", "shaders/lightInjectionComp.glsl" );
@@ -130,6 +130,17 @@ void NGLScene::initializeGL()
 	shader->use("lightInjectionPass");
 	shader->setUniform("voxelAlbedoTex", 1);
 	shader->setUniform("voxelNormalTex", 2);
+
+	// create the mipmapping compute shader program
+	shader->createShaderProgram("mipMapPass");
+	shader->attachShader("mipMapPassComp", ngl::ShaderType::COMPUTE );
+	shader->loadShaderSource("mipMapPassComp", "shaders/mipMapComp.glsl" );
+	shader->compileShader("mipMapPassComp");
+	shader->attachShaderToProgram("mipMapPass", "mipMapPassComp");
+	shader->linkProgramObject("mipMapPass");
+
+	shader->use("mipMapPassPass");
+	shader->setUniform("lowerMip", 1);
 
 	// Grey Background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -155,7 +166,14 @@ void NGLScene::initializeGL()
 	m_voxelDim = 256;
 	m_voxelAlbedoTex = gen3DTextureRGBA8(m_voxelDim);
 	m_voxelNormalTex = gen3DTextureRGBA8(m_voxelDim);
-	m_voxelEmissiveTex = gen3DTextureRGBA8(m_voxelDim);
+
+	int mipResolution = m_voxelDim;
+	int mipCount = 4;
+	for (int i = 0; i < mipCount; ++i)
+	{
+		m_voxelEmissiveTex.push_back(gen3DTextureRGBA8(mipResolution));
+		mipResolution /= 2;
+	}
 
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
@@ -230,8 +248,8 @@ void NGLScene::paintGL()
 
 	shader->use("lightInjectionPass");
 
-	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
-	glBindImageTexture(0, m_voxelEmissiveTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex[0]);
+	glBindImageTexture(0, m_voxelEmissiveTex[0], 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
@@ -253,6 +271,18 @@ void NGLScene::paintGL()
 	}
 
 	glDispatchCompute(ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0));
+
+	//----------------------------------------------------------------------------------------------------------------------
+	/// MIPMAPPING PASS START
+	//----------------------------------------------------------------------------------------------------------------------
+
+	shader->use("mipMapPass");
+	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex[1]);
+	glBindImageTexture(0, m_voxelEmissiveTex[1], 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex[0]);
+	int workgroups = ceil((0.5 * m_voxelDim) / 8.0);
+	glDispatchCompute(ceil(m_voxelDim / (2.0 * 8.0)), ceil(m_voxelDim / (2.0 * 8.0)), ceil(m_voxelDim / (2.0 * 8.0)));
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// G BUFFER PASS START
@@ -339,7 +369,7 @@ void NGLScene::paintGL()
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
 	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
+	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex[1]);
 
 	shader->use("outputPass");
 	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
@@ -354,7 +384,7 @@ void NGLScene::paintGL()
 	// debug mode bool
 	shader->setUniform("gBufferView", m_gBufferView);
 
-	shader->setUniform("voxelDim", m_voxelDim);
+	shader->setUniform("voxelDim", int(m_voxelDim / 2.0));
 	shader->setUniform("orthoWidth", orthoWidth);
 	shader->setUniform("sceneCenter", objectCenter);
 	shader->setUniform("debugPos", m_lightPositions[0]);
