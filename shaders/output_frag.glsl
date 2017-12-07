@@ -1,14 +1,14 @@
 #version 430
 // The texture to be mapped
-uniform sampler2D WSPositionTex;
-uniform sampler2D WSNormalTex;
-uniform sampler2D depthTex;
-uniform sampler2D albedoTex;
-uniform sampler2D metalRoughTex;
+layout(binding = 0) uniform sampler2D WSPositionTex;
+layout(binding = 1) uniform sampler2D WSNormalTex;
+layout(binding = 2) uniform sampler2D depthTex;
+layout(binding = 3) uniform sampler2D albedoTex;
+layout(binding = 4) uniform sampler2D metalRoughTex;
 
-uniform sampler3D voxelAlbedoTex;
-uniform sampler3D voxelNormalTex;
-uniform sampler3D voxelEmissiveTex;
+// uniform sampler3D voxelAlbedoTex;
+// uniform sampler3D voxelNormalTex;
+layout(binding = 5) uniform sampler3D voxelEmissiveTex;
 
 uniform int voxelDim;
 uniform float orthoWidth;
@@ -103,9 +103,9 @@ void main()
 	// textureIndex += debugPos;
 	textureIndex /= (orthoWidth * 2);
 
-	vec3 voxelTexAlbedo = texture(voxelAlbedoTex, textureIndex).rgb;
-	vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
-	vec3 voxelTexEmissive = texture(voxelEmissiveTex, textureIndex).rgb;
+	// vec3 voxelTexAlbedo = texture(voxelAlbedoTex, textureIndex).rgb;
+	// vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
+	vec3 voxelTexEmissive = textureLod(voxelEmissiveTex, textureIndex, 2.0).rgb;
 
 	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
 	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
@@ -114,7 +114,8 @@ void main()
 
 	// reflectance equation
 	vec3 Lo = vec3(0.0);
-	for(int i = 0; i < numLights; ++i)
+	// for(int i = 0; i < numLights; ++i)
+	for(int i = 0; i < 1; ++i)
 	{
 		// calculate per-light radiance
 		vec3 lightVector = normalize(lightPositions[i] - WSPos);
@@ -147,7 +148,7 @@ void main()
 		float NdotL = max(dot(WSNormal, lightVector), 0.0);
 
 		// add to outgoing radiance Lo
-		Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+		Lo += (kD * albedo / PI + specular) * voxelTexEmissive * 10.0; //* radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 	}
 
 	// ambient lighting term
@@ -172,7 +173,8 @@ void main()
 			}
 			else
 			{
-				fragColor = vec4(unpackNormal(voxelTexNormal), 1.0);
+				fragColor = vec4(fragShaded, 1.0);
+				// fragColor = vec4(unpackNormal(voxelTexNormal), 1.0);
 			}
 		}
 		else

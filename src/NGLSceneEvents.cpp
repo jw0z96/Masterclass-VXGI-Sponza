@@ -20,7 +20,7 @@ void NGLScene::resizeGL( int _w, int _h )
 void NGLScene::setLightPosition(int _i, ngl::Vec3 _pos)
 {
 	m_lightPositions[_i] = _pos;
-	update();
+	m_isLightingDirty = true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

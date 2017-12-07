@@ -43,8 +43,10 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	// set the shape using FOV 50, Aspect Ratio based on Width and Height, near & far clip
 	m_cam.setProjection(50,(float)m_win.width/m_win.height,1.0f,800.0f);
 
-	startTimer(10);
 	m_isFBODirty = true;
+	m_isLightingDirty = true;
+
+	startTimer(10);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -107,9 +109,9 @@ void NGLScene::initializeGL()
 	shader->setUniform("depthTex", 2);
 	shader->setUniform("albedoTex", 3);
 	shader->setUniform("metalRoughTex", 4);
-	shader->setUniform("voxelAlbedoTex", 5);
-	shader->setUniform("voxelNormalTex", 6);
-	shader->setUniform("voxelEmissiveTex", 7);
+	// shader->setUniform("voxelAlbedoTex", 5);
+	// shader->setUniform("voxelNormalTex", 6);
+	shader->setUniform("voxelEmissiveTex", 5);
 
 	// create the output shader program
 	// shader->loadShader("outputTestPass",
@@ -222,37 +224,52 @@ void NGLScene::paintGL()
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// LIGHT INJECTION PASS START
 	//----------------------------------------------------------------------------------------------------------------------
 
-	shader->use("lightInjectionPass");
-
-	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
-	glBindImageTexture(0, m_voxelEmissiveTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
-
-	shader->setUniform("voxelDim", m_voxelDim);
-	shader->setUniform("orthoWidth", orthoWidth);
-	shader->setUniform("sceneCenter", objectCenter);
-
-	int numLights = m_lightPositions.size();
-
-	shader->setUniform("numLights", numLights);
-
-	for(size_t i = 0; i < numLights; ++i)
+	// Check if the emissive tex needs to be recreated, This occurs after a light is moved.
+	if (m_isLightingDirty)
 	{
-		shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),m_lightPositions[i]);
-		shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),m_lightColors[i]);
-	}
+		shader->use("lightInjectionPass");
 
-	glDispatchCompute(ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0));
+		glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
+		glBindImageTexture(0, m_voxelEmissiveTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
+
+		shader->setUniform("voxelDim", m_voxelDim);
+		shader->setUniform("orthoWidth", orthoWidth);
+		shader->setUniform("sceneCenter", objectCenter);
+
+		int numLights = m_lightPositions.size();
+
+		shader->setUniform("numLights", numLights);
+
+		for(size_t i = 0; i < numLights; ++i)
+		{
+			shader->setUniform(("lightPositions[" + std::to_string(i) + "]").c_str(),m_lightPositions[i]);
+			shader->setUniform(("lightColors[" + std::to_string(i) + "]").c_str(),m_lightColors[i]);
+		}
+
+		glDispatchCompute(ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0));
+
+		glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
+		glGenerateMipmap(GL_TEXTURE_3D);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_3D, 0);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_3D, 0);
+
+		m_isLightingDirty = false;
+	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// G BUFFER PASS START
@@ -312,6 +329,15 @@ void NGLScene::paintGL()
 	// draw our scene geometry
 	drawScene();
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT PASS START
 	//----------------------------------------------------------------------------------------------------------------------
@@ -334,12 +360,7 @@ void NGLScene::paintGL()
 	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
 
 	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
-	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
-	glGenerateMipmap(GL_TEXTURE_3D);
 
 	shader->use("outputPass");
 	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
@@ -358,6 +379,8 @@ void NGLScene::paintGL()
 	shader->setUniform("orthoWidth", orthoWidth);
 	shader->setUniform("sceneCenter", objectCenter);
 	shader->setUniform("debugPos", m_lightPositions[0]);
+
+	int numLights = m_lightPositions.size();
 	shader->setUniform("numLights", numLights);
 
 	for(size_t i=0; i<m_lightPositions.size(); ++i)
@@ -367,6 +390,19 @@ void NGLScene::paintGL()
 	}
 
 	prim->draw("ScreenAlignedQuad");
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_3D, 0);
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT TESTING PASS START
