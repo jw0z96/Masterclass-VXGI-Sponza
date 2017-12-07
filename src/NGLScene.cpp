@@ -309,7 +309,6 @@ void NGLScene::paintGL()
 	// glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
 	// glActiveTexture(GL_TEXTURE7);
 	// glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
-
 	// draw our scene geometry
 	drawScene();
 
@@ -340,6 +339,7 @@ void NGLScene::paintGL()
 	glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
+	glGenerateMipmap(GL_TEXTURE_3D);
 
 	shader->use("outputPass");
 	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
