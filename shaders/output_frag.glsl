@@ -36,6 +36,17 @@ vec3 unpackNormal(vec3 normal)
 	return (normal * 2.0) - vec3(1.0);
 }
 
+vec3 worldToTexCoord(vec3 pos)
+{
+	float textureSize = (2.0 * orthoWidth);
+	vec3 worldMinPoint = sceneCenter - vec3(orthoWidth);
+	vec3 result = pos;
+	result *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
+	result -= worldMinPoint;
+	result /= textureSize;
+	return result;
+}
+
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -97,15 +108,9 @@ void main()
 
 	vec3 viewVector = normalize(camPos - WSPos);
 
-	vec3 textureIndex = WSPos;
-	textureIndex *= vec3(1.0, 1.0, -1.0); // 3d texture is flipped somehow
-	textureIndex += vec3(orthoWidth) - sceneCenter;
-	// textureIndex += debugPos;
-	textureIndex /= (orthoWidth * 2);
-
 	// vec3 voxelTexAlbedo = texture(voxelAlbedoTex, textureIndex).rgb;
 	// vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
-	vec3 voxelTexEmissive = textureLod(voxelEmissiveTex, textureIndex, 2.0).rgb;
+	vec3 voxelTexEmissive = textureLod(voxelEmissiveTex, worldToTexCoord(WSPos), 0.0).rgb;
 
 	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
 	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
