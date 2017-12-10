@@ -10,6 +10,9 @@ layout(binding = 4) uniform sampler2D metalRoughTex;
 // uniform sampler3D voxelNormalTex;
 layout(binding = 5) uniform sampler3D voxelEmissiveTex;
 
+// The output colour. At location 0 it will be sent to the screen.
+layout (location=0) out vec4 fragColor;
+
 uniform int voxelDim;
 uniform float orthoWidth;
 uniform vec3 sceneCenter;
@@ -28,8 +31,25 @@ uniform vec3 debugPos;
 
 const float PI = 3.14159265359;
 
-// The output colour. At location 0 it will be sent to the screen.
-layout (location=0) out vec4 fragColor;
+const vec3 diffuseConeDirections[] =
+{
+	vec3(0.0f, 1.0f, 0.0f),
+	vec3(0.0f, 0.5f, 0.866025f),
+	vec3(0.823639f, 0.5f, 0.267617f),
+	vec3(0.509037f, 0.5f, -0.7006629f),
+	vec3(-0.50937f, 0.5f, -0.7006629f),
+	vec3(-0.823639f, 0.5f, 0.267617f)
+};
+
+const float diffuseConeWeights[] =
+{
+	PI / 4.0f,
+	3.0f * PI / 20.0f,
+	3.0f * PI / 20.0f,
+	3.0f * PI / 20.0f,
+	3.0f * PI / 20.0f,
+	3.0f * PI / 20.0f,
+};
 
 vec3 unpackNormal(vec3 normal)
 {
@@ -48,46 +68,85 @@ vec3 worldToTexCoord(vec3 pos)
 }
 
 // ----------------------------------------------------------------------------
-float DistributionGGX(vec3 N, vec3 H, float roughness)
+
+vec3 traceCone(vec3 position, vec3 normal, vec3 direction, float aperture)
 {
-	float a = roughness*roughness;
-	float a2 = a*a;
-	float NdotH = max(dot(N, H), 0.0);
-	float NdotH2 = NdotH*NdotH;
+	// world space grid voxel size
+	float voxelSize = (2.0 * orthoWidth) / float(voxelDim);
 
-	float nom   = a2;
-	float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-	denom = PI * denom * denom;
+	// move further to avoid self collision
+	float dst = voxelSize;
+	vec3 startPosition = position + normal * dst;
 
-	return nom / denom;
+	// final results
+	vec3 result = vec3(0.0);
+	float maxTracingDistanceGlobal = 100.0;
+	float maxDistance = maxTracingDistanceGlobal * (1.0 / voxelSize);
+	maxDistance = voxelSize * 50.0;
+
+	// out of boundaries check
+	// float enter = 0.0; float leave = 0.0;
+
+	// if(!IntersectRayWithWorldAABB(position, direction, enter, leave))
+	// {
+	// 	coneSample.a = 1.0f;
+	// }
+
+	while(dst <= maxDistance)
+	{
+		vec3 conePosition = startPosition + direction * dst;
+		// cone expansion and respective mip level based on diameter
+		float diameter = 2.0 * aperture * dst;
+		float mipLevel = log2(diameter / voxelSize);
+		// convert position to texture coord
+		vec3 coord = worldToTexCoord(conePosition);
+		// get directional sample from anisotropic representation
+		result += textureLod(voxelEmissiveTex, coord, mipLevel).rgb;
+		// move further into volume
+		dst += diameter * 0.5;
+	}
+
+	return result;
 }
+
 // ----------------------------------------------------------------------------
-float GeometrySchlickGGX(float NdotV, float roughness)
+
+vec3 calculateIndirectLighting(vec3 albedo, vec3 position, vec3 normal)
 {
-	float r = (roughness + 1.0);
-	float k = (r*r) / 8.0;
+	vec3 diffuse = vec3(0.0);
 
-	float nom   = NdotV;
-	float denom = NdotV * (1.0 - k) + k;
+	// component greater than zero
+	// if(any(greaterThan(albedo, vec3(0.0))))
+	// {
+		// diffuse cone setup
+		const float aperture = 0.57735f;
+		vec3 guide = vec3(0.0f, 1.0f, 0.0f);
 
-	return nom / denom;
-}
-// ----------------------------------------------------------------------------
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
-{
-	float NdotV = max(dot(N, V), 0.0);
-	float NdotL = max(dot(N, L), 0.0);
-	float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-	float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+		if (abs(dot(normal, guide)) == 1.0f)
+		{
+			guide = vec3(0.0f, 0.0f, 1.0f);
+		}
 
-	return ggx1 * ggx2;
+		// Find a tangent and a bitangent
+		vec3 right = normalize(guide - dot(normal, guide) * normal);
+		vec3 up = cross(right, normal);
+
+		for(int i = 0; i < 6; i++)
+		{
+			vec3 coneDirection = normal;
+			coneDirection += diffuseConeDirections[i].x * right + diffuseConeDirections[i].z * up;
+			coneDirection = normalize(coneDirection);
+			// cumulative result
+			diffuse += traceCone(position, normal, coneDirection, aperture) * diffuseConeWeights[i];
+		}
+
+		diffuse.rgb *= albedo;
+	// }
+
+	vec3 result = diffuse;
+
+	return result;
 }
-// ----------------------------------------------------------------------------
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
-{
-	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-}
-// ----------------------------------------------------------------------------
 
 void main()
 {
@@ -112,55 +171,7 @@ void main()
 	// vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
 	vec3 voxelTexEmissive = textureLod(voxelEmissiveTex, worldToTexCoord(WSPos), 0.0).rgb;
 
-	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
-	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
-	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, albedo, metalness);
-
-	// reflectance equation
-	vec3 Lo = vec3(0.0);
-	// for(int i = 0; i < numLights; ++i)
-	for(int i = 0; i < 1; ++i)
-	{
-		// calculate per-light radiance
-		vec3 lightVector = normalize(lightPositions[i] - WSPos);
-		vec3 halfVector = normalize(viewVector + lightVector);
-		float distance = length(lightPositions[i] - WSPos);
-		float attenuation = 1000000.0 / (distance * distance);
-		vec3 radiance = vec3(attenuation); //lightColors[i] * attenuation;
-
-		// Cook-Torrance BRDF
-		float NDF = DistributionGGX(WSNormal, halfVector, roughness);
-		float G   = GeometrySmith(WSNormal, viewVector, lightVector, roughness);
-		vec3 F    = fresnelSchlick(max(dot(halfVector, viewVector), 0.0), F0);
-
-		vec3 nominator    = NDF * G * F;
-		float denominator = 4 * max(dot(WSNormal, viewVector), 0.0) * max(dot(WSNormal, lightVector), 0.0) + 0.001; // 0.001 to prevent divide by zero.
-		vec3 specular = nominator / denominator;
-
-		// kS is equal to Fresnel
-		vec3 kS = F;
-		// for energy conservation, the diffuse and specular light can't
-		// be above 1.0 (unless the surface emits light); to preserve this
-		// relationship the diffuse component (kD) should equal 1.0 - kS.
-		vec3 kD = vec3(1.0) - kS;
-		// multiply kD by the inverse metalness such that only non-metals
-		// have diffuse lighting, or a linear blend if partly metal (pure metals
-		// have no diffuse light).
-		kD *= 1.0 - metalness;
-
-		// scale light by NdotL
-		float NdotL = max(dot(WSNormal, lightVector), 0.0);
-
-		// add to outgoing radiance Lo
-		Lo += (kD * albedo / PI + specular) * voxelTexEmissive * 10.0; //* radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-	}
-
-	// ambient lighting term
-	// this will probably be where i put my VXGI
-	vec3 ambient = vec3(0.03) * albedo;
-
-	vec3 fragShaded = Lo + ambient;
+	vec3 fragShaded = voxelTexEmissive + calculateIndirectLighting(albedo, WSPos, WSNormal);
 
 	// HDR tonemapping
 	fragShaded = fragShaded / (fragShaded + vec3(1.0));
