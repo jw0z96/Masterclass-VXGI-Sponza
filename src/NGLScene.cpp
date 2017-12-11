@@ -378,7 +378,7 @@ void NGLScene::paintGL()
 	shader->setUniform("voxelDim", m_voxelDim);
 	shader->setUniform("orthoWidth", orthoWidth);
 	shader->setUniform("sceneCenter", objectCenter);
-	shader->setUniform("debugPos", m_lightPositions[0]);
+	shader->setUniform("debugPos", m_lightPositions[1]);
 
 	int numLights = m_lightPositions.size();
 	shader->setUniform("numLights", numLights);
