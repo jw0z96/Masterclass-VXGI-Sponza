@@ -200,30 +200,29 @@ vec3 calculateReflection(vec3 position, vec3 normal, vec3 albedo, float roughnes
 	coneDirection = normalize(coneDirection);
 	// specular cone setup, minimum of 1 grad, fewer can severly slow down performance
 	// float aperture = clamp(tan(HALF_PI * (1.0f - specular.a)), 0.0174533f, PI);
-	// const float specularAperture = 0.57735 / 100.0;
-	const float specularAperture = clamp(tan(HALF_PI * (1.0f - roughness)), 0.0174533f, PI);
-	specularCones = traceCone(position, normal, coneDirection, specularAperture);
+	// const float specularAperture = 0.57735 / 10.0;
+
 
 	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
 	// of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
 	vec3 F0 = vec3(0.04);
 	F0 = mix(F0, albedo, metallic);
 
-
-
-
 	for(int i = 0; i < 1; ++i)
 	{
-		// calculate per-light radiance
 		vec3 lightVector = normalize(lightPositions[i] - position);
 		vec3 halfVector = normalize(viewDirection + lightVector);
+
 		// Cook-Torrance BRDF
-		vec3 F    = fresnelSchlick(max(dot(normal, viewDirection), 0.0), F0);
+		float NDF = DistributionGGX(normal, halfVector, roughness);
+		float G   = GeometrySmith(normal, viewDirection, lightVector, roughness);
+		vec3 F = fresnelSchlick(max(dot(normal, viewDirection), 0.0), F0);
+
+		float specularAperture = clamp(tan(HALF_PI * (1.0 - NDF - G)), 0.0174533f, PI);
+		// float specularAperture = NDF;
+		specularCones += traceCone(position, normal, coneDirection, specularAperture);
 		specularCones *= F;
 	}
-
-	// specularTrace.rgb *= specular.rgb;
-	// specularCones *= 1.0 - metallic;
 
 	return specularCones;
 }
@@ -275,13 +274,14 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		float NdotL = max(dot(normal, lightVector), 0.0);
 
 		vec3 voxelTexEmissive = textureLod(voxelEmissiveTex, worldToTexCoord(position), 0.0).rgb;
-		float shadow = (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b) / 2.0;
+		// float shadow = (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b) / 2.0;
 		// if (any(greaterThan(voxelTexEmissive, vec3(0.0))))
 			// shadow = 1.0;
 		// add to outgoing radiance Lo
-		Lo += (kD * albedo / PI + specular) * NdotL * 10.0 * shadow;
+		// Lo += (kD * albedo / PI + specular) * NdotL * 10.0 * shadow;
 		// Lo = specular;
-		// Lo += (kD * albedo / PI + specular) * NdotL * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); // * radiance  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+		Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); // * radiance  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+		// Lo += (kD * albedo / PI + specular) * NdotL * radiance; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		// Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); //* radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		// Lo = albedo * NdotL * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b);
 	}
@@ -316,6 +316,7 @@ void main()
 	vec3 reflection = calculateReflection(WSPos, WSNormal, albedo, roughness, metalness);
 	vec3 Lo = calculateDirectLighting(WSPos, WSNormal, albedo, roughness, metalness, reflection);
 	vec3 fragShaded = Lo + reflection + indirectLighting;
+	// vec3 fragShaded = Lo + reflection;
 	// HDR tonemapping
 	fragShaded = fragShaded / (fragShaded + vec3(1.0));
 	// gamma correct
@@ -327,12 +328,12 @@ void main()
 		{
 			if (texpos.y >= 0.5)
 			{
-				fragColor = vec4(voxelTexEmissive, 1.0);
+				fragColor = vec4(fragShaded, 1.0);
 				// fragColor = vec4(WSPos/1000.0, 1.0);
 			}
 			else
 			{
-				fragColor = vec4(fragShaded, 1.0);
+				fragColor = vec4(Lo, 1.0);
 				// fragColor = vec4(unpackNormal(voxelTexNormal), 1.0);
 			}
 		}
@@ -340,12 +341,12 @@ void main()
 		{
 			if (texpos.y >= 0.5)
 			{
-				fragColor = vec4(albedo, 1.0);
+				fragColor = vec4(indirectLighting, 1.0);
 				// fragColor = vec4(WSPos / 1000.0, 1.0);
 			}
 			else
 			{
-				fragColor = vec4(WSNormal, 1.0);
+				fragColor = vec4(reflection, 1.0);
 				// fragColor = vec4(metalness, roughness, 0.0, 1.0);
 			}
 		}
