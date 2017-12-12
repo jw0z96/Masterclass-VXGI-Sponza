@@ -133,29 +133,23 @@ vec3 traceCone(vec3 position, vec3 normal, vec3 direction, float aperture)
 	// float maxDistance = maxTracingDistanceGlobal * (1.0 / voxelSize);
 	float maxDistance = voxelSize * 600.0;
 
-	// out of boundaries check
-	// float enter = 0.0; float leave = 0.0;
-
-	// if(!IntersectRayWithWorldAABB(position, direction, enter, leave))
-	// {
-	// 	coneSample.a = 1.0f;
-	// }
-
 	while(dst <= maxDistance)
 	{
 		vec3 conePosition = startPosition + direction * dst;
+		// convert position to texture coord
+		vec3 coord = worldToTexCoord(conePosition);
+
 		// cone expansion and respective mip level based on diameter
 		float diameter = 2.0 * aperture * dst;
 		float mipLevel = log2(diameter / voxelSize);
-		// convert position to texture coord
-		vec3 coord = worldToTexCoord(conePosition);
-		// get directional sample from anisotropic representation
+
 		result += textureLod(voxelEmissiveTex, coord, mipLevel).rgb;
+
 		// move further into volume
 		dst += diameter * 0.5;
 	}
 
-	return result;
+	return result.rgb;
 }
 
 // ----------------------------------------------------------------------------
@@ -218,6 +212,7 @@ vec3 calculateReflection(vec3 position, vec3 normal, vec3 albedo, float roughnes
 		float G   = GeometrySmith(normal, viewDirection, lightVector, roughness);
 		vec3 F = fresnelSchlick(max(dot(normal, viewDirection), 0.0), F0);
 
+		// const float specularAperture = 0.57735 / 10.0;
 		float specularAperture = clamp(tan(HALF_PI * (1.0 - NDF - G)), 0.0174533f, PI);
 		// float specularAperture = NDF;
 		specularCones += traceCone(position, normal, coneDirection, specularAperture);
@@ -280,6 +275,7 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		// add to outgoing radiance Lo
 		// Lo += (kD * albedo / PI + specular) * NdotL * 10.0 * shadow;
 		// Lo = specular;
+		// Lo += albedo * kD * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); // * radiance  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); // * radiance  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		// Lo += (kD * albedo / PI + specular) * NdotL * radiance; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		// Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); //* radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
@@ -314,13 +310,14 @@ void main()
 
 	vec3 indirectLighting = calculateIndirectLighting(WSPos, WSNormal, albedo, roughness, metalness);
 	vec3 reflection = calculateReflection(WSPos, WSNormal, albedo, roughness, metalness);
-	vec3 Lo = calculateDirectLighting(WSPos, WSNormal, albedo, roughness, metalness, reflection);
-	vec3 fragShaded = Lo + reflection + indirectLighting;
-	// vec3 fragShaded = Lo + reflection;
+	vec3 Lo = calculateDirectLighting(WSPos, WSNormal, albedo, roughness, metalness, vec3(0.0));
+	// vec3 Lo = calculateDirectLighting(WSPos, WSNormal, albedo, roughness, metalness, reflection);
+	vec3 fragShaded = Lo + indirectLighting + reflection;
+	// vec3 fragShaded = Lo;
 	// HDR tonemapping
 	fragShaded = fragShaded / (fragShaded + vec3(1.0));
 	// gamma correct
-	// fragShaded = pow(fragShaded, vec3(1.0/2.2));
+	fragShaded = pow(fragShaded, vec3(1.0/2.2));
 
 	if(gBufferView)
 	{

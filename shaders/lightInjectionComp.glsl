@@ -139,19 +139,20 @@ void main()
 
 	ivec3 writePos = ivec3(gl_GlobalInvocationID);
 
-	vec3 albedo = texelFetch(voxelAlbedoTex, writePos, 0).rgb;
+	vec4 albedoTex = texelFetch(voxelAlbedoTex, writePos, 0);
 
 	vec3 radiance = vec3(0.0);
+	float opacity = 0.0;
 
-	if (any(notEqual(albedo, vec3(0.0, 0.0, 0.0))))
+	if (any(notEqual(albedoTex, vec4(0.0))))
 	{
+		opacity = 1.0;
 		vec3 normal = texelFetch(voxelNormalTex, writePos, 0).rgb;
 		normal = unpackNormal(normal);
 		vec3 worldPos = indexToWorld(writePos);
 		radiance = calculateDirectLighting(worldPos, normal);
+		radiance *= albedoTex.rgb;
 	}
 
-	radiance *= albedo;
-
-	imageStore(u_voxelEmissiveTex, writePos, vec4(radiance, 0.0));
+	imageStore(u_voxelEmissiveTex, writePos, vec4(radiance, opacity));
 }
