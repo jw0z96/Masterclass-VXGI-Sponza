@@ -1,6 +1,7 @@
 # TODO LIST
 
 - fix conservative rasterization
+- sparse texture representation
 - correct combination of shading components
 - normal weighted attenuation
 - light intensity controls
