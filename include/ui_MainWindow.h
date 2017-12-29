@@ -49,6 +49,8 @@ public:
     QCheckBox *directLightCheckBox;
     QCheckBox *reflectionCheckBox;
     QCheckBox *indirectLightCheckBox;
+    QDoubleSpinBox *specularApertureDoubleSpinBox;
+    QLabel *label;
     QSpacerItem *verticalSpacer;
     QSpacerItem *horizontalSpacer;
     QMenuBar *menubar;
@@ -134,19 +136,33 @@ public:
         directLightCheckBox->setObjectName(QStringLiteral("directLightCheckBox"));
         directLightCheckBox->setChecked(true);
 
-        gridLayout_2->addWidget(directLightCheckBox, 0, 0, 1, 1);
+        gridLayout_2->addWidget(directLightCheckBox, 0, 1, 1, 1);
 
         reflectionCheckBox = new QCheckBox(renderingControlsGB);
         reflectionCheckBox->setObjectName(QStringLiteral("reflectionCheckBox"));
         reflectionCheckBox->setChecked(true);
 
-        gridLayout_2->addWidget(reflectionCheckBox, 2, 0, 1, 1);
+        gridLayout_2->addWidget(reflectionCheckBox, 2, 1, 1, 1);
 
         indirectLightCheckBox = new QCheckBox(renderingControlsGB);
         indirectLightCheckBox->setObjectName(QStringLiteral("indirectLightCheckBox"));
         indirectLightCheckBox->setChecked(true);
 
-        gridLayout_2->addWidget(indirectLightCheckBox, 1, 0, 1, 1);
+        gridLayout_2->addWidget(indirectLightCheckBox, 1, 1, 1, 1);
+
+        specularApertureDoubleSpinBox = new QDoubleSpinBox(renderingControlsGB);
+        specularApertureDoubleSpinBox->setObjectName(QStringLiteral("specularApertureDoubleSpinBox"));
+        specularApertureDoubleSpinBox->setDecimals(2);
+        specularApertureDoubleSpinBox->setMinimum(0.01);
+        specularApertureDoubleSpinBox->setSingleStep(0.1);
+        specularApertureDoubleSpinBox->setValue(1);
+
+        gridLayout_2->addWidget(specularApertureDoubleSpinBox, 4, 1, 1, 1);
+
+        label = new QLabel(renderingControlsGB);
+        label->setObjectName(QStringLiteral("label"));
+
+        gridLayout_2->addWidget(label, 3, 1, 1, 1);
 
 
         verticalLayout->addWidget(renderingControlsGB);
@@ -188,6 +204,7 @@ public:
         directLightCheckBox->setText(QApplication::translate("MainWindow", "Direct Light", Q_NULLPTR));
         reflectionCheckBox->setText(QApplication::translate("MainWindow", "Reflections", Q_NULLPTR));
         indirectLightCheckBox->setText(QApplication::translate("MainWindow", "Indirect Light", Q_NULLPTR));
+        label->setText(QApplication::translate("MainWindow", "Specular Cone Angle Multiplier", Q_NULLPTR));
     } // retranslateUi
 
 };

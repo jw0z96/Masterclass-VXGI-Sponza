@@ -14,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_ui->indirectLightCheckBox, SIGNAL(stateChanged(int)), m_gl, SLOT(toggleIndirectLightView()));
 	connect(m_ui->reflectionCheckBox, SIGNAL(stateChanged(int)), m_gl, SLOT(toggleReflectionView()));
 
+	// set specular aperture
+	connect(m_ui->specularApertureDoubleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setSpecularAperture()));
+
 	// set the position signals
 	connect(m_ui->lightPositionX, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
 	connect(m_ui->lightPositionY, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
@@ -34,4 +37,9 @@ void MainWindow::setLightPosition()
 		m_ui->lightPositionZ->value()
 		);
 	m_gl->setLightPosition(pos);
+}
+
+void MainWindow::setSpecularAperture()
+{
+	m_gl->setSpecularAperture(m_ui->specularApertureDoubleSpinBox->value());
 }

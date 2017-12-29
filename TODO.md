@@ -1,10 +1,10 @@
 # TODO LIST
-
+- reduced to single light (DONE)
+- user control of rendering parameters
 - fix conservative rasterization
 - sparse texture representation
 - correct combination of shading components
 - soft shadows
-- user control of rendering parameters
 - normal weighted attenuation
 - light intensity controls
 - light attenuation

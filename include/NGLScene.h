@@ -54,6 +54,14 @@ public:
 	/// @brief this is called to set the positions of the lights
 	//----------------------------------------------------------------------------------------------------------------------
 	inline ngl::Vec3 getLightPosition() const {return m_lightPosition;};
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief this is called to set the positions of the lights
+	//----------------------------------------------------------------------------------------------------------------------
+	void setLightPosition(ngl::Vec3 _pos);
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief this is called to set the reflection specular aperture
+	//----------------------------------------------------------------------------------------------------------------------
+	inline void setSpecularAperture(float _aperture){m_specularAperture = _aperture;};
 
 public slots:
 	//----------------------------------------------------------------------------------------------------------------------
@@ -62,10 +70,6 @@ public slots:
 	inline void toggleDirectLightView(){m_viewDirectLight = !m_viewDirectLight;};
 	inline void toggleIndirectLightView(){m_viewIndirectLight = !m_viewIndirectLight;};
 	inline void toggleReflectionView(){m_viewReflections = !m_viewReflections;};
-	//----------------------------------------------------------------------------------------------------------------------
-	/// @brief this is called to set the positions of the lights
-	//----------------------------------------------------------------------------------------------------------------------
-	void setLightPosition(ngl::Vec3 _pos);
 
 private:
 
@@ -171,6 +175,10 @@ private:
 	bool m_viewDirectLight = true;
 	bool m_viewIndirectLight = true;
 	bool m_viewReflections = true;
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief specular aperture
+	//----------------------------------------------------------------------------------------------------------------------
+	float m_specularAperture;
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief the material file to load
 	//----------------------------------------------------------------------------------------------------------------------

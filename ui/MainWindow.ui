@@ -117,7 +117,7 @@
          <string>Rendering Controls</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
+         <item row="0" column="1">
           <widget class="QCheckBox" name="directLightCheckBox">
            <property name="text">
             <string>Direct Light</string>
@@ -127,7 +127,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="2" column="1">
           <widget class="QCheckBox" name="reflectionCheckBox">
            <property name="text">
             <string>Reflections</string>
@@ -137,13 +137,36 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="1" column="1">
           <widget class="QCheckBox" name="indirectLightCheckBox">
            <property name="text">
             <string>Indirect Light</string>
            </property>
            <property name="checked">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QDoubleSpinBox" name="specularApertureDoubleSpinBox">
+           <property name="decimals">
+            <number>2</number>
+           </property>
+           <property name="minimum">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Specular Cone Angle Multiplier</string>
            </property>
           </widget>
          </item>

@@ -24,12 +24,13 @@ uniform vec2 windowSize;
 uniform vec3 lightPosition;
 uniform vec3 lightColor;
 
+uniform float specularApertureMultiplier;
+
 uniform bool viewDirectLight;
 uniform bool viewIndirectLight;
 uniform bool viewReflections;
 
 uniform vec3 camPos;
-uniform vec3 debugPos;
 
 const float PI = 3.14159265359;
 const float HALF_PI = 1.57079f;
@@ -130,22 +131,25 @@ vec3 traceCone(vec3 position, vec3 normal, vec3 direction, float aperture)
 	vec3 startPosition = position + normal * dst;
 
 	// final results
-	vec3 result = vec3(0.0);
+	vec4 result = vec4(0.0);
 	// float maxTracingDistanceGlobal = 100.0;
 	// float maxDistance = maxTracingDistanceGlobal * (1.0 / voxelSize);
 	float maxDistance = voxelSize * 600.0;
 
-	while(dst <= maxDistance)
+	while(dst <= maxDistance && result.a < 0.5)
 	{
 		vec3 conePosition = startPosition + direction * dst;
 		// convert position to texture coord
 		vec3 coord = worldToTexCoord(conePosition);
 
+		if (any(lessThan(coord, vec3(0.0))) || any(greaterThan(coord, vec3(1.0))))
+			break;
+
 		// cone expansion and respective mip level based on diameter
 		float diameter = 2.0 * aperture * dst;
 		float mipLevel = log2(diameter / voxelSize);
 
-		result += textureLod(voxelEmissiveTex, coord, mipLevel).rgb;
+		result += textureLod(voxelEmissiveTex, coord, mipLevel);
 
 		// move further into volume
 		dst += diameter * 0.5;
@@ -214,7 +218,8 @@ vec3 calculateReflection(vec3 position, vec3 normal, vec3 albedo, float roughnes
 		vec3 F = fresnelSchlick(max(dot(normal, viewDirection), 0.0), F0);
 
 		// const float specularAperture = 0.57735 / 10.0;
-		float specularAperture = clamp(tan(HALF_PI * (1.0 - NDF - G)), 0.0174533f, PI);
+		float specularAperture = clamp(specularApertureMultiplier * tan(HALF_PI * (1.0 - NDF - G)), 0.0174533f, PI);
+		// float specularAperture = clamp(specularApertureMultiplier, 0.0174533f, PI);
 		// float specularAperture = NDF;
 		specularCones += traceCone(position, normal, coneDirection, specularAperture);
 		specularCones *= F;
