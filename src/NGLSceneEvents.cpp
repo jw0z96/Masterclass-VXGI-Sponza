@@ -17,9 +17,9 @@ void NGLScene::resizeGL( int _w, int _h )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void NGLScene::setLightPosition(int _i, ngl::Vec3 _pos)
+void NGLScene::setLightPosition(ngl::Vec3 _pos)
 {
-	m_lightPositions[_i] = _pos;
+	m_lightPosition = _pos;
 	m_isLightingDirty = true;
 }
 
@@ -27,23 +27,6 @@ void NGLScene::setLightPosition(int _i, ngl::Vec3 _pos)
 
 void NGLScene::keyPressEvent(QKeyEvent *_event)
 {
-	auto setLight=[&](std::string _num,size_t _index,bool _mode)
-	{
-		ngl::ShaderLib *shader= ngl::ShaderLib::instance();
-		shader->use("PBR");
-		if(_mode == true)
-		{
-			shader->setUniform(_num,m_lightColors[_index]);
-		}
-		else
-		{
-			ngl::Vec3 colour={0.0f,0.0f,0.0f};
-			shader->setUniform(_num,colour);
-
-		}
-
-	};
-
 	// add to our keypress set the values of any keys pressed
 	m_keysPressed += static_cast<Qt::Key>(_event->key());
 
@@ -63,15 +46,6 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
 		case Qt::Key_N : showNormal(); break;
 		case Qt::Key_L : m_drawLights^=true; break;
 		case Qt::Key_G : m_drawGeo^=true; break;
-		case Qt::Key_1 :
-		setLight("lightColors[0]",0,m_lightOn[0]^=true); break;
-		case Qt::Key_2 :
-		setLight("lightColors[1]",1,m_lightOn[1]^=true); break;
-		case Qt::Key_3 :
-		setLight("lightColors[2]",2,m_lightOn[2]^=true); break;
-		case Qt::Key_4 :
-		setLight("lightColors[3]",3,m_lightOn[3]^=true); break;
-
 		default : break;
 	}
 	// finally update the GLWindow and re-draw

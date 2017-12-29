@@ -18,56 +18,11 @@
     <item row="0" column="1">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QGroupBox" name="debugControlsGB">
-        <property name="title">
-         <string>Debug Controls</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="gBufferCheckBox">
-           <property name="text">
-            <string>G Buffer View</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
        <widget class="QGroupBox" name="lightControlsGB">
         <property name="title">
          <string>Light Controls</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="2">
-          <widget class="QSpinBox" name="lightIndexSpinBox">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>4</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QDoubleSpinBox" name="lightPositionX">
-           <property name="decimals">
-            <number>2</number>
-           </property>
-           <property name="minimum">
-            <double>-10000.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>10000.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>20.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>1000.000000000000000</double>
-           </property>
-          </widget>
-         </item>
          <item row="4" column="2">
           <widget class="QDoubleSpinBox" name="lightPositionY">
            <property name="decimals">
@@ -87,6 +42,25 @@
            </property>
           </widget>
          </item>
+         <item row="3" column="2">
+          <widget class="QDoubleSpinBox" name="lightPositionX">
+           <property name="decimals">
+            <number>2</number>
+           </property>
+           <property name="minimum">
+            <double>-10000.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>10000.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>20.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.000000000000000</double>
+           </property>
+          </widget>
+         </item>
          <item row="5" column="2">
           <widget class="QDoubleSpinBox" name="lightPositionZ">
            <property name="decimals">
@@ -103,13 +77,6 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="lightPositionLabel_2">
-           <property name="text">
-            <string>Light</string>
-           </property>
-          </widget>
-         </item>
          <item row="3" column="0">
           <widget class="QLabel" name="lightPositionLabel_1">
            <property name="text">
@@ -118,16 +85,65 @@
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="lightPositionLabel_3">
+          <widget class="QLabel" name="lightPositionLabel_2">
            <property name="text">
             <string>Pos Y</string>
            </property>
           </widget>
          </item>
          <item row="5" column="0">
-          <widget class="QLabel" name="lightPositionLabel_4">
+          <widget class="QLabel" name="lightPositionLabel_3">
            <property name="text">
             <string>Pos Z</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="lightIntensityLabel">
+           <property name="text">
+            <string>Intensity</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QDoubleSpinBox" name="lightIntensityDoubleSpinBox"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="renderingControlsGB">
+        <property name="title">
+         <string>Rendering Controls</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="directLightCheckBox">
+           <property name="text">
+            <string>Direct Light</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="reflectionCheckBox">
+           <property name="text">
+            <string>Reflections</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="indirectLightCheckBox">
+           <property name="text">
+            <string>Indirect Light</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -173,7 +189,7 @@
      <x>0</x>
      <y>0</y>
      <width>972</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>

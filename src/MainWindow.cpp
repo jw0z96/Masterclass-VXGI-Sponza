@@ -5,16 +5,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	m_ui(new Ui::MainWindow)
 {
-	m_selectedLight = 0;
 	m_ui->setupUi(this);
 	m_gl = new NGLScene(this);
 	m_ui->s_mainWindowGridLayout->addWidget(m_gl,0,0,2,1);
 
-	/// set the debug view toggle signal
-	connect(m_ui->gBufferCheckBox, SIGNAL(stateChanged(int)), m_gl, SLOT(toggleGBufferView()));
-	/// set the light index signal
-	connect(m_ui->lightIndexSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setSelectedLight()));
-	/// set the position signals
+	// set the rendering passes toggles
+	connect(m_ui->directLightCheckBox, SIGNAL(stateChanged(int)), m_gl, SLOT(toggleDirectLightView()));
+	connect(m_ui->indirectLightCheckBox, SIGNAL(stateChanged(int)), m_gl, SLOT(toggleIndirectLightView()));
+	connect(m_ui->reflectionCheckBox, SIGNAL(stateChanged(int)), m_gl, SLOT(toggleReflectionView()));
+
+	// set the position signals
 	connect(m_ui->lightPositionX, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
 	connect(m_ui->lightPositionY, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
 	connect(m_ui->lightPositionZ, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
@@ -33,15 +33,5 @@ void MainWindow::setLightPosition()
 		m_ui->lightPositionY->value(),
 		m_ui->lightPositionZ->value()
 		);
-	m_gl->setLightPosition(m_selectedLight, pos);
+	m_gl->setLightPosition(pos);
 }
-
-void MainWindow::setSelectedLight()
-{
-	m_selectedLight = m_ui->lightIndexSpinBox->value() - 1; //ui is 1-indexed
-	ngl::Vec3 pos = m_gl->getLightPosition(m_selectedLight);
-	m_ui->lightPositionX->setValue(pos.m_x);
-	m_ui->lightPositionY->setValue(pos.m_y);
-	m_ui->lightPositionZ->setValue(pos.m_z);
-}
-

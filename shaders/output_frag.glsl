@@ -20,13 +20,15 @@ uniform vec3 sceneCenter;
 // We pass the window size to the shader.
 uniform vec2 windowSize;
 
-// lights
-uniform int numLights;
-uniform vec3 lightPositions[4];
-uniform vec3 lightColors[4];
+// light
+uniform vec3 lightPosition;
+uniform vec3 lightColor;
+
+uniform bool viewDirectLight;
+uniform bool viewIndirectLight;
+uniform bool viewReflections;
 
 uniform vec3 camPos;
-uniform bool gBufferView;
 uniform vec3 debugPos;
 
 const float PI = 3.14159265359;
@@ -202,9 +204,8 @@ vec3 calculateReflection(vec3 position, vec3 normal, vec3 albedo, float roughnes
 	vec3 F0 = vec3(0.04);
 	F0 = mix(F0, albedo, metallic);
 
-	for(int i = 0; i < 1; ++i)
-	{
-		vec3 lightVector = normalize(lightPositions[i] - position);
+	// for each light
+		vec3 lightVector = normalize(lightPosition - position);
 		vec3 halfVector = normalize(viewDirection + lightVector);
 
 		// Cook-Torrance BRDF
@@ -217,7 +218,7 @@ vec3 calculateReflection(vec3 position, vec3 normal, vec3 albedo, float roughnes
 		// float specularAperture = NDF;
 		specularCones += traceCone(position, normal, coneDirection, specularAperture);
 		specularCones *= F;
-	}
+	//
 
 	return specularCones;
 }
@@ -235,15 +236,14 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 
 	// reflectance equation
 	vec3 Lo = vec3(0.0);
-	// for(int i = 0; i < numLights; ++i)
-	for(int i = 0; i < 1; ++i)
-	{
+
+	// for each light
 		// calculate per-light radiance
-		vec3 lightVector = normalize(lightPositions[i] - position);
+		vec3 lightVector = normalize(lightPosition - position);
 		vec3 halfVector = normalize(viewDirection + lightVector);
-		float distance = length(lightPositions[i] - position);
+		float distance = length(lightPosition - position);
 		float attenuation = 1000000.0 / (distance * distance);
-		vec3 radiance = vec3(attenuation); //lightColors[i] * attenuation;
+		vec3 radiance = vec3(attenuation); //lightColor * attenuation;
 
 		// Cook-Torrance BRDF
 		float NDF = DistributionGGX(normal, halfVector, roughness);
@@ -280,7 +280,7 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		// Lo += (kD * albedo / PI + specular) * NdotL * radiance; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		// Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); //* radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		// Lo = albedo * NdotL * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b);
-	}
+	//
 
 	return Lo;
 }
@@ -302,54 +302,29 @@ void main()
 	float metalness = texture(metalRoughTex, texpos).r;
 	float roughness = texture(metalRoughTex, texpos).g;
 
-	// vec3 viewVector = normalize(camPos - WSPos);
-
-	// vec3 voxelTexAlbedo = texture(voxelAlbedoTex, textureIndex).rgb;
-	// vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
 	vec3 voxelTexEmissive = textureLod(voxelEmissiveTex, worldToTexCoord(WSPos), 0.0).rgb;
 
-	vec3 indirectLighting = calculateIndirectLighting(WSPos, WSNormal, albedo, roughness, metalness);
-	vec3 reflection = calculateReflection(WSPos, WSNormal, albedo, roughness, metalness);
-	vec3 Lo = calculateDirectLighting(WSPos, WSNormal, albedo, roughness, metalness, vec3(0.0));
-	// vec3 Lo = calculateDirectLighting(WSPos, WSNormal, albedo, roughness, metalness, reflection);
-	vec3 fragShaded = Lo + indirectLighting + reflection;
-	// vec3 fragShaded = Lo;
+	vec3 fragShaded = vec3(0.0);
+
+	if (viewDirectLight)
+	{
+		fragShaded += calculateDirectLighting(WSPos, WSNormal, albedo, roughness, metalness, vec3(0.0));
+	}
+
+	if (viewIndirectLight)
+	{
+		fragShaded += calculateIndirectLighting(WSPos, WSNormal, albedo, roughness, metalness);
+	}
+
+	if (viewReflections)
+	{
+		fragShaded += calculateReflection(WSPos, WSNormal, albedo, roughness, metalness);
+	}
+
 	// HDR tonemapping
 	fragShaded = fragShaded / (fragShaded + vec3(1.0));
 	// gamma correct
 	fragShaded = pow(fragShaded, vec3(1.0/2.2));
 
-	if(gBufferView)
-	{
-		if (texpos.x >= 0.5)
-		{
-			if (texpos.y >= 0.5)
-			{
-				fragColor = vec4(fragShaded, 1.0);
-				// fragColor = vec4(WSPos/1000.0, 1.0);
-			}
-			else
-			{
-				fragColor = vec4(Lo, 1.0);
-				// fragColor = vec4(unpackNormal(voxelTexNormal), 1.0);
-			}
-		}
-		else
-		{
-			if (texpos.y >= 0.5)
-			{
-				fragColor = vec4(indirectLighting, 1.0);
-				// fragColor = vec4(WSPos / 1000.0, 1.0);
-			}
-			else
-			{
-				fragColor = vec4(reflection, 1.0);
-				// fragColor = vec4(metalness, roughness, 0.0, 1.0);
-			}
-		}
-	}
-	else
-	{
-		fragColor = vec4(fragShaded, 1.0);
-	}
+	fragColor = vec4(fragShaded, 0.0);
 }

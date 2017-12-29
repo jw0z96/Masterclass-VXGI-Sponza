@@ -12,10 +12,9 @@ uniform int voxelDim;
 uniform float orthoWidth;
 uniform vec3 sceneCenter;
 
-// lights
-uniform int numLights;
-uniform vec3 lightPositions[4];
-uniform vec3 lightColors[4];
+// light
+uniform vec3 lightPosition;
+uniform vec3 lightColor;
 
 vec3 indexToWorld(ivec3 pos)
 {
@@ -121,13 +120,11 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal)
 
 	vec3 directLight = vec3(0.0);
 
-	// for (int i = 0; i < numLights; ++i)
-	for (int i = 0; i < 1; ++i)
-	{
-		directLight += calculatePointLight(lightColors[i], lightPositions[i], position, normal);
-	}
+	// for each light
+		directLight += calculatePointLight(lightColor, lightPosition, position, normal);
+	//
 
-	return directLight; // / numLights;
+	return directLight;
 }
 
 void main()

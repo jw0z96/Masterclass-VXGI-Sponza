@@ -276,15 +276,9 @@ void NGLScene::drawScene()
 		tx.setScale(10.0, 10.0, 10.0); //make the light bigger
 		shader->setUniform("Colour",1.0f,1.0f,1.0f,1.0f);
 
-		for(size_t i=0; i<m_lightPositions.size(); ++i)
-		{
-			if(m_lightOn[i]==true)
-			{
-				tx.setPosition(m_lightPositions[i]);
-				MVP=m_cam.getVP()* m_mouseGlobalTX * tx.getMatrix() ;
-				shader->setUniform("MVP",MVP);
-				prim->draw("cube");
-			}
-		}
+		tx.setPosition(m_lightPosition);
+		MVP=m_cam.getVP()* m_mouseGlobalTX * tx.getMatrix() ;
+		shader->setUniform("MVP",MVP);
+		prim->draw("cube");
 	}
 }
