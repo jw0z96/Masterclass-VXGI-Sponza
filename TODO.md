@@ -3,6 +3,12 @@
 - user control of rendering parameters
 - fix conservative rasterization
 - sparse texture representation
+  - voxelise the scene once to get the number of voxel fragments (atomic counter)
+  - create imageBuffers of the right size to store voxel fragments
+  - voxelise the scene again to populate the imageBuffers, this is the voxel fragment list
+  - build SVO structure (allocate all leaf nodes)
+  - inject attributes into SVO (albedo & normal)
+  - mipmap the SVO
 - correct combination of shading components
 - soft shadows
 - normal weighted attenuation
