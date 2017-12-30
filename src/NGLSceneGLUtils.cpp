@@ -4,6 +4,24 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void NGLScene::genAtomicCounter(unsigned int &buffer)
+{
+	if (buffer)
+		glDeleteBuffers(1, &buffer);
+
+	// initial value
+	GLuint initVal = 0;
+	// declare and generate a buffer object name
+	glGenBuffers(1, &buffer);
+	// bind the buffer and define its initial storage capacity
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, buffer);
+	glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), &initVal, GL_DYNAMIC_DRAW);
+	// unbind the buffer
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 unsigned int NGLScene::gen3DTextureRGBA8(int dim) const
 {
 	GLuint texId;
@@ -281,4 +299,81 @@ void NGLScene::drawScene()
 		shader->setUniform("MVP",MVP);
 		prim->draw("cube");
 	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void NGLScene::voxelizeScene(bool writeMode)
+{
+	// get singleton instances
+	ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+	// clear the buffers and resize viewport to voxel resolution
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, m_voxelDim, m_voxelDim);
+	// Disable some fixed-function opeartions
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	// use the voxelization shader
+	shader->use("voxelizationShader");
+	// these values give a good fit for the voxel projections
+	// TODO: these values could be implied from scene bounding box
+	float orthoWidth = 1400.0;
+	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0);
+	shader->setUniform("voxelDim", m_voxelDim);
+	shader->setUniform("orthoWidth", orthoWidth);
+	shader->setUniform("sceneCenter", objectCenter);
+	// Orthograhic projection
+	ngl::Mat4 Ortho;
+	Ortho = ngl::ortho(-orthoWidth, orthoWidth, -orthoWidth, orthoWidth, -orthoWidth, orthoWidth);
+	// Create an modelview-orthographic projection matrix see from +X axis
+	ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(-1, 0, 0), ngl::Vec3(0, 1, 0));
+	shader->setUniform("mvpX", mvpX);
+	// Create an modelview-orthographic projection matrix see from +Y axis
+	ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, -1, 0), ngl::Vec3(0, 0, -1));
+	shader->setUniform("mvpY", mvpY);
+	// Create an modelview-orthographic projection matrix see from +Z axis
+	ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, 0, -1), ngl::Vec3(0, 1, 0));
+	shader->setUniform("mvpZ", mvpZ);
+	// bind the 3d textures for writing
+	if (writeMode)
+	{
+		glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
+		glBindImageTexture(0, m_voxelAlbedoTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+		glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
+		glBindImageTexture(1, m_voxelNormalTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+	}
+	// bind the atomic counter
+	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_voxelFragCounter);
+	// set the writeMode uniform
+	shader->setUniform("writeMode", writeMode);
+	// draw our scene geometry
+	drawScene();
+	// re enable depth testing for drawing
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void NGLScene::buildVoxelFragArrays()
+{
+	// // generate the voxel fragment atomic counter
+	genAtomicCounter(m_voxelFragCounter);
+	// voxelize scene to get number of fragments
+	voxelizeScene(false);
+	// read the value
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_voxelFragCounter);
+	GLuint *count;
+	count = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER,
+		0,
+		sizeof(GLuint),
+		GL_MAP_READ_BIT);
+	std::cout<<"counter size: "<<count[0]<<"\n";
+	memset(count, 0, sizeof(GLuint));
+	glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+	// voxelize scene again to populate the fragment arrays
+	voxelizeScene(true);
 }

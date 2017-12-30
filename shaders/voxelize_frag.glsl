@@ -18,12 +18,16 @@ uniform sampler2D roughnessMap;
 layout (location = 0) out vec4 gl_FragColor;
 layout (pixel_center_integer) in vec4 gl_FragCoord;
 
+layout (binding = 0, offset = 0) uniform atomic_uint u_voxelFragCount;
+
 layout(binding = 0, r32ui) uniform volatile coherent uimage3D u_voxelAlbedoTex;
 layout(binding = 1, r32ui) uniform volatile coherent uimage3D u_voxelNormalTex;
 
 uniform int voxelDim;
 uniform float orthoWidth;
 uniform vec3 sceneCenter;
+
+uniform bool writeMode;
 
 void imageAtomicRGBA8Avg(layout(r32ui) coherent volatile uimage3D imgUI, ivec3 coords, vec4 val)
 {
@@ -51,40 +55,45 @@ vec3 packNormal(vec3 normal)
 
 void main()
 {
-	// if( f_Pos.x < f_AABB.x || f_Pos.y < f_AABB.y || f_Pos.x > f_AABB.z || f_Pos.y > f_AABB.w )
-	// 	discard ;
-
 	if(texture(albedoMap, f_TexCoords).a==0)
 		discard;
 
-	// PBR texture lookups
-	vec3 albedo = pow(texture(albedoMap, f_TexCoords).rgb, vec3(2.2));
-	float metallic = texture(metallicMap, f_TexCoords).r;
-	float roughness = texture(roughnessMap, f_TexCoords).r;
+	// the index of the current fragment in the fragment array
+	uint fragId = atomicCounterIncrement(u_voxelFragCount);
 
-	// calculate normal-mapped world space normals
-	vec3 N = f_Normal;
-
-	vec3 temp = vec3(gl_FragCoord.x, gl_FragCoord.y, voxelDim * gl_FragCoord.z);
-	// temp -= sceneCenter;
-	// temp *= orthoWidth;
-
-	ivec3 texcoord;
-	if( f_axis == 1 )
+	if(writeMode)
 	{
-		texcoord.x = int(voxelDim - temp.z);
-		texcoord.z = int(temp.x);
-		texcoord.y = int(temp.y);
-	}
-	else if( f_axis == 2 )
-	{
-		texcoord.z = int(temp.y);
-		texcoord.y = int(voxelDim-temp.z);
-		texcoord.x = int(temp.x);
-	}
-	else
-		texcoord = ivec3(temp);
+		// if( f_Pos.x < f_AABB.x || f_Pos.y < f_AABB.y || f_Pos.x > f_AABB.z || f_Pos.y > f_AABB.w )
+		// 	discard ;
+		// PBR texture lookups
+		vec3 albedo = pow(texture(albedoMap, f_TexCoords).rgb, vec3(2.2));
+		float metallic = texture(metallicMap, f_TexCoords).r;
+		float roughness = texture(roughnessMap, f_TexCoords).r;
 
-	imageAtomicRGBA8Avg(u_voxelAlbedoTex, texcoord, vec4(albedo, 1.0));
-	imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(packNormal(N), 1.0));
+		// calculate normal-mapped world space normals
+		vec3 N = f_Normal;
+
+		vec3 temp = vec3(gl_FragCoord.x, gl_FragCoord.y, voxelDim * gl_FragCoord.z);
+		// temp -= sceneCenter;
+		// temp *= orthoWidth;
+
+		ivec3 texcoord;
+		if( f_axis == 1 )
+		{
+			texcoord.x = int(voxelDim - temp.z);
+			texcoord.z = int(temp.x);
+			texcoord.y = int(temp.y);
+		}
+		else if( f_axis == 2 )
+		{
+			texcoord.z = int(temp.y);
+			texcoord.y = int(voxelDim-temp.z);
+			texcoord.x = int(temp.x);
+		}
+		else
+			texcoord = ivec3(temp);
+
+		imageAtomicRGBA8Avg(u_voxelAlbedoTex, texcoord, vec4(albedo, 1.0));
+		imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(packNormal(N), 1.0));
+	}
 }

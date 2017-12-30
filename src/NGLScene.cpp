@@ -174,54 +174,21 @@ void NGLScene::paintGL()
 	/// VOXELIZE SCENE
 	//----------------------------------------------------------------------------------------------------------------------
 
-	float orthoWidth = 1400.0;
-	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0); // gives a good fit for the voxel projections
-
 	if (!m_isVoxelTexConstructed)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, m_voxelDim, m_voxelDim);
-		// Disable some fixed-function opeartions
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		shader->use("voxelizationShader");
-		// Orthograhic projection
-		ngl::Mat4 Ortho;
-		Ortho = ngl::ortho(-orthoWidth, orthoWidth, -orthoWidth, orthoWidth, -orthoWidth, orthoWidth);
-		// Create an modelview-orthographic projection matrix see from +X axis
-		ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(-1, 0, 0), ngl::Vec3(0, 1, 0));
-		// Create an modelview-orthographic projection matrix see from +Y axis
-		ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, -1, 0), ngl::Vec3(0, 0, -1));
-		// Create an modelview-orthographic projection matrix see from +Z axis
-		ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, 0, -1), ngl::Vec3(0, 1, 0));
-		shader->setUniform("mvpX", mvpX);
-		shader->setUniform("mvpY", mvpY);
-		shader->setUniform("mvpZ", mvpZ);
-		shader->setUniform("voxelDim", m_voxelDim);
-		shader->setUniform("orthoWidth", orthoWidth);
-		shader->setUniform("sceneCenter", objectCenter);
-
-		glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
-		glBindImageTexture(0, m_voxelAlbedoTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-		glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
-		glBindImageTexture(1, m_voxelNormalTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
-		// draw our scene geometry
-		drawScene();
-
+		buildVoxelFragArrays();
 		// set our voxel construction flag
 		m_isVoxelTexConstructed = true;
-		// re enable depth testing for drawing
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// LIGHT INJECTION PASS START
 	//----------------------------------------------------------------------------------------------------------------------
+
+	// these values give a good fit for the voxel projections
+	// TODO: these values could be implied from scene bounding box
+	float orthoWidth = 1400.0;
+	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0);
 
 	// Check if the emissive tex needs to be recreated, This occurs after a light is moved.
 	if (m_isLightingDirty)
