@@ -8,6 +8,8 @@
 #include "VAO.h"
 #include <math.h>
 
+#define GL_CONSERVATIVE_RASTERIZATION_NV 0x9346
+
 //----------------------------------------------------------------------------------------------------------------------
 
 NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
@@ -184,6 +186,7 @@ void NGLScene::paintGL()
 		// Disable some fixed-function opeartions
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_CONSERVATIVE_RASTERIZATION_NV);
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		shader->use("voxelizationShader");
 		// Orthograhic projection
@@ -215,6 +218,7 @@ void NGLScene::paintGL()
 		// re enable depth testing for drawing
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_CONSERVATIVE_RASTERIZATION_NV);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	}

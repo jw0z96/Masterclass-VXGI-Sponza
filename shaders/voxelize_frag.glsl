@@ -1,6 +1,7 @@
 #version 430 core
 
-// #extension GL_NV_conservative_raster : enable
+#extension GL_NV_conservative_raster : require
+
 #define MAX_COLOR_VALUES 256.0
 
 in vec2 f_TexCoords;
