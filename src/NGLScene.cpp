@@ -23,6 +23,9 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_lightPosition = ngl::Vec3(0.0f, 200.0f, 0.0f);
 
 	m_specularAperture = 1.0;
+	m_directLightAmount = 1.0;
+	m_indirectLightAmount = 1.0;
+	m_reflectionsAmount = 1.0;
 
 	float intensity= 1.0;
 
@@ -364,6 +367,11 @@ void NGLScene::paintGL()
 	shader->setUniform("viewReflections", m_viewReflections);
 
 	shader->setUniform("specularApertureMultiplier", m_specularAperture);
+
+	shader->setUniform("directLightAmount", m_directLightAmount);
+	shader->setUniform("indirectLightAmount", m_indirectLightAmount);
+	shader->setUniform("reflectionsAmount", m_reflectionsAmount);
+
 
 	shader->setUniform("voxelDim", m_voxelDim);
 	shader->setUniform("orthoWidth", orthoWidth);

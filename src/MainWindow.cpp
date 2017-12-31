@@ -17,6 +17,11 @@ MainWindow::MainWindow(QWidget *parent) :
 	// set specular aperture
 	connect(m_ui->specularApertureDoubleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setSpecularAperture()));
 
+	// set amounts of each pass
+	connect(m_ui->directLightAmountSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setDirectLightAmount()));
+	connect(m_ui->indirectLightAmountSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setIndirectLightAmount()));
+	connect(m_ui->reflectionsAmountSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setReflectionsAmount()));
+
 	// set the position signals
 	connect(m_ui->lightPositionX, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
 	connect(m_ui->lightPositionY, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
@@ -43,3 +48,19 @@ void MainWindow::setSpecularAperture()
 {
 	m_gl->setSpecularAperture(m_ui->specularApertureDoubleSpinBox->value());
 }
+
+void MainWindow::setDirectLightAmount()
+{
+	m_gl->setDirectLightAmount(m_ui->directLightAmountSpinBox->value());
+}
+
+void MainWindow::setIndirectLightAmount()
+{
+	m_gl->setIndirectLightAmount(m_ui->indirectLightAmountSpinBox->value());
+}
+
+void MainWindow::setReflectionsAmount()
+{
+	m_gl->setReflectionsAmount(m_ui->reflectionsAmountSpinBox->value());
+}
+

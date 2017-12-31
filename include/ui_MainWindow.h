@@ -49,8 +49,11 @@ public:
     QCheckBox *directLightCheckBox;
     QCheckBox *reflectionCheckBox;
     QCheckBox *indirectLightCheckBox;
-    QDoubleSpinBox *specularApertureDoubleSpinBox;
     QLabel *label;
+    QDoubleSpinBox *directLightAmountSpinBox;
+    QDoubleSpinBox *specularApertureDoubleSpinBox;
+    QDoubleSpinBox *indirectLightAmountSpinBox;
+    QDoubleSpinBox *reflectionsAmountSpinBox;
     QSpacerItem *verticalSpacer;
     QSpacerItem *horizontalSpacer;
     QMenuBar *menubar;
@@ -150,6 +153,19 @@ public:
 
         gridLayout_2->addWidget(indirectLightCheckBox, 1, 1, 1, 1);
 
+        label = new QLabel(renderingControlsGB);
+        label->setObjectName(QStringLiteral("label"));
+
+        gridLayout_2->addWidget(label, 3, 1, 1, 1);
+
+        directLightAmountSpinBox = new QDoubleSpinBox(renderingControlsGB);
+        directLightAmountSpinBox->setObjectName(QStringLiteral("directLightAmountSpinBox"));
+        directLightAmountSpinBox->setMaximum(2);
+        directLightAmountSpinBox->setSingleStep(0.1);
+        directLightAmountSpinBox->setValue(1);
+
+        gridLayout_2->addWidget(directLightAmountSpinBox, 0, 2, 1, 1);
+
         specularApertureDoubleSpinBox = new QDoubleSpinBox(renderingControlsGB);
         specularApertureDoubleSpinBox->setObjectName(QStringLiteral("specularApertureDoubleSpinBox"));
         specularApertureDoubleSpinBox->setDecimals(2);
@@ -157,12 +173,23 @@ public:
         specularApertureDoubleSpinBox->setSingleStep(0.1);
         specularApertureDoubleSpinBox->setValue(1);
 
-        gridLayout_2->addWidget(specularApertureDoubleSpinBox, 4, 1, 1, 1);
+        gridLayout_2->addWidget(specularApertureDoubleSpinBox, 3, 2, 1, 1);
 
-        label = new QLabel(renderingControlsGB);
-        label->setObjectName(QStringLiteral("label"));
+        indirectLightAmountSpinBox = new QDoubleSpinBox(renderingControlsGB);
+        indirectLightAmountSpinBox->setObjectName(QStringLiteral("indirectLightAmountSpinBox"));
+        indirectLightAmountSpinBox->setMaximum(2);
+        indirectLightAmountSpinBox->setSingleStep(0.1);
+        indirectLightAmountSpinBox->setValue(1);
 
-        gridLayout_2->addWidget(label, 3, 1, 1, 1);
+        gridLayout_2->addWidget(indirectLightAmountSpinBox, 1, 2, 1, 1);
+
+        reflectionsAmountSpinBox = new QDoubleSpinBox(renderingControlsGB);
+        reflectionsAmountSpinBox->setObjectName(QStringLiteral("reflectionsAmountSpinBox"));
+        reflectionsAmountSpinBox->setMaximum(2);
+        reflectionsAmountSpinBox->setSingleStep(0.1);
+        reflectionsAmountSpinBox->setValue(1);
+
+        gridLayout_2->addWidget(reflectionsAmountSpinBox, 2, 2, 1, 1);
 
 
         verticalLayout->addWidget(renderingControlsGB);
@@ -204,7 +231,7 @@ public:
         directLightCheckBox->setText(QApplication::translate("MainWindow", "Direct Light", Q_NULLPTR));
         reflectionCheckBox->setText(QApplication::translate("MainWindow", "Reflections", Q_NULLPTR));
         indirectLightCheckBox->setText(QApplication::translate("MainWindow", "Indirect Light", Q_NULLPTR));
-        label->setText(QApplication::translate("MainWindow", "Specular Cone Angle Multiplier", Q_NULLPTR));
+        label->setText(QApplication::translate("MainWindow", "Cone Angle Multiplier", Q_NULLPTR));
     } // retranslateUi
 
 };

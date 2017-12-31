@@ -25,6 +25,9 @@ uniform vec3 lightPosition;
 uniform vec3 lightColor;
 
 uniform float specularApertureMultiplier;
+uniform float directLightAmount;
+uniform float indirectLightAmount;
+uniform float reflectionsAmount;
 
 uniform bool viewDirectLight;
 uniform bool viewIndirectLight;
@@ -142,6 +145,7 @@ vec3 traceCone(vec3 position, vec3 normal, vec3 direction, float aperture)
 		// convert position to texture coord
 		vec3 coord = worldToTexCoord(conePosition);
 
+		// if the cone escapes, stop tracing
 		if (any(lessThan(coord, vec3(0.0))) || any(greaterThan(coord, vec3(1.0))))
 			break;
 
@@ -313,17 +317,17 @@ void main()
 
 	if (viewDirectLight)
 	{
-		fragShaded += calculateDirectLighting(WSPos, WSNormal, albedo, roughness, metalness, vec3(0.0));
+		fragShaded += directLightAmount * calculateDirectLighting(WSPos, WSNormal, albedo, roughness, metalness, vec3(0.0));
 	}
 
 	if (viewIndirectLight)
 	{
-		fragShaded += calculateIndirectLighting(WSPos, WSNormal, albedo, roughness, metalness);
+		fragShaded += indirectLightAmount * calculateIndirectLighting(WSPos, WSNormal, albedo, roughness, metalness);
 	}
 
 	if (viewReflections)
 	{
-		fragShaded += calculateReflection(WSPos, WSNormal, albedo, roughness, metalness);
+		fragShaded += reflectionsAmount * calculateReflection(WSPos, WSNormal, albedo, roughness, metalness);
 	}
 
 	// HDR tonemapping

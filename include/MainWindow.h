@@ -25,6 +25,18 @@ class MainWindow : public QMainWindow
 		/// @brief this is called to set the specular aperture for the reflections
 		//----------------------------------------------------------------------------------------------------------------------
 		void setSpecularAperture();
+		//----------------------------------------------------------------------------------------------------------------------
+		/// @brief this is called to set the amount of direct light to be composited
+		//----------------------------------------------------------------------------------------------------------------------
+		void setDirectLightAmount();
+		//----------------------------------------------------------------------------------------------------------------------
+		/// @brief this is called to set the amount of indirect light to be composited
+		//----------------------------------------------------------------------------------------------------------------------
+		void setIndirectLightAmount();
+		//----------------------------------------------------------------------------------------------------------------------
+		/// @brief this is called to set the amount of specular reflections to be composited
+		//----------------------------------------------------------------------------------------------------------------------
+		void setReflectionsAmount();
 
 	private:
 		// QWidget *m_ui;
