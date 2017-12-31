@@ -1,4 +1,6 @@
 #include <QApplication>
+#include <QFile>
+#include <QTextStream>
 #include <iostream>
 #include "MainWindow.h"
 
@@ -33,6 +35,18 @@ int main(int argc, char **argv)
 	// window.resize(1024, 720);
 	// and finally show
 	window.show();
+
+	QFile f(":qdarkstyle/style.qss");
+	if (!f.exists())
+	{
+		printf("Unable to set stylesheet, file not found\n");
+	}
+	else
+	{
+		f.open(QFile::ReadOnly | QFile::Text);
+		QTextStream ts(&f);
+		app.setStyleSheet(ts.readAll());
+	}
 
 	return app.exec();
 }
