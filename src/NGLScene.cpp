@@ -27,7 +27,7 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_indirectLightAmount = 1.0;
 	m_reflectionsAmount = 1.0;
 
-	m_lightIntensity = 1.0;
+	m_lightIntensity = 100.0;
 
 	// m_lightColor = ngl::Vec3(intensity, intensity, intensity);
 

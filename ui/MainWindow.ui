@@ -107,8 +107,17 @@
          </item>
          <item row="0" column="2">
           <widget class="QDoubleSpinBox" name="lightIntensitySpinBox">
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <double>99999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>100.000000000000000</double>
+           </property>
            <property name="value">
-            <double>1.000000000000000</double>
+            <double>100.000000000000000</double>
            </property>
           </widget>
          </item>

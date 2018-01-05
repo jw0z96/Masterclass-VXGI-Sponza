@@ -61,7 +61,7 @@ public:
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief this is called to set the intensity of the light
 	//----------------------------------------------------------------------------------------------------------------------
-	inline void setLightIntensity(float _intensity){m_lightIntensity = _intensity / 10.0 ; m_isLightingDirty = true;};
+	inline void setLightIntensity(float _intensity){m_lightIntensity = _intensity; m_isLightingDirty = true;};
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief this is called to set the reflection specular aperture
 	//----------------------------------------------------------------------------------------------------------------------

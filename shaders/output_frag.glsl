@@ -252,7 +252,8 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		vec3 lightVector = normalize(lightPosition - position);
 		vec3 halfVector = normalize(viewDirection + lightVector);
 		float distance = length(lightPosition - position);
-		float attenuation = 1000000.0 / (distance * distance);
+		distance /= 10.0;
+		float attenuation = 1.0 / (distance * distance);
 		vec3 radiance = lightIntensity * vec3(attenuation); //lightColor * attenuation;
 
 		// Cook-Torrance BRDF
@@ -275,10 +276,13 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		// have no diffuse light).
 		kD *= 1.0 - metallic;
 
-		// scale light by NdotL
-		float NdotL = max(dot(normal, lightVector), 0.0);
 
 		vec3 voxelTexEmissive = textureLod(voxelEmissiveTex, worldToTexCoord(position), 0.0).rgb;
+		// const float shadowAperture = 0.57735 / 10.0;
+		// vec3 visibility = traceCone(lightPosition, , lightVector, 0.1);
+		// scale light by NdotL
+		// float NdotL = max(dot(normal, lightVector), 0.0);
+		// Lo = visibility;
 		// float shadow = (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b) / 2.0;
 		// if (any(greaterThan(voxelTexEmissive, vec3(0.0))))
 			// shadow = 1.0;
@@ -286,7 +290,8 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		// Lo += (kD * albedo / PI + specular) * NdotL * 10.0 * shadow;
 		// Lo = specular;
 		// Lo += albedo * kD * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); // * radiance  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-		Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); // * radiance  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+		Lo += (kD * albedo / PI + specular) * radiance * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+		// Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b) * radiance;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		// Lo += (kD * albedo / PI + specular) * NdotL * radiance; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		// Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); //* radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		// Lo = albedo * NdotL * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b);

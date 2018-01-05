@@ -100,15 +100,15 @@ vec3 calculatePointLight(vec3 lightPos, vec3 position, vec3 normal)
 	// calculate whether the position voxel is in shadow through raytracing
 	float visibility = traceShadow(voxelPos, lightVoxelDir, lightVoxelDistance);
 
-	// float lightDistance = distance(lightPos, position);
-	// lightDistance /= 1000.0;
-	// float falloff = 1.0 - (lightDistance * lightDistance);
+	float lightDistance = distance(lightPos, position);
+	lightDistance /= 10.0;
+	float attenuation = 1.0 / (lightDistance * lightDistance);
 	// falloff = clamp(falloff, 0.0, 1.0);
 
 	// lightIntensity = vec3(1.0);
 	vec3 lightColor = vec3(1.0);
 
-	return lightColor * visibility * NdotL; // * falloff;
+	return lightColor * visibility * NdotL * attenuation;
 }
 
 vec3 calculateDirectLighting(vec3 position, vec3 normal)
