@@ -165,6 +165,48 @@ vec3 traceCone(vec3 position, vec3 normal, vec3 direction, float aperture)
 
 // ----------------------------------------------------------------------------
 
+float traceShadowCone(vec3 position, vec3 direction, float aperture, float maxDistance)
+{
+	// world space grid voxel size
+	float voxelSize = (2.0 * orthoWidth) / float(voxelDim);
+
+	// move further to avoid self collision
+	float dst = voxelSize;
+	vec3 startPosition = position + direction * dst;
+
+	// final results
+	float visibility = 0.0;
+
+	while(dst <= maxDistance && visibility < 1.0)
+	{
+		vec3 conePosition = startPosition + direction * dst;
+		// convert position to texture coord
+		vec3 coord = worldToTexCoord(conePosition);
+
+		// if the cone escapes, stop tracing
+		if (any(lessThan(coord, vec3(0.0))) || any(greaterThan(coord, vec3(1.0))))
+		{
+			visibility = 1.0;
+			break;
+		}
+
+		// cone expansion and respective mip level based on diameter
+		float diameter = 2.0 * aperture * dst;
+		float mipLevel = log2(diameter / voxelSize);
+
+		vec4 result = textureLod(voxelEmissiveTex, coord, mipLevel);
+
+		visibility += result.a;
+
+		// move further into volume
+		dst += diameter * 0.5;
+	}
+
+	return 1.0 - visibility;
+}
+
+// ----------------------------------------------------------------------------
+
 vec3 calculateIndirectLighting(vec3 position, vec3 normal, vec3 albedo, float roughness, float metallic)
 {
 	// DIFFUSE CONES
@@ -252,8 +294,8 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		vec3 lightVector = normalize(lightPosition - position);
 		vec3 halfVector = normalize(viewDirection + lightVector);
 		float distance = length(lightPosition - position);
-		distance /= 10.0;
-		float attenuation = 1.0 / (distance * distance);
+		float distance2 = distance / 10.0;
+		float attenuation = 1.0 / (distance2 * distance2);
 		vec3 radiance = lightIntensity * vec3(attenuation); //lightColor * attenuation;
 
 		// Cook-Torrance BRDF
@@ -276,26 +318,11 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		// have no diffuse light).
 		kD *= 1.0 - metallic;
 
-
-		vec3 voxelTexEmissive = textureLod(voxelEmissiveTex, worldToTexCoord(position), 0.0).rgb;
-		// const float shadowAperture = 0.57735 / 10.0;
-		// vec3 visibility = traceCone(lightPosition, , lightVector, 0.1);
+		float visibility = traceShadowCone(position, lightVector, 0.01, distance);
+		visibility = clamp(visibility, 0.0, 1.0);
 		// scale light by NdotL
 		// float NdotL = max(dot(normal, lightVector), 0.0);
-		// Lo = visibility;
-		// float shadow = (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b) / 2.0;
-		// if (any(greaterThan(voxelTexEmissive, vec3(0.0))))
-			// shadow = 1.0;
-		// add to outgoing radiance Lo
-		// Lo += (kD * albedo / PI + specular) * NdotL * 10.0 * shadow;
-		// Lo = specular;
-		// Lo += albedo * kD * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); // * radiance  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-		Lo += (kD * albedo / PI + specular) * radiance * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-		// Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b) * radiance;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-		// Lo += (kD * albedo / PI + specular) * NdotL * radiance; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-		// Lo += (kD * albedo / PI + specular) * 10.0 * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b); //* radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-		// Lo = albedo * NdotL * (voxelTexEmissive.r + voxelTexEmissive.g + voxelTexEmissive.b);
-	//
+		Lo += (kD * albedo / PI + specular) * radiance * visibility; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 
 	return Lo;
 }
