@@ -106,7 +106,11 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QDoubleSpinBox" name="lightIntensityDoubleSpinBox"/>
+          <widget class="QDoubleSpinBox" name="lightIntensitySpinBox">
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>

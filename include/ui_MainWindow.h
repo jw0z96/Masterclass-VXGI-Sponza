@@ -43,7 +43,7 @@ public:
     QLabel *lightPositionLabel_2;
     QLabel *lightPositionLabel_3;
     QLabel *lightIntensityLabel;
-    QDoubleSpinBox *lightIntensityDoubleSpinBox;
+    QDoubleSpinBox *lightIntensitySpinBox;
     QGroupBox *renderingControlsGB;
     QGridLayout *gridLayout_2;
     QCheckBox *directLightCheckBox;
@@ -123,10 +123,11 @@ public:
 
         gridLayout->addWidget(lightIntensityLabel, 0, 0, 1, 1);
 
-        lightIntensityDoubleSpinBox = new QDoubleSpinBox(lightControlsGB);
-        lightIntensityDoubleSpinBox->setObjectName(QStringLiteral("lightIntensityDoubleSpinBox"));
+        lightIntensitySpinBox = new QDoubleSpinBox(lightControlsGB);
+        lightIntensitySpinBox->setObjectName(QStringLiteral("lightIntensitySpinBox"));
+        lightIntensitySpinBox->setValue(1);
 
-        gridLayout->addWidget(lightIntensityDoubleSpinBox, 0, 2, 1, 1);
+        gridLayout->addWidget(lightIntensitySpinBox, 0, 2, 1, 1);
 
 
         verticalLayout->addWidget(lightControlsGB);

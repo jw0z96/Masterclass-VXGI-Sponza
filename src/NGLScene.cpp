@@ -27,9 +27,9 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_indirectLightAmount = 1.0;
 	m_reflectionsAmount = 1.0;
 
-	float intensity= 1.0;
+	m_lightIntensity = 1.0;
 
-	m_lightColor = ngl::Vec3(intensity, intensity, intensity);
+	// m_lightColor = ngl::Vec3(intensity, intensity, intensity);
 
 	ngl::Vec3 from(0,40,-140);
 	ngl::Vec3 to(0,40,0);
@@ -244,7 +244,8 @@ void NGLScene::paintGL()
 		shader->setUniform("sceneCenter", objectCenter);
 
 		shader->setUniform("lightPosition", m_lightPosition);
-		shader->setUniform("lightColors", m_lightColor);
+		// shader->setUniform("lightColors", m_lightColor);
+		shader->setUniform("lightIntensity", m_lightIntensity);
 
 		glDispatchCompute(ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0));
 
@@ -378,7 +379,8 @@ void NGLScene::paintGL()
 	shader->setUniform("sceneCenter", objectCenter);
 
 	shader->setUniform("lightPosition", m_lightPosition);
-	shader->setUniform("lightColor", m_lightColor);
+	// shader->setUniform("lightColor", m_lightColor);
+	shader->setUniform("lightIntensity", m_lightIntensity);
 
 	prim->draw("ScreenAlignedQuad");
 

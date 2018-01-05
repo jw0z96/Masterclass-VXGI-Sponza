@@ -22,7 +22,8 @@ uniform vec2 windowSize;
 
 // light
 uniform vec3 lightPosition;
-uniform vec3 lightColor;
+// uniform vec3 lightColor;
+uniform float lightIntensity;
 
 uniform float specularApertureMultiplier;
 uniform float directLightAmount;
@@ -252,7 +253,7 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		vec3 halfVector = normalize(viewDirection + lightVector);
 		float distance = length(lightPosition - position);
 		float attenuation = 1000000.0 / (distance * distance);
-		vec3 radiance = vec3(attenuation); //lightColor * attenuation;
+		vec3 radiance = lightIntensity * vec3(attenuation); //lightColor * attenuation;
 
 		// Cook-Torrance BRDF
 		float NDF = DistributionGGX(normal, halfVector, roughness);

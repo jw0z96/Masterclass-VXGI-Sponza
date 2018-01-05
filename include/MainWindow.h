@@ -37,6 +37,10 @@ class MainWindow : public QMainWindow
 		/// @brief this is called to set the amount of specular reflections to be composited
 		//----------------------------------------------------------------------------------------------------------------------
 		void setReflectionsAmount();
+		//----------------------------------------------------------------------------------------------------------------------
+		/// @brief this is called to set the light intensity
+		//----------------------------------------------------------------------------------------------------------------------
+		void setLightIntensity();
 
 	private:
 		// QWidget *m_ui;

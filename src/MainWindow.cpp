@@ -22,6 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_ui->indirectLightAmountSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setIndirectLightAmount()));
 	connect(m_ui->reflectionsAmountSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setReflectionsAmount()));
 
+	// set the light intensity
+	connect(m_ui->lightIntensitySpinBox, SIGNAL(valueChanged(double)), this, SLOT(setLightIntensity()));
+
 	// set the position signals
 	connect(m_ui->lightPositionX, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
 	connect(m_ui->lightPositionY, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
@@ -43,6 +46,12 @@ void MainWindow::setLightPosition()
 		);
 	m_gl->setLightPosition(pos);
 }
+
+void MainWindow::setLightIntensity()
+{
+	m_gl->setLightIntensity(m_ui->lightIntensitySpinBox->value());
+}
+
 
 void MainWindow::setSpecularAperture()
 {

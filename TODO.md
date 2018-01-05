@@ -4,7 +4,7 @@
 - fix conservative rasterization
 - sparse texture representation
 - correct combination of shading components
-- soft shadows
+- soft shadows & AO
 - normal weighted attenuation
 - light intensity controls
 - light attenuation
