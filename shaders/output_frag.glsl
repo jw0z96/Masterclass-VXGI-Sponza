@@ -24,7 +24,9 @@ uniform vec2 windowSize;
 uniform vec3 lightPosition;
 // uniform vec3 lightColor;
 uniform float lightIntensity;
+uniform float lightFalloffExponent;
 
+uniform float shadowApertureMultiplier;
 uniform float specularApertureMultiplier;
 uniform float directLightAmount;
 uniform float indirectLightAmount;
@@ -265,6 +267,7 @@ vec3 calculateReflection(vec3 position, vec3 normal, vec3 albedo, float roughnes
 		vec3 F = fresnelSchlick(max(dot(normal, viewDirection), 0.0), F0);
 
 		// const float specularAperture = 0.57735 / 10.0;
+		// TODO: check this
 		float specularAperture = clamp(specularApertureMultiplier * tan(HALF_PI * (1.0 - NDF - G)), 0.0174533f, PI);
 		// float specularAperture = clamp(specularApertureMultiplier, 0.0174533f, PI);
 		// float specularAperture = NDF;
@@ -294,9 +297,11 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		vec3 lightVector = normalize(lightPosition - position);
 		vec3 halfVector = normalize(viewDirection + lightVector);
 		float distance = length(lightPosition - position);
-		float distance2 = distance / 10.0;
-		float attenuation = 1.0 / (distance2 * distance2);
-		vec3 radiance = lightIntensity * vec3(attenuation); //lightColor * attenuation;
+		// float distance2 = distance / 10.0;
+		// float attenuation = 1.0 / (distance2 * distance2);
+		// vec3 radiance = lightIntensity * vec3(attenuation); //lightColor * attenuation;
+		float radiance = lightIntensity / pow((distance / 10.0), lightFalloffExponent);
+
 
 		// Cook-Torrance BRDF
 		float NDF = DistributionGGX(normal, halfVector, roughness);
@@ -318,7 +323,9 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		// have no diffuse light).
 		kD *= 1.0 - metallic;
 
-		float visibility = traceShadowCone(position, lightVector, 0.01, distance);
+		// float shadowAperture = clamp(shadowApertureMultiplier * tan(HALF_PI), 0.0174533f, PI);
+		float shadowAperture = shadowApertureMultiplier;
+		float visibility = traceShadowCone(position, lightVector, shadowAperture, distance);
 		visibility = clamp(visibility, 0.0, 1.0);
 		// scale light by NdotL
 		// float NdotL = max(dot(normal, lightVector), 0.0);

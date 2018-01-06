@@ -16,6 +16,7 @@ uniform vec3 sceneCenter;
 uniform vec3 lightPosition;
 // uniform vec3 lightColor;
 uniform float lightIntensity;
+uniform float lightFalloffExponent;
 
 vec3 indexToWorld(ivec3 pos)
 {
@@ -100,15 +101,16 @@ vec3 calculatePointLight(vec3 lightPos, vec3 position, vec3 normal)
 	// calculate whether the position voxel is in shadow through raytracing
 	float visibility = traceShadow(voxelPos, lightVoxelDir, lightVoxelDistance);
 
-	float lightDistance = distance(lightPos, position);
-	lightDistance /= 10.0;
-	float attenuation = 1.0 / (lightDistance * lightDistance);
-	// falloff = clamp(falloff, 0.0, 1.0);
+	float distance = distance(lightPos, position);
+	// lightDistance /= 10.0;
+	// float attenuation = 1.0 / (lightDistance * lightDistance);
+	float radiance = lightIntensity / pow((distance / 10.0), lightFalloffExponent);
+		// falloff = clamp(falloff, 0.0, 1.0);
 
 	// lightIntensity = vec3(1.0);
 	vec3 lightColor = vec3(1.0);
 
-	return lightColor * visibility * NdotL * attenuation;
+	return lightColor * visibility * NdotL * radiance;
 }
 
 vec3 calculateDirectLighting(vec3 position, vec3 normal)
@@ -151,7 +153,6 @@ void main()
 		vec3 worldPos = indexToWorld(writePos);
 		radiance = calculateDirectLighting(worldPos, normal);
 		radiance *= albedoTex.rgb;
-		radiance *= lightIntensity;
 	}
 
 	imageStore(u_voxelEmissiveTex, writePos, vec4(radiance, opacity));

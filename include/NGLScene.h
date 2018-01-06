@@ -58,28 +58,36 @@ public:
 	/// @brief this is called to set the positions of the lights
 	//----------------------------------------------------------------------------------------------------------------------
 	void setLightPosition(ngl::Vec3 _pos);
+
+public slots:
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief this is called to set the intensity of the light
 	//----------------------------------------------------------------------------------------------------------------------
-	inline void setLightIntensity(float _intensity){m_lightIntensity = _intensity; m_isLightingDirty = true;};
+	inline void setLightIntensity(double _intensity){m_lightIntensity = _intensity; m_isLightingDirty = true;};
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief this is called to set the falloff exponent of the light
+	//----------------------------------------------------------------------------------------------------------------------
+	inline void setLightFalloff(double _exponent){m_falloffExponent = _exponent; m_isLightingDirty = true;};
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief this is called to set the reflection specular aperture
 	//----------------------------------------------------------------------------------------------------------------------
-	inline void setSpecularAperture(float _aperture){m_specularAperture = _aperture;};
+	inline void setSpecularAperture(double _aperture){m_specularAperture = _aperture;};
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief this is called to set the shadow aperture
+	//----------------------------------------------------------------------------------------------------------------------
+	inline void setShadowAperture(double _shadowAperture){m_shadowAperture = _shadowAperture;};
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief this is called to set the amount of direct light to be composited
 	//----------------------------------------------------------------------------------------------------------------------
-	inline void setDirectLightAmount(float _amount){m_directLightAmount = _amount;};
+	inline void setDirectLightAmount(double _amount){m_directLightAmount = _amount;};
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief this is called to set the amount of indirect light to be composited
 	//----------------------------------------------------------------------------------------------------------------------
-	inline void setIndirectLightAmount(float _amount){m_indirectLightAmount = _amount;};
+	inline void setIndirectLightAmount(double _amount){m_indirectLightAmount = _amount;};
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief this is called to set the amount of specular reflections to be composited
 	//----------------------------------------------------------------------------------------------------------------------
-	inline void setReflectionsAmount(float _amount){m_reflectionsAmount = _amount;};
-
-public slots:
+	inline void setReflectionsAmount(double _amount){m_reflectionsAmount = _amount;};
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief this is called toggle the g buffer debug view mode
 	//----------------------------------------------------------------------------------------------------------------------
@@ -196,6 +204,10 @@ private:
 	//----------------------------------------------------------------------------------------------------------------------
 	float m_specularAperture;
 	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief shadow aperture
+	//----------------------------------------------------------------------------------------------------------------------
+	float m_shadowAperture;
+	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief the amount of each render pass
 	//----------------------------------------------------------------------------------------------------------------------
 	float m_directLightAmount;
@@ -221,6 +233,10 @@ private:
 	/// @brief the intensity of our lights
 	//----------------------------------------------------------------------------------------------------------------------
 	float m_lightIntensity;
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief the falloff exponent for our light
+	//----------------------------------------------------------------------------------------------------------------------
+	float m_falloffExponent;
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief Our Camera
 	//----------------------------------------------------------------------------------------------------------------------

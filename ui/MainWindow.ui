@@ -121,6 +121,43 @@
            </property>
           </widget>
          </item>
+         <item row="1" column="2">
+          <widget class="QDoubleSpinBox" name="shadowApertureSpinBox">
+           <property name="minimum">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="lightFalloffSpinBox">
+           <property name="maximum">
+            <double>3.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>2.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="shadowApertureLabel">
+           <property name="text">
+            <string>Shadow Aperture</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lightFalloffLabel">
+           <property name="text">
+            <string>Falloff Exponent</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -181,7 +218,7 @@
           </widget>
          </item>
          <item row="3" column="2">
-          <widget class="QDoubleSpinBox" name="specularApertureDoubleSpinBox">
+          <widget class="QDoubleSpinBox" name="specularApertureSpinBox">
            <property name="decimals">
             <number>2</number>
            </property>

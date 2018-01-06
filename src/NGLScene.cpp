@@ -28,8 +28,8 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_reflectionsAmount = 1.0;
 
 	m_lightIntensity = 100.0;
-
-	// m_lightColor = ngl::Vec3(intensity, intensity, intensity);
+	m_falloffExponent = 2.0;
+	m_shadowAperture = 0.01;
 
 	ngl::Vec3 from(0,40,-140);
 	ngl::Vec3 to(0,40,0);
@@ -246,6 +246,7 @@ void NGLScene::paintGL()
 		shader->setUniform("lightPosition", m_lightPosition);
 		// shader->setUniform("lightColors", m_lightColor);
 		shader->setUniform("lightIntensity", m_lightIntensity);
+		shader->setUniform("lightFalloffExponent", m_falloffExponent);
 
 		glDispatchCompute(ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0));
 
@@ -381,6 +382,8 @@ void NGLScene::paintGL()
 	shader->setUniform("lightPosition", m_lightPosition);
 	// shader->setUniform("lightColor", m_lightColor);
 	shader->setUniform("lightIntensity", m_lightIntensity);
+	shader->setUniform("lightFalloffExponent", m_falloffExponent);
+	shader->setUniform("shadowApertureMultiplier", m_shadowAperture);
 
 	prim->draw("ScreenAlignedQuad");
 
