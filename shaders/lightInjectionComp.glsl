@@ -104,7 +104,7 @@ vec3 calculatePointLight(vec3 lightPos, vec3 position, vec3 normal)
 	float distance = distance(lightPos, position);
 	// lightDistance /= 10.0;
 	// float attenuation = 1.0 / (lightDistance * lightDistance);
-	float radiance = lightIntensity / pow((distance / 10.0), lightFalloffExponent);
+	float radiance = lightIntensity / pow((distance / 100.0), lightFalloffExponent);
 		// falloff = clamp(falloff, 0.0, 1.0);
 
 	// lightIntensity = vec3(1.0);

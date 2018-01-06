@@ -300,7 +300,7 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 		// float distance2 = distance / 10.0;
 		// float attenuation = 1.0 / (distance2 * distance2);
 		// vec3 radiance = lightIntensity * vec3(attenuation); //lightColor * attenuation;
-		float radiance = lightIntensity / pow((distance / 10.0), lightFalloffExponent);
+		float radiance = lightIntensity / pow((distance / 100.0), lightFalloffExponent);
 
 
 		// Cook-Torrance BRDF

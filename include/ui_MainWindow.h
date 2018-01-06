@@ -131,7 +131,7 @@ public:
         lightIntensitySpinBox->setObjectName(QStringLiteral("lightIntensitySpinBox"));
         lightIntensitySpinBox->setDecimals(0);
         lightIntensitySpinBox->setMaximum(99999);
-        lightIntensitySpinBox->setSingleStep(100);
+        lightIntensitySpinBox->setSingleStep(10);
         lightIntensitySpinBox->setValue(100);
 
         gridLayout->addWidget(lightIntensitySpinBox, 0, 2, 1, 1);
