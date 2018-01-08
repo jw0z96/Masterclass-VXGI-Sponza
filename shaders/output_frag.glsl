@@ -142,7 +142,8 @@ vec3 traceCone(vec3 position, vec3 normal, vec3 direction, float aperture)
 	// float maxDistance = maxTracingDistanceGlobal * (1.0 / voxelSize);
 	float maxDistance = voxelSize * 600.0;
 
-	while(dst <= maxDistance && result.a < 0.5)
+	// while(result.a < 1.0)
+	while(dst <= maxDistance && result.a < 1.0)
 	{
 		vec3 conePosition = startPosition + direction * dst;
 		// convert position to texture coord
