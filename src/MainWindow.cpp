@@ -15,7 +15,21 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_ui->reflectionCheckBox, SIGNAL(stateChanged(int)), m_gl, SLOT(toggleReflectionView()));
 
 	// set specular aperture
-	connect(m_ui->specularApertureDoubleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setSpecularAperture()));
+	connect(m_ui->specularApertureSpinBox, SIGNAL(valueChanged(double)), m_gl, SLOT(setSpecularAperture(double)));
+
+	// set shadow aperture
+	connect(m_ui->shadowApertureSpinBox, SIGNAL(valueChanged(double)), m_gl, SLOT(setShadowAperture(double)));
+
+	// set amounts of each pass
+	connect(m_ui->directLightAmountSpinBox, SIGNAL(valueChanged(double)), m_gl, SLOT(setDirectLightAmount(double)));
+	connect(m_ui->indirectLightAmountSpinBox, SIGNAL(valueChanged(double)), m_gl, SLOT(setIndirectLightAmount(double)));
+	connect(m_ui->reflectionsAmountSpinBox, SIGNAL(valueChanged(double)), m_gl, SLOT(setReflectionsAmount(double)));
+
+	// set the light intensity
+	connect(m_ui->lightIntensitySpinBox, SIGNAL(valueChanged(double)), m_gl, SLOT(setLightIntensity(double)));
+
+	// set the light falloff exponent
+	connect(m_ui->lightFalloffSpinBox, SIGNAL(valueChanged(double)), m_gl, SLOT(setLightFalloff(double)));
 
 	// set the position signals
 	connect(m_ui->lightPositionX, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
@@ -37,9 +51,4 @@ void MainWindow::setLightPosition()
 		m_ui->lightPositionZ->value()
 		);
 	m_gl->setLightPosition(pos);
-}
-
-void MainWindow::setSpecularAperture()
-{
-	m_gl->setSpecularAperture(m_ui->specularApertureDoubleSpinBox->value());
 }

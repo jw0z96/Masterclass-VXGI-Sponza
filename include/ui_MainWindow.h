@@ -43,14 +43,21 @@ public:
     QLabel *lightPositionLabel_2;
     QLabel *lightPositionLabel_3;
     QLabel *lightIntensityLabel;
-    QDoubleSpinBox *lightIntensityDoubleSpinBox;
+    QDoubleSpinBox *lightIntensitySpinBox;
+    QDoubleSpinBox *shadowApertureSpinBox;
+    QDoubleSpinBox *lightFalloffSpinBox;
+    QLabel *shadowApertureLabel;
+    QLabel *lightFalloffLabel;
     QGroupBox *renderingControlsGB;
     QGridLayout *gridLayout_2;
     QCheckBox *directLightCheckBox;
     QCheckBox *reflectionCheckBox;
     QCheckBox *indirectLightCheckBox;
-    QDoubleSpinBox *specularApertureDoubleSpinBox;
     QLabel *label;
+    QDoubleSpinBox *directLightAmountSpinBox;
+    QDoubleSpinBox *specularApertureSpinBox;
+    QDoubleSpinBox *indirectLightAmountSpinBox;
+    QDoubleSpinBox *reflectionsAmountSpinBox;
     QSpacerItem *verticalSpacer;
     QSpacerItem *horizontalSpacer;
     QMenuBar *menubar;
@@ -120,10 +127,39 @@ public:
 
         gridLayout->addWidget(lightIntensityLabel, 0, 0, 1, 1);
 
-        lightIntensityDoubleSpinBox = new QDoubleSpinBox(lightControlsGB);
-        lightIntensityDoubleSpinBox->setObjectName(QStringLiteral("lightIntensityDoubleSpinBox"));
+        lightIntensitySpinBox = new QDoubleSpinBox(lightControlsGB);
+        lightIntensitySpinBox->setObjectName(QStringLiteral("lightIntensitySpinBox"));
+        lightIntensitySpinBox->setDecimals(0);
+        lightIntensitySpinBox->setMaximum(99999);
+        lightIntensitySpinBox->setSingleStep(10);
+        lightIntensitySpinBox->setValue(100);
 
-        gridLayout->addWidget(lightIntensityDoubleSpinBox, 0, 2, 1, 1);
+        gridLayout->addWidget(lightIntensitySpinBox, 0, 2, 1, 1);
+
+        shadowApertureSpinBox = new QDoubleSpinBox(lightControlsGB);
+        shadowApertureSpinBox->setObjectName(QStringLiteral("shadowApertureSpinBox"));
+        shadowApertureSpinBox->setMinimum(0.01);
+        shadowApertureSpinBox->setSingleStep(0.01);
+
+        gridLayout->addWidget(shadowApertureSpinBox, 1, 2, 1, 1);
+
+        lightFalloffSpinBox = new QDoubleSpinBox(lightControlsGB);
+        lightFalloffSpinBox->setObjectName(QStringLiteral("lightFalloffSpinBox"));
+        lightFalloffSpinBox->setMaximum(3);
+        lightFalloffSpinBox->setSingleStep(0.1);
+        lightFalloffSpinBox->setValue(2);
+
+        gridLayout->addWidget(lightFalloffSpinBox, 2, 2, 1, 1);
+
+        shadowApertureLabel = new QLabel(lightControlsGB);
+        shadowApertureLabel->setObjectName(QStringLiteral("shadowApertureLabel"));
+
+        gridLayout->addWidget(shadowApertureLabel, 1, 0, 1, 1);
+
+        lightFalloffLabel = new QLabel(lightControlsGB);
+        lightFalloffLabel->setObjectName(QStringLiteral("lightFalloffLabel"));
+
+        gridLayout->addWidget(lightFalloffLabel, 2, 0, 1, 1);
 
 
         verticalLayout->addWidget(lightControlsGB);
@@ -150,19 +186,43 @@ public:
 
         gridLayout_2->addWidget(indirectLightCheckBox, 1, 1, 1, 1);
 
-        specularApertureDoubleSpinBox = new QDoubleSpinBox(renderingControlsGB);
-        specularApertureDoubleSpinBox->setObjectName(QStringLiteral("specularApertureDoubleSpinBox"));
-        specularApertureDoubleSpinBox->setDecimals(2);
-        specularApertureDoubleSpinBox->setMinimum(0.01);
-        specularApertureDoubleSpinBox->setSingleStep(0.1);
-        specularApertureDoubleSpinBox->setValue(1);
-
-        gridLayout_2->addWidget(specularApertureDoubleSpinBox, 4, 1, 1, 1);
-
         label = new QLabel(renderingControlsGB);
         label->setObjectName(QStringLiteral("label"));
 
         gridLayout_2->addWidget(label, 3, 1, 1, 1);
+
+        directLightAmountSpinBox = new QDoubleSpinBox(renderingControlsGB);
+        directLightAmountSpinBox->setObjectName(QStringLiteral("directLightAmountSpinBox"));
+        directLightAmountSpinBox->setMaximum(2);
+        directLightAmountSpinBox->setSingleStep(0.1);
+        directLightAmountSpinBox->setValue(1);
+
+        gridLayout_2->addWidget(directLightAmountSpinBox, 0, 2, 1, 1);
+
+        specularApertureSpinBox = new QDoubleSpinBox(renderingControlsGB);
+        specularApertureSpinBox->setObjectName(QStringLiteral("specularApertureSpinBox"));
+        specularApertureSpinBox->setDecimals(2);
+        specularApertureSpinBox->setMinimum(0.01);
+        specularApertureSpinBox->setSingleStep(0.1);
+        specularApertureSpinBox->setValue(1);
+
+        gridLayout_2->addWidget(specularApertureSpinBox, 3, 2, 1, 1);
+
+        indirectLightAmountSpinBox = new QDoubleSpinBox(renderingControlsGB);
+        indirectLightAmountSpinBox->setObjectName(QStringLiteral("indirectLightAmountSpinBox"));
+        indirectLightAmountSpinBox->setMaximum(2);
+        indirectLightAmountSpinBox->setSingleStep(0.1);
+        indirectLightAmountSpinBox->setValue(1);
+
+        gridLayout_2->addWidget(indirectLightAmountSpinBox, 1, 2, 1, 1);
+
+        reflectionsAmountSpinBox = new QDoubleSpinBox(renderingControlsGB);
+        reflectionsAmountSpinBox->setObjectName(QStringLiteral("reflectionsAmountSpinBox"));
+        reflectionsAmountSpinBox->setMaximum(2);
+        reflectionsAmountSpinBox->setSingleStep(0.1);
+        reflectionsAmountSpinBox->setValue(1);
+
+        gridLayout_2->addWidget(reflectionsAmountSpinBox, 2, 2, 1, 1);
 
 
         verticalLayout->addWidget(renderingControlsGB);
@@ -200,11 +260,13 @@ public:
         lightPositionLabel_2->setText(QApplication::translate("MainWindow", "Pos Y", Q_NULLPTR));
         lightPositionLabel_3->setText(QApplication::translate("MainWindow", "Pos Z", Q_NULLPTR));
         lightIntensityLabel->setText(QApplication::translate("MainWindow", "Intensity", Q_NULLPTR));
+        shadowApertureLabel->setText(QApplication::translate("MainWindow", "Shadow Aperture", Q_NULLPTR));
+        lightFalloffLabel->setText(QApplication::translate("MainWindow", "Falloff Exponent", Q_NULLPTR));
         renderingControlsGB->setTitle(QApplication::translate("MainWindow", "Rendering Controls", Q_NULLPTR));
         directLightCheckBox->setText(QApplication::translate("MainWindow", "Direct Light", Q_NULLPTR));
         reflectionCheckBox->setText(QApplication::translate("MainWindow", "Reflections", Q_NULLPTR));
         indirectLightCheckBox->setText(QApplication::translate("MainWindow", "Indirect Light", Q_NULLPTR));
-        label->setText(QApplication::translate("MainWindow", "Specular Cone Angle Multiplier", Q_NULLPTR));
+        label->setText(QApplication::translate("MainWindow", "Cone Angle Multiplier", Q_NULLPTR));
     } // retranslateUi
 
 };

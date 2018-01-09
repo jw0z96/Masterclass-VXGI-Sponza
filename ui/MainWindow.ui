@@ -106,7 +106,57 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QDoubleSpinBox" name="lightIntensityDoubleSpinBox"/>
+          <widget class="QDoubleSpinBox" name="lightIntensitySpinBox">
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <double>99999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>10.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>100.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QDoubleSpinBox" name="shadowApertureSpinBox">
+           <property name="minimum">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="lightFalloffSpinBox">
+           <property name="maximum">
+            <double>3.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>2.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="shadowApertureLabel">
+           <property name="text">
+            <string>Shadow Aperture</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lightFalloffLabel">
+           <property name="text">
+            <string>Falloff Exponent</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -147,8 +197,28 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QDoubleSpinBox" name="specularApertureDoubleSpinBox">
+         <item row="3" column="1">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Cone Angle Multiplier</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QDoubleSpinBox" name="directLightAmountSpinBox">
+           <property name="maximum">
+            <double>2.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QDoubleSpinBox" name="specularApertureSpinBox">
            <property name="decimals">
             <number>2</number>
            </property>
@@ -163,10 +233,29 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Specular Cone Angle Multiplier</string>
+         <item row="1" column="2">
+          <widget class="QDoubleSpinBox" name="indirectLightAmountSpinBox">
+           <property name="maximum">
+            <double>2.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="reflectionsAmountSpinBox">
+           <property name="maximum">
+            <double>2.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
            </property>
           </widget>
          </item>

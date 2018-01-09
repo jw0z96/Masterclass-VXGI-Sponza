@@ -25,10 +25,13 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_lightPosition = ngl::Vec3(0.0f, 200.0f, 0.0f);
 
 	m_specularAperture = 1.0;
+	m_directLightAmount = 1.0;
+	m_indirectLightAmount = 1.0;
+	m_reflectionsAmount = 1.0;
 
-	float intensity= 1.0;
-
-	m_lightColor = ngl::Vec3(intensity, intensity, intensity);
+	m_lightIntensity = 100.0;
+	m_falloffExponent = 2.0;
+	m_shadowAperture = 0.01;
 
 	ngl::Vec3 from(0,40,-140);
 	ngl::Vec3 to(0,40,0);
@@ -245,7 +248,9 @@ void NGLScene::paintGL()
 		shader->setUniform("sceneCenter", objectCenter);
 
 		shader->setUniform("lightPosition", m_lightPosition);
-		shader->setUniform("lightColors", m_lightColor);
+		// shader->setUniform("lightColors", m_lightColor);
+		shader->setUniform("lightIntensity", m_lightIntensity);
+		shader->setUniform("lightFalloffExponent", m_falloffExponent);
 
 		glDispatchCompute(ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0));
 
@@ -369,12 +374,20 @@ void NGLScene::paintGL()
 
 	shader->setUniform("specularApertureMultiplier", m_specularAperture);
 
+	shader->setUniform("directLightAmount", m_directLightAmount);
+	shader->setUniform("indirectLightAmount", m_indirectLightAmount);
+	shader->setUniform("reflectionsAmount", m_reflectionsAmount);
+
+
 	shader->setUniform("voxelDim", m_voxelDim);
 	shader->setUniform("orthoWidth", orthoWidth);
 	shader->setUniform("sceneCenter", objectCenter);
 
 	shader->setUniform("lightPosition", m_lightPosition);
-	shader->setUniform("lightColor", m_lightColor);
+	// shader->setUniform("lightColor", m_lightColor);
+	shader->setUniform("lightIntensity", m_lightIntensity);
+	shader->setUniform("lightFalloffExponent", m_falloffExponent);
+	shader->setUniform("shadowApertureMultiplier", m_shadowAperture);
 
 	prim->draw("ScreenAlignedQuad");
 

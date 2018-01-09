@@ -21,10 +21,6 @@ class MainWindow : public QMainWindow
 		/// @brief this is called to set the positions of the lights
 		//----------------------------------------------------------------------------------------------------------------------
 		void setLightPosition();
-		//----------------------------------------------------------------------------------------------------------------------
-		/// @brief this is called to set the specular aperture for the reflections
-		//----------------------------------------------------------------------------------------------------------------------
-		void setSpecularAperture();
 
 	private:
 		// QWidget *m_ui;

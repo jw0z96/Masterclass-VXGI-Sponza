@@ -14,7 +14,9 @@ uniform vec3 sceneCenter;
 
 // light
 uniform vec3 lightPosition;
-uniform vec3 lightColor;
+// uniform vec3 lightColor;
+uniform float lightIntensity;
+uniform float lightFalloffExponent;
 
 vec3 indexToWorld(ivec3 pos)
 {
@@ -77,14 +79,26 @@ float traceShadow(vec3 position, vec3 direction, float maxTracingDistance)
 	return 1.0 - occlusion;
 }
 
-vec3 calculatePointLight(vec3 lightIntensity, vec3 lightPos, vec3 position, vec3 normal)
+vec3 calculatePointLight(vec3 lightPos, vec3 position, vec3 normal)
 {
 	// vector between light and position in world space
 	vec3 lightDir = lightPos - position;
 	lightDir = normalize(lightDir);
 
+	vec3 weight = normal * normal;
+	// calculate directional normal attenuation
+	float rDotL = dot(vec3(1.0, 0.0, 0.0), lightDir);
+	float uDotL = dot(vec3(0.0, 1.0, 0.0), lightDir);
+	float fDotL = dot(vec3(0.0, 0.0, 1.0), lightDir);
+
+	rDotL = normal.x > 0.0 ? max(rDotL, 0.0) : max(-rDotL, 0.0);
+	uDotL = normal.y > 0.0 ? max(uDotL, 0.0) : max(-uDotL, 0.0);
+	fDotL = normal.z > 0.0 ? max(fDotL, 0.0) : max(-fDotL, 0.0);
+	// voxel shading average from all front sides
+	float NdotL = rDotL * weight.x + uDotL * weight.y + fDotL * weight.z;
+
 	// dot product of surface normal and light vector, gives n.l term
-	float NdotL = max(dot(normal, lightDir), 0.0);
+	// float NdotL = max(dot(normal, lightDir), 0.0);
 
 	// get the surface position and light position voxels in texture
 	// coordinates [0,0,0 - 256,256,256]
@@ -99,14 +113,16 @@ vec3 calculatePointLight(vec3 lightIntensity, vec3 lightPos, vec3 position, vec3
 	// calculate whether the position voxel is in shadow through raytracing
 	float visibility = traceShadow(voxelPos, lightVoxelDir, lightVoxelDistance);
 
-	// float lightDistance = distance(lightPos, position);
-	// lightDistance /= 1000.0;
-	// float falloff = 1.0 - (lightDistance * lightDistance);
-	// falloff = clamp(falloff, 0.0, 1.0);
+	float distance = distance(lightPos, position);
+	// lightDistance /= 10.0;
+	// float attenuation = 1.0 / (lightDistance * lightDistance);
+	float radiance = lightIntensity / pow((distance / 100.0), lightFalloffExponent);
+		// falloff = clamp(falloff, 0.0, 1.0);
 
-	lightIntensity = vec3(1.0);
+	// lightIntensity = vec3(1.0);
+	vec3 lightColor = vec3(1.0);
 
-	return lightIntensity * visibility * NdotL; // * falloff;
+	return lightColor * visibility * NdotL * radiance;
 }
 
 vec3 calculateDirectLighting(vec3 position, vec3 normal)
@@ -121,7 +137,7 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal)
 	vec3 directLight = vec3(0.0);
 
 	// for each light
-		directLight += calculatePointLight(lightColor, lightPosition, position, normal);
+		directLight += calculatePointLight(lightPosition, position, normal);
 	//
 
 	return directLight;
