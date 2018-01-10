@@ -34,3 +34,6 @@
 Makefile
 Sponza
 moc/
+qrc_qmake_qmake_immediate.cpp
+qrc_style.cpp
+
