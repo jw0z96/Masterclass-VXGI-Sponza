@@ -14,21 +14,24 @@
 
 NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 {
-	// set this widget to have the initial keyboard focus
-	setFocusPolicy (Qt::StrongFocus);
-	// re-size the widget to that of the parent (in this case the GLFrame passed in on construction)
-	this->resize(_parent->size());
-
-	ngl::VAOFactory::registerVAOCreator("sponzaVAO",VAO::create);
-	m_timer.start();
-
-	m_lightPosition = ngl::Vec3(0.0f, 200.0f, 0.0f);
+	m_gBufferFBOId = 0;
+	m_FBOWSPositionId = 0;
+	m_FBOWSNormalId = 0;
+	m_FBODepthId = 0;
+	m_FBOAlbedoId = 0;
+	m_FBOMetalRoughId = 0;
+	m_voxelAlbedoTex = 0;
+	m_voxelNormalTex = 0;
+	m_voxelEmissiveTex = 0;
+	m_testFBO = 0;
+	m_testTexture = 0;
 
 	m_specularAperture = 1.0;
 	m_directLightAmount = 1.0;
 	m_indirectLightAmount = 1.0;
 	m_reflectionsAmount = 1.0;
 
+	m_lightPosition = ngl::Vec3(0.0f, 200.0f, 0.0f);
 	m_lightIntensity = 100.0;
 	m_falloffExponent = 2.0;
 	m_shadowAperture = 0.01;
@@ -36,13 +39,20 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	ngl::Vec3 from(0,40,-140);
 	ngl::Vec3 to(0,40,0);
 	ngl::Vec3 up(0,1,0);
-	m_cam.set(from,to,up);
 	// set the shape using FOV 50, Aspect Ratio based on Width and Height, near & far clip
+	m_cam.set(from,to,up);
 	m_cam.setProjection(50,(float)m_win.width/m_win.height,1.0f,800.0f);
 
 	m_isFBODirty = true;
 	m_isLightingDirty = true;
 
+	// set this widget to have the initial keyboard focus
+	setFocusPolicy (Qt::StrongFocus);
+	// re-size the widget to that of the parent (in this case the GLFrame passed in on construction)
+	this->resize(_parent->size());
+
+	ngl::VAOFactory::registerVAOCreator("sponzaVAO",VAO::create);
+	m_timer.start();
 	startTimer(10);
 }
 
