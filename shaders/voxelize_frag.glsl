@@ -1,6 +1,10 @@
 #version 430 core
 
-// #extension GL_NV_conservative_raster : require
+// ----------------------------------------------------------------------------
+/// the following shader is inspired one used in this implementation,
+/// though uses the methods described in Ch. 22 of OpenGLInsights
+/// https://github.com/otaku690/SparseVoxelOctree
+// ----------------------------------------------------------------------------
 
 #define MAX_COLOR_VALUES 256.0
 
@@ -8,8 +12,8 @@ in vec2 f_TexCoords;
 in vec3 f_Pos;
 in vec3 f_Normal;
 
-flat in int f_axis; //indicate which axis the projection uses
-// flat in vec4 f_AABB;
+// the dominant projection axis
+flat in int f_axis;
 
 // material parameters
 uniform sampler2D albedoMap;
@@ -26,6 +30,10 @@ uniform int voxelDim;
 uniform float orthoWidth;
 uniform vec3 sceneCenter;
 
+// ----------------------------------------------------------------------------
+/// the following function is described in Ch. 22 of OpenGLInsights:
+/// https://www.seas.upenn.edu/~pcozzi/OpenGLInsights/OpenGLInsights-SparseVoxelization.pdf
+// ----------------------------------------------------------------------------
 void imageAtomicRGBA8Avg(layout(r32ui) coherent volatile uimage3D imgUI, ivec3 coords, vec4 val)
 {
 	uint newVal = packUnorm4x8(val);
@@ -44,6 +52,7 @@ void imageAtomicRGBA8Avg(layout(r32ui) coherent volatile uimage3D imgUI, ivec3 c
 		newVal = packUnorm4x8(curValF);
 	}
 }
+// ----------------------------------------------------------------------------
 
 // convert normal from [-1.0 > 1.0] range to [0.0 > 1.0] range
 vec3 packNormal(vec3 normal)
@@ -58,30 +67,27 @@ void main()
 
 	// PBR texture lookups
 	vec3 albedo = pow(texture(albedoMap, f_TexCoords).rgb, vec3(2.2));
-	float metallic = texture(metallicMap, f_TexCoords).r;
-	float roughness = texture(roughnessMap, f_TexCoords).r;
-
-	// calculate normal-mapped world space normals
-	vec3 N = f_Normal;
 
 	vec3 temp = vec3(gl_FragCoord.x, gl_FragCoord.y, voxelDim * gl_FragCoord.z);
 
+	// calculate the 3d texture index given the dominant projection axis
 	ivec3 texcoord;
-	if( f_axis == 1 )
+	if(f_axis == 1)
 	{
 		texcoord.x = int(voxelDim - temp.z);
 		texcoord.z = int(temp.x);
 		texcoord.y = int(temp.y);
 	}
-	else if( f_axis == 2 )
+	else if(f_axis == 2)
 	{
 		texcoord.z = int(temp.y);
-		texcoord.y = int(voxelDim-temp.z);
+		texcoord.y = int(voxelDim - temp.z);
 		texcoord.x = int(temp.x);
 	}
 	else
 		texcoord = ivec3(temp);
 
+	// store the fragment in our 3d texture using a moving average
 	imageAtomicRGBA8Avg(u_voxelAlbedoTex, texcoord, vec4(albedo, 1.0));
-	imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(packNormal(N), 1.0));
+	imageAtomicRGBA8Avg(u_voxelNormalTex, texcoord, vec4(packNormal(f_Normal), 1.0));
 }
