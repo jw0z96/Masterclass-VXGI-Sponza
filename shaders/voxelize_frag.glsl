@@ -17,8 +17,6 @@ flat in int f_axis;
 
 // material parameters
 uniform sampler2D albedoMap;
-uniform sampler2D metallicMap;
-uniform sampler2D roughnessMap;
 
 layout (location = 0) out vec4 gl_FragColor;
 layout (pixel_center_integer) in vec4 gl_FragCoord;

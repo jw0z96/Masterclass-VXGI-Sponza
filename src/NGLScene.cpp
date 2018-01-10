@@ -51,14 +51,16 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 NGLScene::~NGLScene()
 {
 	std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
+	// delete 3d textures
 	glDeleteTextures(1, &m_voxelAlbedoTex);
 	glDeleteTextures(1, &m_voxelNormalTex);
-
+	// delete framebuffer textures
 	glDeleteTextures(1, &m_FBOWSPositionId);
 	glDeleteTextures(1, &m_FBOWSNormalId);
 	glDeleteTextures(1, &m_FBODepthId);
 	glDeleteTextures(1, &m_FBOAlbedoId);
 	glDeleteTextures(1, &m_FBOMetalRoughId);
+	// delete framebuffer object
 	glDeleteFramebuffers(1, &m_gBufferFBOId);
 }
 
@@ -76,56 +78,38 @@ void NGLScene::initializeGL()
 		"shaders/voxelize_vert.glsl",
 		"shaders/voxelize_frag.glsl",
 		"shaders/voxelize_geo.glsl");
-
+	shader->use("voxelizationShader");
 	shader->setUniform("albedoMap", 0);
-	shader->setUniform("metallicMap", 2);
-	shader->setUniform("roughnessMap", 3);
 
 	// create the gBuffer shader program
 	shader->loadShader("gBufferPass",
 		"shaders/gBuffer_vert.glsl",
 		"shaders/gBuffer_frag.glsl");
 	shader->use("gBufferPass");
-
 	shader->setUniform("albedoMap", 0);
 	shader->setUniform("normalMap", 1);
 	shader->setUniform("metallicMap", 2);
 	shader->setUniform("roughnessMap", 3);
-	// shader->setUniform("voxelAlbedoTex", 5);
-	// shader->setUniform("voxelNormalTex", 6);
-	// shader->setUniform("voxelEmissiveTex", 7);
 
 	// create the output shader program
 	shader->loadShader("outputPass",
 		"shaders/screen_space_vert.glsl",
 		"shaders/output_frag.glsl");
-
 	shader->use("outputPass");
 	shader->setUniform("WSPositionTex", 0);
 	shader->setUniform("WSNormalTex", 1);
 	shader->setUniform("depthTex", 2);
 	shader->setUniform("albedoTex", 3);
 	shader->setUniform("metalRoughTex", 4);
-	// shader->setUniform("voxelAlbedoTex", 5);
-	// shader->setUniform("voxelNormalTex", 6);
 	shader->setUniform("voxelEmissiveTex", 5);
 
-	// create the output shader program
-	// shader->loadShader("outputTestPass",
-	// 	"shaders/screen_space_vert.glsl",
-	// 	"shaders/test_frag.glsl");
-
-	// shader->use("outputTestPass");
-	// shader->setUniform("inTex", 0);
-
-	// create the compute shader program
+	// create the compute shader program for light injection
 	shader->createShaderProgram("lightInjectionPass");
 	shader->attachShader("lightInjectionPassComp", ngl::ShaderType::COMPUTE );
 	shader->loadShaderSource("lightInjectionPassComp", "shaders/lightInjectionComp.glsl" );
 	shader->compileShader("lightInjectionPassComp");
 	shader->attachShaderToProgram("lightInjectionPass", "lightInjectionPassComp");
 	shader->linkProgramObject("lightInjectionPass");
-
 	shader->use("lightInjectionPass");
 	shader->setUniform("voxelAlbedoTex", 1);
 	shader->setUniform("voxelNormalTex", 2);
@@ -158,8 +142,6 @@ void NGLScene::initializeGL()
 
 	// as re-size is not explicitly called we need to do this.
 	glViewport(0,0,width(),height());
-
-	// initTestFBO();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -179,8 +161,9 @@ void NGLScene::paintGL()
 	/// VOXELIZE SCENE
 	//----------------------------------------------------------------------------------------------------------------------
 
+	// these parameters give a good fit for the voxel projections, but could be infered from geometry
 	float orthoWidth = 1400.0;
-	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0); // gives a good fit for the voxel projections
+	ngl::Vec3 objectCenter = ngl::Vec3(-60.0, 600.0, 0.0);
 
 	if (!m_isVoxelTexConstructed)
 	{
@@ -192,30 +175,26 @@ void NGLScene::paintGL()
 		glEnable(GL_CONSERVATIVE_RASTERIZATION_NV);
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		shader->use("voxelizationShader");
-		// Orthograhic projection
+		// create 3 orthograhic projections for each axis and send them to the shader
 		ngl::Mat4 Ortho;
 		Ortho = ngl::ortho(-orthoWidth, orthoWidth, -orthoWidth, orthoWidth, -orthoWidth, orthoWidth);
-		// Create an modelview-orthographic projection matrix see from +X axis
 		ngl::Mat4 mvpX = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(-1, 0, 0), ngl::Vec3(0, 1, 0));
-		// Create an modelview-orthographic projection matrix see from +Y axis
-		ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, -1, 0), ngl::Vec3(0, 0, -1));
-		// Create an modelview-orthographic projection matrix see from +Z axis
-		ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, 0, -1), ngl::Vec3(0, 1, 0));
 		shader->setUniform("mvpX", mvpX);
+		ngl::Mat4 mvpY = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, -1, 0), ngl::Vec3(0, 0, -1));
 		shader->setUniform("mvpY", mvpY);
+		ngl::Mat4 mvpZ = Ortho * ngl::lookAt(objectCenter + ngl::Vec3(0, 0, 0), objectCenter + ngl::Vec3(0, 0, -1), ngl::Vec3(0, 1, 0));
 		shader->setUniform("mvpZ", mvpZ);
+		// send info about voxelization, helps with indexing
 		shader->setUniform("voxelDim", m_voxelDim);
 		shader->setUniform("orthoWidth", orthoWidth);
 		shader->setUniform("sceneCenter", objectCenter);
-
+		// bind the empty 3d textures to locations
 		glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
 		glBindImageTexture(0, m_voxelAlbedoTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 		glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
 		glBindImageTexture(1, m_voxelNormalTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
 		// draw our scene geometry
 		drawScene();
-
 		// set our voxel construction flag
 		m_isVoxelTexConstructed = true;
 		// re enable depth testing for drawing
@@ -223,7 +202,6 @@ void NGLScene::paintGL()
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_CONSERVATIVE_RASTERIZATION_NV);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -234,26 +212,24 @@ void NGLScene::paintGL()
 	if (m_isLightingDirty)
 	{
 		shader->use("lightInjectionPass");
-
+		// bind the empty 3d texture to a location
 		glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
 		glBindImageTexture(0, m_voxelEmissiveTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
+		// bind the voxel textures to their texture units
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
-
+		// send info about voxelization, helps with indexing
 		shader->setUniform("voxelDim", m_voxelDim);
 		shader->setUniform("orthoWidth", orthoWidth);
 		shader->setUniform("sceneCenter", objectCenter);
-
+		// send light parameters
 		shader->setUniform("lightPosition", m_lightPosition);
-		// shader->setUniform("lightColors", m_lightColor);
 		shader->setUniform("lightIntensity", m_lightIntensity);
 		shader->setUniform("lightFalloffExponent", m_falloffExponent);
-
+		// dispatch compute shader to inject lighting info
 		glDispatchCompute(ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0), ceil(m_voxelDim / 8.0));
-
 		glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
 		glGenerateMipmap(GL_TEXTURE_3D);
 
@@ -276,19 +252,16 @@ void NGLScene::paintGL()
 	}
 
 	// bind the gBuffer FBO
-	// glBindFramebuffer(GL_FRAMEBUFFER, 1);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_gBufferFBOId);
 	// clear the screen and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0,0,m_win.width,m_win.height);
-
+	// use the gBuffer shader
 	shader->use("gBufferPass");
-	shader->setUniform("orthoWidth", orthoWidth);
-	shader->setUniform("sceneCenter", objectCenter);
 
-	/// first we reset the movement values
-	float xDirection=0.0;
-	float yDirection=0.0;
+	// first we reset the camera movement values
+	float xDirection = 0.0;
+	float yDirection = 0.0;
 	// now we loop for each of the pressed keys in the the set
 	// and see which ones have been pressed. If they have been pressed
 	// we set the movement value to be an incremental value
@@ -310,27 +283,12 @@ void NGLScene::paintGL()
 		m_cam.move(xDirection,yDirection,m_deltaTime);
 	}
 
+	// send info about voxelization, helps with indexing
 	shader->setUniform("voxelDim", m_voxelDim);
 	shader->setUniform("orthoWidth", orthoWidth);
 	shader->setUniform("sceneCenter", objectCenter);
-
-	// glActiveTexture(GL_TEXTURE5);
-	// glBindTexture(GL_TEXTURE_3D, m_voxelAlbedoTex);
-	// glActiveTexture(GL_TEXTURE6);
-	// glBindTexture(GL_TEXTURE_3D, m_voxelNormalTex);
-	// glActiveTexture(GL_TEXTURE7);
-	// glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
 	// draw our scene geometry
 	drawScene();
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// OUTPUT PASS START
@@ -340,94 +298,47 @@ void NGLScene::paintGL()
 	glBindFramebuffer(GL_FRAMEBUFFER, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0,0,m_win.width,m_win.height);
-
+	// use the output pass shader
+	shader->use("outputPass");
+	// send the window size
+	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
+	// MVP for screenspace effects
+	ngl::Mat4 SSMVP = ngl::Mat4(1.0f);
+	SSMVP.rotateX(90);
+	shader->setUniform("MVP", SSMVP);
+	// send camera position
+	shader->setUniform("camPos", m_cam.getEye());
+	// send render passes bool
+	shader->setUniform("viewDirectLight", m_viewDirectLight);
+	shader->setUniform("viewIndirectLight", m_viewIndirectLight);
+	shader->setUniform("viewReflections", m_viewReflections);
+	// send render controls
+	shader->setUniform("specularApertureMultiplier", m_specularAperture);
+	shader->setUniform("directLightAmount", m_directLightAmount);
+	shader->setUniform("indirectLightAmount", m_indirectLightAmount);
+	shader->setUniform("reflectionsAmount", m_reflectionsAmount);
+	// send info about voxelization, helps with indexing
+	shader->setUniform("voxelDim", m_voxelDim);
+	shader->setUniform("orthoWidth", orthoWidth);
+	shader->setUniform("sceneCenter", objectCenter);
+	// send light parameters
+	shader->setUniform("lightPosition", m_lightPosition);
+	shader->setUniform("lightIntensity", m_lightIntensity);
+	shader->setUniform("lightFalloffExponent", m_falloffExponent);
+	shader->setUniform("shadowApertureMultiplier", m_shadowAperture);
+	// bind the textures to their texture units
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSNormalId);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, m_FBODepthId);
-
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, m_FBOAlbedoId);
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, m_FBOMetalRoughId);
-
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
-
-	shader->use("outputPass");
-	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
-
-	// MVP for screenspace effects
-	ngl::Mat4 SSMVP = ngl::Mat4(1.0f);
-	SSMVP.rotateX(90);
-	shader->setUniform("MVP", SSMVP);
-
-	// camera position
-	shader->setUniform("camPos", m_cam.getEye());
-
-	// render passes bool
-	shader->setUniform("viewDirectLight", m_viewDirectLight);
-	shader->setUniform("viewIndirectLight", m_viewIndirectLight);
-	shader->setUniform("viewReflections", m_viewReflections);
-
-	shader->setUniform("specularApertureMultiplier", m_specularAperture);
-
-	shader->setUniform("directLightAmount", m_directLightAmount);
-	shader->setUniform("indirectLightAmount", m_indirectLightAmount);
-	shader->setUniform("reflectionsAmount", m_reflectionsAmount);
-
-
-	shader->setUniform("voxelDim", m_voxelDim);
-	shader->setUniform("orthoWidth", orthoWidth);
-	shader->setUniform("sceneCenter", objectCenter);
-
-	shader->setUniform("lightPosition", m_lightPosition);
-	// shader->setUniform("lightColor", m_lightColor);
-	shader->setUniform("lightIntensity", m_lightIntensity);
-	shader->setUniform("lightFalloffExponent", m_falloffExponent);
-	shader->setUniform("shadowApertureMultiplier", m_shadowAperture);
-
+	// draw screen quad
 	prim->draw("ScreenAlignedQuad");
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_3D, 0);
-
-	//----------------------------------------------------------------------------------------------------------------------
-	/// OUTPUT TESTING PASS START
-	//----------------------------------------------------------------------------------------------------------------------
-	/*
-	// unbind FBO
-	glBindFramebuffer(GL_FRAMEBUFFER, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glViewport(0,0,m_win.width,m_win.height);
-
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	// glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_testTexture);
-
-	shader->use("outputTestPass");
-	shader->setUniform("windowSize", ngl::Vec2(m_win.width, m_win.height));
-
-	// MVP for screenspace effects
-	ngl::Mat4 SSMVP = ngl::Mat4(1.0f);
-	SSMVP.rotateX(90);
-	shader->setUniform("MVP", SSMVP);
-
-	prim->draw("ScreenAlignedQuad");
-	*/
 }
