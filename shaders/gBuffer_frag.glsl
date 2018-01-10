@@ -3,14 +3,11 @@ in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
 
-// material parameters
+// material parameter textures
 uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
-
-// uniform sampler3D voxelAlbedoTex;
-// uniform sampler3D voxelNormalTex;
 
 uniform int voxelDim;
 uniform float orthoWidth;
@@ -66,11 +63,6 @@ void main()
 	float roughness = texture(roughnessMap, TexCoords).r;
 	// calculate normal-mapped world space normals
 	vec3 N = getNormalFromMap();
-
-	vec3 textureIndex = worldToTexCoord(WorldPos);
-
-	// vec3 voxelTexAlbedo = texture(voxelAlbedoTex, textureIndex).rgb;
-	// vec3 voxelTexNormal = texture(voxelNormalTex, textureIndex).rgb;
 
 	// world space position out
 	fragWSPosition = WorldPos;

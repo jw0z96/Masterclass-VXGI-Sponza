@@ -45,6 +45,7 @@ void imageAtomicRGBA8Avg(layout(r32ui) coherent volatile uimage3D imgUI, ivec3 c
 	}
 }
 
+// convert normal from [-1.0 > 1.0] range to [0.0 > 1.0] range
 vec3 packNormal(vec3 normal)
 {
 	return (normal * 0.5)  + vec3(0.5);
@@ -52,9 +53,6 @@ vec3 packNormal(vec3 normal)
 
 void main()
 {
-	// if( f_Pos.x < f_AABB.x || f_Pos.y < f_AABB.y || f_Pos.x > f_AABB.z || f_Pos.y > f_AABB.w )
-	// 	discard ;
-
 	if(texture(albedoMap, f_TexCoords).a==0)
 		discard;
 
@@ -67,8 +65,6 @@ void main()
 	vec3 N = f_Normal;
 
 	vec3 temp = vec3(gl_FragCoord.x, gl_FragCoord.y, voxelDim * gl_FragCoord.z);
-	// temp -= sceneCenter;
-	// temp *= orthoWidth;
 
 	ivec3 texcoord;
 	if( f_axis == 1 )

@@ -104,50 +104,6 @@ void NGLScene::initFBO()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void NGLScene::initTestFBO()
-{
-	std::cout<<"initTestFBO call\n";
-
-	// First delete the FBO if it has been created previously
-	glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE)
-	{
-		glDeleteTextures(1, &m_testTexture);
-		glDeleteFramebuffers(1, &m_testFBO);
-	}
-
-	auto setParams=[]()
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	};
-
-	// Generate a texture to write the Position to
-	glGenTextures(1, &m_testTexture);
-	glBindTexture(GL_TEXTURE_2D, m_testTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, m_voxelDim, m_voxelDim, 0, GL_RGB, GL_FLOAT, NULL);
-	setParams();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Create the frame buffer
-	glGenFramebuffers(1, &m_testFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_testFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_testTexture, 0);
-
-	// Set the fragment shader output targets DEPTH_ATTACHMENT is done automatically apparently
-	GLenum drawBufs[] = {GL_COLOR_ATTACHMENT0};
-	glDrawBuffers(1, drawBufs);
-
-	// Check it is ready to rock and roll
-	checkFrameBuffer();
-	// Unbind the framebuffer to revert to default render pipeline
-	glBindFramebuffer(GL_FRAMEBUFFER, 1);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 void NGLScene::checkFrameBuffer() const
 {
 	switch(glCheckFramebufferStatus(GL_FRAMEBUFFER))
