@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2016.5.26)  11 JAN 2018 16:33
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2016.5.26)  11 JAN 2018 17:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -416,6 +416,12 @@ LaTeX Warning: Label `fig:reference' multiply defined.
 
 LaTeX Warning: Label `fig:reference' multiply defined.
 
+
+LaTeX Warning: Label `fig:reference' multiply defined.
+
+
+LaTeX Warning: Label `fig:reference' multiply defined.
+
 )
 \openout1 = `paper.aux'.
 
@@ -588,17 +594,131 @@ Package pdftex.def Info: images/reflection_only_no_roughness.png used on input
 line 111.
 (pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.119  Voxel Resolution & 256^
+                              3 & 512^3 & 768^3 \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Extra }, or forgotten $.
+<template> \unskip \hfil }
+                          \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
+l.119  Voxel Resolution & 256^3 &
+                                  512^3 & 768^3 \\
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.119  Voxel Resolution & 256^3 &
+                                  512^3 & 768^3 \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.119  Voxel Resolution & 256^3 &
+                                  512^3 & 768^3 \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.119  Voxel Resolution & 256^3 & 512^
+                                      3 & 768^3 \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Extra }, or forgotten $.
+<template> \unskip \hfil }
+                          \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
+l.119  Voxel Resolution & 256^3 & 512^3 &
+                                          768^3 \\
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.119  Voxel Resolution & 256^3 & 512^3 &
+                                          768^3 \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.119  Voxel Resolution & 256^3 & 512^3 &
+                                          768^3 \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.119  Voxel Resolution & 256^3 & 512^3 & 768^
+                                              3 \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Extra }, or forgotten $.
+<template> \unskip \hfil }
+                          \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
+l.120  \hline
+             
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.120  \hline
+             
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.120  \hline
+             
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
 
 LaTeX Warning: Citation 'crassin_neyret_sainz_green_eisemann_2011' on page 1 un
-defined on input line 117.
+defined on input line 139.
 
 
 LaTeX Warning: Citation 'crassin_green_2012' on page 1 undefined on input line 
-121.
+143.
 
 
 LaTeX Warning: Citation 'crassin_neyret_sainz_green_eisemann_2011' on page 1 un
-defined on input line 123.
+defined on input line 145.
 
 [1{/usr/share/texlive/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
@@ -609,41 +729,41 @@ eflection_only.png> <./images/reflection_only_no_roughness.png>]
 <images/banding.png, id=40, 710.655pt x 709.65125pt>
 File: images/banding.png Graphic file (type png)
  <use images/banding.png>
-Package pdftex.def Info: images/banding.png used on input line 126.
+Package pdftex.def Info: images/banding.png used on input line 148.
 (pdftex.def)             Requested size: 240.94499pt x 240.60687pt.
 
 <images/indirect_noise.png, id=41, 1431.3475pt x 742.775pt>
 File: images/indirect_noise.png Graphic file (type png)
 
 <use images/indirect_noise.png>
-Package pdftex.def Info: images/indirect_noise.png used on input line 131.
+Package pdftex.def Info: images/indirect_noise.png used on input line 153.
 (pdftex.def)             Requested size: 240.94499pt x 125.02335pt.
 
 <images/voxelization_error.png, id=42, 943.525pt x 817.0525pt>
 File: images/voxelization_error.png Graphic file (type png)
 
 <use images/voxelization_error.png>
-Package pdftex.def Info: images/voxelization_error.png used on input line 136.
+Package pdftex.def Info: images/voxelization_error.png used on input line 158.
 (pdftex.def)             Requested size: 240.94499pt x 208.63861pt.
 
 No file paper.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 143.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 165.
 [2 <./images/banding.png> <./images/indirect_noise.png> <./images/voxelization_
 error.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 143.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 165.
  (./paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 143.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 143.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 165.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 165.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 143.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 165.
  ) 
 Here is how much of TeX's memory you used:
- 9653 strings out of 495063
- 143032 string characters out of 3182201
- 335911 words of memory out of 3000000
+ 9654 strings out of 495063
+ 143048 string characters out of 3182201
+ 338903 words of memory out of 3000000
  12687 multiletter control sequences out of 15000+200000
  22075 words of font info for 48 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
@@ -656,10 +776,10 @@ e1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/
 helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a
 .pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on paper.pdf (2 pages, 31652198 bytes).
+Output written on paper.pdf (2 pages, 31656679 bytes).
 PDF statistics:
- 85 PDF objects out of 1000 (max. 8388607)
- 52 compressed objects within 1 object stream
- 14 named destinations out of 1000 (max. 500000)
+ 86 PDF objects out of 1000 (max. 8388607)
+ 53 compressed objects within 1 object stream
+ 15 named destinations out of 1000 (max. 500000)
  51 words of extra memory for PDF output out of 10000 (max. 10000000)
 

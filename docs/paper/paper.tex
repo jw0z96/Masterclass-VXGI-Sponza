@@ -112,6 +112,28 @@
  \caption{\label{fig:reference}A screenshot showing just the reflection pass, but with the minimum cone angle.}
 \end{figure}
 
+\begin{figure}[htbp]\centering
+\begin{center}
+ \begin{tabular}{|c|c|c|c|}
+ \hline
+ Voxel Resolution & 256^3 & 512^3 & 768^3 \\
+ \hline
+ \hline
+ Frames per second & 60 & 60 & 60 \\
+ \hline
+ Memory usage & 1063MiB & 2615MiB & 6628MiB \\
+ \hline
+ Voxelisation & 2ms & 2ms & 2ms \\
+ \hline
+ Light Injection & 65ms & 378.5ms & 12294.5ms\\
+ \hline
+ Shading & 4.5ms & 4.5ms & 4.5ms \\
+ \hline
+ \end{tabular}
+ \caption{\label{fig:reference}Averaged performance results when running with a NVIDIA GTX 1080 8GB.}
+\end{center}
+\end{figure}
+
 \section{Future Improvements}
 
 Unfortunately I wasn't able to implement a sparse data structure as described in the source material\cite{crassin_neyret_sainz_green_eisemann_2011} before the assignment deadline. Having a sparse data structure to store the emissive voxel texture would save a significant amount of GPU memory consumption, allowing the resolution for voxelization to be much higher; currently dense 3D textures it is capable of hitting the 2 gigabyte memory limit of my GPU.
