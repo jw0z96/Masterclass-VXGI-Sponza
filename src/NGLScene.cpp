@@ -8,6 +8,8 @@
 #include "VAO.h"
 #include <math.h>
 
+#include <chrono>
+
 #define GL_CONSERVATIVE_RASTERIZATION_NV 0x9346
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -163,7 +165,7 @@ void NGLScene::paintGL()
 	ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
 
 	float currentFrame = m_timer.elapsed()*0.001f;
-	std::cout<<"FPS: "<<1.0f / m_deltaTime<<'\n';
+	// std::cout<<"FPS: "<<1.0f / m_deltaTime<<'\n';
 	m_deltaTime = currentFrame - m_lastFrame;
 	m_lastFrame = currentFrame;
 
@@ -177,6 +179,8 @@ void NGLScene::paintGL()
 
 	if (!m_isVoxelTexConstructed)
 	{
+		auto startVoxelTimer = std::chrono::system_clock::now();
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, m_voxelDim, m_voxelDim);
 		// Disable some fixed-function opeartions
@@ -212,6 +216,10 @@ void NGLScene::paintGL()
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_CONSERVATIVE_RASTERIZATION_NV);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+		auto endVoxelTimer = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endVoxelTimer - startVoxelTimer);
+		std::cout << "voxelisation took: " << elapsed.count() << 'ms\n';
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -221,6 +229,8 @@ void NGLScene::paintGL()
 	// Check if the emissive tex needs to be recreated, This occurs after a light is moved.
 	if (m_isLightingDirty)
 	{
+		auto startLightingTimer = std::chrono::system_clock::now();
+
 		shader->use("lightInjectionPass");
 		// bind the empty 3d texture to a location
 		glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
@@ -249,11 +259,17 @@ void NGLScene::paintGL()
 		glBindTexture(GL_TEXTURE_3D, 0);
 
 		m_isLightingDirty = false;
+
+		auto endLightingTimer = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endLightingTimer - startLightingTimer);
+		std::cout << "light injection took: " << elapsed.count() << 'ms\n';
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
 	/// G BUFFER PASS START
 	//----------------------------------------------------------------------------------------------------------------------
+
+	auto startShadingTimer = std::chrono::system_clock::now();
 
 	// Check if the FBO needs to be recreated. This occurs after a resize.
 	if (m_isFBODirty)
@@ -351,4 +367,8 @@ void NGLScene::paintGL()
 	glBindTexture(GL_TEXTURE_3D, m_voxelEmissiveTex);
 	// draw screen quad
 	prim->draw("ScreenAlignedQuad");
+
+	auto endShadingTimer = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endShadingTimer - startShadingTimer);
+	std::cout << "light injection took: " << elapsed.count() << 'ms\n';
 }
