@@ -218,8 +218,8 @@ void NGLScene::paintGL()
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 		auto endVoxelTimer = std::chrono::system_clock::now();
-		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endVoxelTimer - startVoxelTimer);
-		std::cout << "voxelisation took: " << elapsed.count() << 'ms\n';
+		auto elapsedVoxel = std::chrono::duration_cast<std::chrono::milliseconds>(endVoxelTimer - startVoxelTimer);
+		std::cout << "voxelisation took: " << elapsedVoxel.count() << "ms\n";
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -261,8 +261,8 @@ void NGLScene::paintGL()
 		m_isLightingDirty = false;
 
 		auto endLightingTimer = std::chrono::system_clock::now();
-		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endLightingTimer - startLightingTimer);
-		std::cout << "light injection took: " << elapsed.count() << 'ms\n';
+		auto elapsedLighting = std::chrono::duration_cast<std::chrono::milliseconds>(endLightingTimer - startLightingTimer);
+		std::cout << "light injection took: " << elapsedLighting.count() << "ms\n";
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
@@ -369,6 +369,6 @@ void NGLScene::paintGL()
 	prim->draw("ScreenAlignedQuad");
 
 	auto endShadingTimer = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endShadingTimer - startShadingTimer);
-	std::cout << "light injection took: " << elapsed.count() << 'ms\n';
+	auto elapsedShading = std::chrono::duration_cast<std::chrono::milliseconds>(endShadingTimer - startShadingTimer);
+	std::cout << "shading took: " << elapsedShading.count() << "ms\n";
 }

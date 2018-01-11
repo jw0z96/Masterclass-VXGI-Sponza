@@ -3,3 +3,19 @@ stats:
 256^3 fullscreen 2560*1080 GTX 1080 60fps 1063MiB
 512^3 fullscreen 2560*1080 GTX 1080 60fps 2615MiB
 768^3 fullscreen 2560*1080 GTX 1080 60fps 6628MiB
+
+256^3 GTX1080
+voxelisation 2ms
+light injection 56 - 74ms
+shading 4 - 5ms
+
+512^3 GTX1080
+voxelisation 2ms
+light injection 374 - 383ms
+shading 4 - 5ms
+
+768^3 GTX1080
+voxelisation 2ms
+light injection 12249 12340ms
+shading 4 - 5ms
+
