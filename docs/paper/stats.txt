@@ -1,0 +1,5 @@
+stats:
+
+256^3 fullscreen 2560*1080 GTX 1080 60fps 1063MiB
+512^3 fullscreen 2560*1080 GTX 1080 60fps 2615MiB
+768^3 fullscreen 2560*1080 GTX 1080 60fps 6628MiB

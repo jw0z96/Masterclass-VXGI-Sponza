@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2016.5.26)  11 JAN 2018 14:34
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2016.5.26)  11 JAN 2018 16:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -397,7 +397,26 @@ Package: listings 2007/02/22 1.4 (Carsten Heinz)
 Package: glsllst 
 ) (./rmlst.sty
 Package: rmlst 
-) (./paper.aux)
+) (./paper.aux
+
+LaTeX Warning: Label `fig:reference' multiply defined.
+
+
+LaTeX Warning: Label `fig:reference' multiply defined.
+
+
+LaTeX Warning: Label `fig:reference' multiply defined.
+
+
+LaTeX Warning: Label `fig:reference' multiply defined.
+
+
+LaTeX Warning: Label `fig:reference' multiply defined.
+
+
+LaTeX Warning: Label `fig:reference' multiply defined.
+
+)
 \openout1 = `paper.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 75.
@@ -415,8 +434,7 @@ LaTeX Font Info:    ... okay on input line 75.
 LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 75.
 LaTeX Font Info:    ... okay on input line 75.
 LaTeX Font Info:    Try loading font information for OT1+ptm on input line 75.
-
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd
+ (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
 (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
@@ -485,52 +503,163 @@ LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <12> not available
 (Font)              Font shape `OT1/phv/b/n' tried instead on input line 84.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
 (Font)              scaled to size 11.03998pt on input line 84.
+
+<images/full_render_01.png, id=4, 2569.6pt x 1084.05pt>
+File: images/full_render_01.png Graphic file (type png)
+
+<use images/full_render_01.png>
+Package pdftex.def Info: images/full_render_01.png used on input line 89.
+(pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
+
+<images/full_render_02.png, id=6, 2569.6pt x 1084.05pt>
+File: images/full_render_02.png Graphic file (type png)
+
+<use images/full_render_02.png>
+Package pdftex.def Info: images/full_render_02.png used on input line 90.
+(pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
+
+<images/full_render_03.png, id=7, 2569.6pt x 1084.05pt>
+File: images/full_render_03.png Graphic file (type png)
+
+<use images/full_render_03.png>
+Package pdftex.def Info: images/full_render_03.png used on input line 91.
+(pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 90.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 92.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.92 ...l scene with a voxel resolution of 512^3.}
+                                                  
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.92 ...l scene with a voxel resolution of 512^3.}
+                                                  
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.92 ...l scene with a voxel resolution of 512^3.}
+                                                  
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.92 ...l scene with a voxel resolution of 512^3.}
+                                                  
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+<images/direct_only.png, id=8, 2569.6pt x 1084.05pt>
+File: images/direct_only.png Graphic file (type png)
+
+<use images/direct_only.png>
+Package pdftex.def Info: images/direct_only.png used on input line 96.
+(pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
+
+<images/indirect_only.png, id=9, 2569.6pt x 1084.05pt>
+File: images/indirect_only.png Graphic file (type png)
+
+<use images/indirect_only.png>
+Package pdftex.def Info: images/indirect_only.png used on input line 101.
+(pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
+
+<images/reflection_only.png, id=10, 2569.6pt x 1084.05pt>
+File: images/reflection_only.png Graphic file (type png)
+
+<use images/reflection_only.png>
+Package pdftex.def Info: images/reflection_only.png used on input line 106.
+(pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
+
+<images/reflection_only_no_roughness.png, id=11, 2569.6pt x 1084.05pt>
+File: images/reflection_only_no_roughness.png Graphic file (type png)
+
+<use images/reflection_only_no_roughness.png>
+Package pdftex.def Info: images/reflection_only_no_roughness.png used on input 
+line 111.
+(pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
 
 
 LaTeX Warning: Citation 'crassin_neyret_sainz_green_eisemann_2011' on page 1 un
-defined on input line 90.
+defined on input line 117.
 
 
 LaTeX Warning: Citation 'crassin_green_2012' on page 1 undefined on input line 
-94.
+121.
 
 
 LaTeX Warning: Citation 'crassin_neyret_sainz_green_eisemann_2011' on page 1 un
-defined on input line 96.
+defined on input line 123.
 
-No file paper.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 101.
 [1{/usr/share/texlive/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 
+ <./images/full_render_01.png> <./images/full_render_02.png> <./images/full_ren
+der_03.png> <./images/direct_only.png> <./images/indirect_only.png> <./images/r
+eflection_only.png> <./images/reflection_only_no_roughness.png>]
+<images/banding.png, id=40, 710.655pt x 709.65125pt>
+File: images/banding.png Graphic file (type png)
+ <use images/banding.png>
+Package pdftex.def Info: images/banding.png used on input line 126.
+(pdftex.def)             Requested size: 240.94499pt x 240.60687pt.
 
-]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 101.
+<images/indirect_noise.png, id=41, 1431.3475pt x 742.775pt>
+File: images/indirect_noise.png Graphic file (type png)
+
+<use images/indirect_noise.png>
+Package pdftex.def Info: images/indirect_noise.png used on input line 131.
+(pdftex.def)             Requested size: 240.94499pt x 125.02335pt.
+
+<images/voxelization_error.png, id=42, 943.525pt x 817.0525pt>
+File: images/voxelization_error.png Graphic file (type png)
+
+<use images/voxelization_error.png>
+Package pdftex.def Info: images/voxelization_error.png used on input line 136.
+(pdftex.def)             Requested size: 240.94499pt x 208.63861pt.
+
+No file paper.bbl.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 143.
+[2 <./images/banding.png> <./images/indirect_noise.png> <./images/voxelization_
+error.png>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 143.
  (./paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 101.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 101.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 101.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 143.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 143.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 143.
  ) 
 Here is how much of TeX's memory you used:
- 9586 strings out of 495063
- 141449 string characters out of 3182201
- 334539 words of memory out of 3000000
- 12647 multiletter control sequences out of 15000+200000
- 19254 words of font info for 42 fonts, out of 3000000 for 9000
+ 9653 strings out of 495063
+ 143032 string characters out of 3182201
+ 335911 words of memory out of 3000000
+ 12687 multiletter control sequences out of 15000+200000
+ 22075 words of font info for 48 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
- 43i,15n,40p,508b,325s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,15n,40p,508b,356s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf
--dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/f
-onts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/u
-rw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a
-.pfb>
-Output written on paper.pdf (1 page, 48479 bytes).
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/
+helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a
+.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on paper.pdf (2 pages, 31652198 bytes).
 PDF statistics:
- 37 PDF objects out of 1000 (max. 8388607)
- 28 compressed objects within 1 object stream
- 5 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 85 PDF objects out of 1000 (max. 8388607)
+ 52 compressed objects within 1 object stream
+ 14 named destinations out of 1000 (max. 500000)
+ 51 words of extra memory for PDF output out of 10000 (max. 10000000)
 
