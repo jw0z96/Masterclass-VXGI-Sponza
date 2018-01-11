@@ -18,6 +18,8 @@ The speed at which lighting rays are marched during the light injection pass wou
 
 I did start working on a sparse voxel octree as described in OpenGL Insights\cite{crassin_green_2012} by using an OpenGL Atomic Counter for calculating the number of fragments needed for the voxel fragment list, and I believe I understand the technique well enough should I wish to implement it in the future.
 
+The source material\cite{crassin_neyret_sainz_green_eisemann_2011} also describes a method for anisotropic mip-mapping of the 3D texture, storing a version of the texture for each directional axis, which improves visual accuracy when cone tracing. Whilst I could have implemented this with the dense 3D textures I was using, I opted to use OpenGL's built in mip-mapping to save time.
+
 \bibliographystyle{plain}
 \bibliography{references}
 
