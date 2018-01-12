@@ -1,0 +1,32 @@
+\begin{thebibliography}{\protect\citename{Crassin et~al\mbox{.} }2011}
+
+\bibitem[\protect\citename{Crassin and Green }2012]{crassingreen2012}
+{\sc Crassin, C., and Green, S.}
+\newblock 2012.
+\newblock Octree-based sparse voxelization using the gpu hardware rasterizer.
+\newblock {\em OpenGL Insights\/}, 303.
+
+\bibitem[\protect\citename{Crassin et~al\mbox{.}
+  }2011]{crassinneyretsainzgreeneisemann2011}
+{\sc Crassin, C., Neyret, F., Sainz, M., Green, S., and Eisemann, E.}
+\newblock 2011.
+\newblock Interactive indirect illumination using voxel cone tracing.
+\newblock {\em Symposium on Interactive 3D Graphics and Games on - I3D 11\/}.
+
+\bibitem[\protect\citename{Macey }2014]{ngl}
+{\sc Macey, J.}, 2014.
+\newblock Ngl the ncca graphics library.
+\newblock \url{https://github.com/NCCA/NGL}.
+
+\bibitem[\protect\citename{Macey }2017]{pbrSponza}
+{\sc Macey, J.}, 2017.
+\newblock Glsl physically based rendering - sponza demo.
+\newblock \url{https://github.com/NCCA/PBR/tree/master/PBRSponza}.
+
+\bibitem[\protect\citename{Vries }2016]{learnDeferred}
+{\sc Vries, J.~D.}, 2016.
+\newblock Deferred shading.
+\newblock \url{https://learnopengl.com/#!Advanced-Lighting/Deferred-Shading}.
+\newblock 5 May 2017.
+
+\end{thebibliography}
