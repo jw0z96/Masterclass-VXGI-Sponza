@@ -153,7 +153,7 @@ The first step of implementing VXGI was to create a voxelized representation of 
 
 \section{Future Improvements}
 
-Unfortunately I wasn't able to implement a sparse data structure as described in the source material \cite{crassinneyretsainzgreeneisemann2011} before the assignment deadline. Having a sparse data structure to store the emissive voxel texture would save a significant amount of GPU memory consumption, allowing the resolution for voxelization to be much higher; currently dense 3D textures it is capable of hitting the 2 gigabyte memory limit of my GPU.
+Unfortunately I wasn't able to implement a sparse data structure as described in the source material \cite{crassinneyretsainzgreeneisemann2011} before the assignment deadline. Having a sparse data structure to store the emissive voxel texture would save a significant amount of GPU memory consumption, allowing the resolution for voxelization to be much higher; currently with dense 3D textures it is capable of exceeding both the 2 gigabyte memory limit of my GPU, and the 8 gigabyte limit of those at university.
 
 The speed at which lighting rays are marched during the light injection pass would also be improved, as it would be able to step further through the voxel texture whilst ray marching if the higher levels in the octree are known to be empty.
 
