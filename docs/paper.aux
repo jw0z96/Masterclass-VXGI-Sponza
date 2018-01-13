@@ -27,26 +27,31 @@
 \citation{crassinneyretsainzgreeneisemann2011}
 \citation{Villegas2016}
 \citation{Villegas2016}
-\citation{crassinneyretsainzgreeneisemann2011}
+\citation{Villegas2016}
+\citation{learnPBR}
+\citation{Villegas2016}
 \@LN@col{1}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Method}{1}{section.2}}
 \@LN@col{2}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces A series of diagrams showing how the combination of a specular cone and multiple diffuse cones can be used to approximate a material BRDF. \cite {Villegas2016} The diffuse cones form a normal-oriented hemisphere to approximate the diffuse reflections, whilst the specular cone follows the reflection vector and it's aperture varies dependent on the material roughness.\relax }}{1}{figure.caption.2}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{1}{section.3}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Future Improvements}{1}{section.4}}
-\newlabel{section:improvements}{{4}{1}{Future Improvements}{section.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Averaged performance results when running with a NVIDIA GTX 1080 8GB at 2560x1080.\relax }}{2}{figure.caption.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  A series of diagrams showing how the combination of a specular cone and multiple diffuse cones can be used to approximate a material BRDF. \cite {Villegas2016} The diffuse cones form a normal-oriented hemisphere to approximate the diffuse reflections, whilst the specular cone follows the reflection vector and it's aperture varies dependent on the material roughness.\relax }}{1}{figure.caption.2}}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{figure:performance}{{2}{2}{Averaged performance results when running with a NVIDIA GTX 1080 8GB at 2560x1080.\relax }{figure.caption.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Three screenshots showing the full scene with a voxel resolution of $512^3$.\relax }}{2}{figure.caption.4}}
-\newlabel{figure:fullrender}{{3}{2}{Three screenshots showing the full scene with a voxel resolution of $512^3$.\relax }{figure.caption.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces A screenshot showing just the direct lighting pass.\relax }}{2}{figure.caption.5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A screenshot showing just the indirect lighting pass.\relax }}{2}{figure.caption.6}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces A screenshot showing just the reflection pass.\relax }}{2}{figure.caption.7}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces A screenshot showing just the reflection pass, but with the minimum cone angle.\relax }}{2}{figure.caption.8}}
+\newlabel{figure:BRDF}{{1}{1}{A series of diagrams showing how the combination of a specular cone and multiple diffuse cones can be used to approximate a material BRDF. \protect \cite {Villegas2016} The diffuse cones form a normal-oriented hemisphere to approximate the diffuse reflections, whilst the specular cone follows the reflection vector and it's aperture varies dependent on the material roughness.\relax }{figure.caption.2}{}}
+\citation{crassinneyretsainzgreeneisemann2011}
 \citation{crassingreen2012}
 \citation{crassinneyretsainzgreeneisemann2011}
+\@LN@col{1}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{2}{section.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Averaged performance results when running with a NVIDIA GTX 1080 8GB at 2560x1080.\relax }}{2}{figure.caption.3}}
+\newlabel{figure:performance}{{2}{2}{Averaged performance results when running with a NVIDIA GTX 1080 8GB at 2560x1080.\relax }{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Future Improvements}{2}{section.4}}
+\newlabel{section:improvements}{{4}{2}{Future Improvements}{section.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Three screenshots showing the full scene with a voxel resolution of $512^3$.\relax }}{2}{figure.caption.4}}
+\newlabel{figure:fullrender}{{3}{2}{Three screenshots showing the full scene with a voxel resolution of $512^3$.\relax }{figure.caption.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces A screenshot showing just the direct lighting component.\relax }}{2}{figure.caption.5}}
+\newlabel{figure:direct}{{4}{2}{A screenshot showing just the direct lighting component.\relax }{figure.caption.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A screenshot showing just the indirect lighting component.\relax }}{2}{figure.caption.6}}
+\newlabel{figure:indirect}{{5}{2}{A screenshot showing just the indirect lighting component.\relax }{figure.caption.6}{}}
 \bibstyle{acmsiggraph}
 \bibdata{references}
 \bibcite{crassingreen2012}{\citename {Crassin and Green }2012}
@@ -54,10 +59,19 @@
 \bibcite{voxelization}{\citename {Lin }2013}
 \bibcite{ngl}{\citename {Macey }2014}
 \bibcite{pbrSponza}{\citename {Macey }2017}
-\bibcite{Villegas2016}{\citename {Villegas }2016}
-\bibcite{learnDeferred}{\citename {Vries }2016}
 \@LN@col{1}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces A screenshot showing banding artefacts in the reflection pass.\relax }}{3}{figure.caption.9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces A screenshot showing just the specular component.\relax }}{3}{figure.caption.7}}
+\newlabel{figure:specular}{{6}{3}{A screenshot showing just the specular component.\relax }{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces A screenshot showing just the specular component, but with the minimum cone aperture.\relax }}{3}{figure.caption.8}}
+\newlabel{figure:reflection}{{7}{3}{A screenshot showing just the specular component, but with the minimum cone aperture.\relax }{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces A screenshot showing voxelization artefacts.\relax }}{3}{figure.caption.9}}
+\newlabel{figure:cracks}{{8}{3}{A screenshot showing voxelization artefacts.\relax }{figure.caption.9}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces A screenshot showing noise in the indirect lighting.\relax }}{3}{figure.caption.10}}
+\newlabel{figure:noise}{{9}{3}{A screenshot showing noise in the indirect lighting.\relax }{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces A screenshot showing banding artefacts in the specular component.\relax }}{3}{figure.caption.11}}
+\newlabel{figure:banding}{{10}{3}{A screenshot showing banding artefacts in the specular component.\relax }{figure.caption.11}{}}
+\bibcite{Villegas2016}{\citename {Villegas }2016}
+\bibcite{learnDeferred}{\citename {Vries }2016a}
+\bibcite{learnPBR}{\citename {Vries }2016b}
+\@LN@col{1}
 \@LN@col{2}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces A screenshot showing voxelization artefacts.\relax }}{3}{figure.caption.11}}

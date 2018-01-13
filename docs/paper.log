@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.5.5)  13 JAN 2018 17:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.11.8)  13 JAN 2018 23:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -508,89 +508,91 @@ Package pdftex.def Info: images/BRDF.png used on input line 111.
 (pdftex.def)             Requested size: 240.94499pt x 93.57806pt.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 112.
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <9> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 121.
+ [1{/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map}
 
-<images/full_render_01.png, id=20, 2569.6pt x 1084.05pt>
+
+ <./images/BRDF.png>] <images/full_render_01.png, id=62, 2569.6pt x 1084.05pt>
 File: images/full_render_01.png Graphic file (type png)
 
 <use images/full_render_01.png>
-Package pdftex.def Info: images/full_render_01.png used on input line 142.
+Package pdftex.def Info: images/full_render_01.png used on input line 154.
 (pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
 
-<images/full_render_02.png, id=22, 2569.6pt x 1084.05pt>
+<images/full_render_02.png, id=64, 2569.6pt x 1084.05pt>
 File: images/full_render_02.png Graphic file (type png)
 
 <use images/full_render_02.png>
-Package pdftex.def Info: images/full_render_02.png used on input line 143.
+Package pdftex.def Info: images/full_render_02.png used on input line 155.
 (pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
 
-<images/full_render_03.png, id=23, 2569.6pt x 1084.05pt>
+<images/full_render_03.png, id=65, 2569.6pt x 1084.05pt>
 File: images/full_render_03.png Graphic file (type png)
 
 <use images/full_render_03.png>
-Package pdftex.def Info: images/full_render_03.png used on input line 144.
+Package pdftex.def Info: images/full_render_03.png used on input line 156.
 (pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
 
-<images/direct_only.png, id=24, 2569.6pt x 1084.05pt>
+<images/direct_only.png, id=66, 2569.6pt x 1084.05pt>
 File: images/direct_only.png Graphic file (type png)
 
 <use images/direct_only.png>
-Package pdftex.def Info: images/direct_only.png used on input line 149.
+Package pdftex.def Info: images/direct_only.png used on input line 160.
 (pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
 
-<images/indirect_only.png, id=25, 2569.6pt x 1084.05pt>
+<images/indirect_only.png, id=67, 2569.6pt x 1084.05pt>
 File: images/indirect_only.png Graphic file (type png)
 
 <use images/indirect_only.png>
-Package pdftex.def Info: images/indirect_only.png used on input line 154.
+Package pdftex.def Info: images/indirect_only.png used on input line 164.
 (pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
 
-<images/reflection_only.png, id=26, 2569.6pt x 1084.05pt>
+<images/reflection_only.png, id=68, 2569.6pt x 1084.05pt>
 File: images/reflection_only.png Graphic file (type png)
 
 <use images/reflection_only.png>
-Package pdftex.def Info: images/reflection_only.png used on input line 159.
+Package pdftex.def Info: images/reflection_only.png used on input line 168.
 (pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
 
-<images/reflection_only_no_roughness.png, id=27, 2569.6pt x 1084.05pt>
+<images/reflection_only_no_roughness.png, id=69, 2569.6pt x 1084.05pt>
 File: images/reflection_only_no_roughness.png Graphic file (type png)
 
 <use images/reflection_only_no_roughness.png>
 Package pdftex.def Info: images/reflection_only_no_roughness.png used on input 
-line 164.
+line 172.
 (pdftex.def)             Requested size: 240.94499pt x 101.64598pt.
- [1{/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map}
-
-
- <./images/BRDF.png>] [2 <./images/full_render_01.png> <./images/full_render_02
-.png> <./images/full_render_03.png> <./images/direct_only.png> <./images/indire
-ct_only.png> <./images/reflection_only.png> <./images/reflection_only_no_roughn
-ess.png>]
-<images/banding.png, id=82, 710.655pt x 709.65125pt>
-File: images/banding.png Graphic file (type png)
- <use images/banding.png>
-Package pdftex.def Info: images/banding.png used on input line 179.
-(pdftex.def)             Requested size: 240.94499pt x 240.60687pt.
-
-<images/indirect_noise.png, id=83, 1431.3475pt x 742.775pt>
-File: images/indirect_noise.png Graphic file (type png)
-
-<use images/indirect_noise.png>
-Package pdftex.def Info: images/indirect_noise.png used on input line 184.
-(pdftex.def)             Requested size: 240.94499pt x 125.02335pt.
-
-<images/voxelization_error.png, id=84, 943.525pt x 817.0525pt>
+ [2 <./images/full_render_01.png> <./images/full_render_02.png> <./images/full_
+render_03.png> <./images/direct_only.png> <./images/indirect_only.png>]
+<images/voxelization_error.png, id=96, 943.525pt x 817.0525pt>
 File: images/voxelization_error.png Graphic file (type png)
 
 <use images/voxelization_error.png>
-Package pdftex.def Info: images/voxelization_error.png used on input line 189.
+Package pdftex.def Info: images/voxelization_error.png used on input line 191.
 (pdftex.def)             Requested size: 240.94499pt x 208.63861pt.
- (./paper.bbl
+
+<images/indirect_noise.png, id=97, 1431.3475pt x 742.775pt>
+File: images/indirect_noise.png Graphic file (type png)
+
+<use images/indirect_noise.png>
+Package pdftex.def Info: images/indirect_noise.png used on input line 195.
+(pdftex.def)             Requested size: 240.94499pt x 125.02335pt.
+
+<images/banding.png, id=98, 710.655pt x 709.65125pt>
+File: images/banding.png Graphic file (type png)
+ <use images/banding.png>
+Package pdftex.def Info: images/banding.png used on input line 199.
+(pdftex.def)             Requested size: 240.94499pt x 240.60687pt.
+
+(./paper.bbl
 Underfull \hbox (badness 6978) in paragraph at lines 27--30
 []\OT1/ptm/m/sc/9 Macey, J.\OT1/ptm/m/n/9 , 2017.  Glsl phys-i-cally based ren-
 der-ing -
  []
 
-
+[3 <./images/reflection_only.png> <./images/reflection_only_no_roughness.png> <
+./images/voxelization_error.png> <./images/indirect_noise.png> <./images/bandin
+g.png>]
 Underfull \hbox (badness 10000) in paragraph at lines 37--41
 []\OT1/ptm/m/sc/9 Vries, J. D.\OT1/ptm/m/n/9 , 2016.  De-ferred shad-ing.  [][]
 $\OT1/pcr/m/n/9 https :
@@ -602,36 +604,40 @@ Underfull \hbox (badness 10000) in paragraph at lines 37--41
  []
 
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 196.
- [3 <./images/banding.png> <./images/indirect_noise.png> <./images/voxelization
-_error.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 196.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 206.
+ [4
+
+]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 206.
  (./paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 196.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 196.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 196.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 206.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 206.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 206.
  ) 
 Here is how much of TeX's memory you used:
- 9801 strings out of 494946
- 145394 string characters out of 6180982
- 349950 words of memory out of 5000000
- 12913 multiletter control sequences out of 15000+600000
+ 9814 strings out of 494946
+ 145576 string characters out of 6180981
+ 353018 words of memory out of 5000000
+ 12924 multiletter control sequences out of 15000+600000
  24829 words of font info for 54 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  43i,13n,44p,991b,919s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-
-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/c
-ourier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8
-a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/sha
-re/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texm
-f-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on paper.pdf (3 pages, 31733962 bytes).
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/tex
+live/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/ur
+w/times/utmri8a.pfb>
+Output written on paper.pdf (4 pages, 31805221 bytes).
 PDF statistics:
- 146 PDF objects out of 1000 (max. 8388607)
- 108 compressed objects within 2 object streams
- 32 named destinations out of 1000 (max. 500000)
+ 177 PDF objects out of 1000 (max. 8388607)
+ 135 compressed objects within 2 object streams
+ 34 named destinations out of 1000 (max. 500000)
  56 words of extra memory for PDF output out of 10000 (max. 10000000)
 

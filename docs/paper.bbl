@@ -33,10 +33,16 @@
 \newblock Vctrenderer.
 \newblock \url{https://github.com/jose-villegas/VCTRenderer}.
 
-\bibitem[\protect\citename{Vries }2016]{learnDeferred}
+\bibitem[\protect\citename{Vries }2016a]{learnDeferred}
 {\sc Vries, J.~D.}, 2016.
 \newblock Deferred shading.
 \newblock \url{https://learnopengl.com/#!Advanced-Lighting/Deferred-Shading}.
 \newblock Accessed 27 Oct 2017.
+
+\bibitem[\protect\citename{Vries }2016b]{learnPBR}
+{\sc Vries, J.~D.}, 2016.
+\newblock Pbr lighting.
+\newblock \url{https://learnopengl.com/#!PBR/Lighting}.
+\newblock Accessed 11 Oct 2017.
 
 \end{thebibliography}
