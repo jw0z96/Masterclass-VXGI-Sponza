@@ -107,22 +107,42 @@ The next step was to inject the scene's emissive values into a 3D texture. This 
 
 The final step was to implement cone tracing in the deferred shading pass. This pass calculates the indirect light contribution, specular lobe contribution, and also soft shadows.
 
-
-\begin{figure}[htbp]
-  \centering
- \subfloat[Specular Cone]{\includegraphics[width=0.45\linewidth]{images/specularCone}}
- \hfill
- \subfloat[Diffuse Indirect Cones]{\includegraphics[width=0.45\linewidth]{images/indirectCones}}
- \caption{A side by side comparison of different render effects is always a good idea to demonstrate a choice of parameters or design of your shader. These were appropriated from \cite{Villegas2016}.}
+\begin{figure}[htbp]\centering
+ \includegraphics[width=1.0\linewidth]{images/BRDF}
+ \caption{A series of diagrams showing how the combination of a specular cone and multiple diffuse cones can be used to approximate a material BRDF. \protect\cite{Villegas2016} The diffuse cones form a normal-oriented hemisphere to approximate the diffuse reflections, whilst the specular cone follows the reflection vector and it's aperture varies dependent on the material roughness.}
 \end{figure}
 
 \section{Results}
+
+Figure~\ref{figure:fullrender} shows a series of screenshots of my final results with all of the lighting passes enabled. Whilst I am pleased with the outcome, there are also a number of visual artefacts that I discuss in Section~\ref{section:improvements}. Figure~\ref{figure:performance} shows some performance metrics for the individual lighting passes at different voxel resolutions. Note that memory usage is high, even at low resolutions, as I opted to use dense 3D textures as opposed to sparse 3D textures. The time taken to perform the light injection pass also scales quite poorly at high resolutions because of this. Despite this, moving around the scene maintains a smooth 60 frames per second (limited by the OpenGL context), providing the user does not move the light. The voxelization and shading passes seem to scale very well with increased resolution, taking on average 2 and 4.5 miliseconds respectively at all of the tested resolutions.
+
+\begin{figure}[htbp]\centering
+\begin{center}
+ \begin{tabular}{|c|c|c|c|}
+ \hline
+ Voxel Resolution & $256^3$ & $512^3$ & $768^3$ \\
+ \hline
+ \hline
+ Frames per second & 60 & 60 & 60 \\
+ \hline
+ Memory usage & 1063MiB & 2615MiB & 6628MiB \\
+ \hline
+ Voxelization & 2ms & 2ms & 2ms \\
+ \hline
+ Light Injection & 65ms & 378.5ms & 12294.5ms\\
+ \hline
+ Shading & 4.5ms & 4.5ms & 4.5ms \\
+ \hline
+ \end{tabular}
+ \caption{\label{figure:performance} Averaged performance results when running with a NVIDIA GTX 1080 8GB at 2560x1080.}
+\end{center}
+\end{figure}
 
 \begin{figure}[htbp]\centering
  \includegraphics[width=1.0\linewidth]{images/full_render_01}
  \includegraphics[width=1.0\linewidth]{images/full_render_02}
  \includegraphics[width=1.0\linewidth]{images/full_render_03}
- \caption{\label{fig:reference}Three screenshots showing the full scene with a voxel resolution of $512^3$.}
+ \caption{\label{figure:fullrender}Three screenshots showing the full scene with a voxel resolution of $512^3$.}
 \end{figure}
 
 \begin{figure}[htbp]\centering
@@ -145,29 +165,7 @@ The final step was to implement cone tracing in the deferred shading pass. This 
  \caption{A screenshot showing just the reflection pass, but with the minimum cone angle.}
 \end{figure}
 
-\begin{figure}[htbp]\centering
-\begin{center}
- \begin{tabular}{|c|c|c|c|}
- \hline
- Voxel Resolution & $256^3$ & $512^3$ & $768^3$ \\
- \hline
- \hline
- Frames per second & 60 & 60 & 60 \\
- \hline
- Memory usage & 1063MiB & 2615MiB & 6628MiB \\
- \hline
- Voxelisation & 2ms & 2ms & 2ms \\
- \hline
- Light Injection & 65ms & 378.5ms & 12294.5ms\\
- \hline
- Shading & 4.5ms & 4.5ms & 4.5ms \\
- \hline
- \end{tabular}
- \caption{\label{figure:performance} Averaged performance results when running with a NVIDIA GTX 1080 8GB at 2560x1080.}
-\end{center}
-\end{figure}
-
-\section{Future Improvements}
+\section{Future Improvements} \label{section:improvements}
 
 Unfortunately I wasn't able to implement a sparse data structure as described in the source material \cite{crassinneyretsainzgreeneisemann2011} before the assignment deadline. Having a sparse data structure to store the emissive voxel texture would save a significant amount of GPU memory consumption, allowing the resolution for voxelization to be much higher; currently with dense 3D textures it is capable of exceeding both the 2 gigabyte memory limit of my GPU, and the 8 gigabyte limit of those at university.
 

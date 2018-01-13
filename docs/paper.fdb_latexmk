@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex paper"] 1515779287 "paper.aux" "paper.bbl" "paper" 1515779294
+["bibtex paper"] 1515863054 "paper.aux" "paper.bbl" "paper" 1515863060
   "./acmsiggraph.bst" 1515717279 23357 eedf7aa63e6f1eb845ecfa55cfd9d383 ""
-  "paper.aux" 1515779294 4324 1f799d2f1c2c1cab9299cba36a191c0c ""
-  "references.bib" 1515779263 1611 e3ddbf072ab01b60b5a195f5e619995b ""
+  "paper.aux" 1515863060 4335 60b28916311a4d55a12123485a54c641 ""
+  "references.bib" 1515850434 1621 e5a519b15078a5354acdd92c0f872b5d ""
   (generated)
-  "paper.blg"
   "paper.bbl"
-["pdflatex"] 1515779287 "paper.tex" "paper.pdf" "paper" 1515779294
+  "paper.blg"
+["pdflatex"] 1515863054 "paper.tex" "paper.pdf" "paper" 1515863060
   "/home/jw0z/.cache/texlive/texmf-var/web2c/pdftex/pdflatex.fmt" 1493981434 719142 512ad87edf7b1fe02a6b956b7912aca6 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map" 1463015741 1888031 5317a64a246c13fa560847c387843238 ""
@@ -107,25 +107,24 @@
   "algorithmicx.sty" 1515717279 26750 ce139c05a983e19ddca355b43e29c395 ""
   "algpseudocode.sty" 1515717279 3457 d9077efe6b74c5a094199256af8d7d9a ""
   "glsllst.sty" 1515717279 3326 9b6bc4eee8771897b9e3b95fc3767d4b ""
+  "images/BRDF.png" 1515861303 64691 0864008975d58ef3f402b2005c04a83e ""
   "images/banding.png" 1515717279 891449 c0c2560015675cc150a5efc9af5689e3 ""
   "images/direct_only.png" 1515717279 670749 ebedccb437092a2d42dd8bf7a34e82b3 ""
   "images/full_render_01.png" 1515717279 4643424 226ac9bbae32789722a107d416584489 ""
   "images/full_render_02.png" 1515717279 4623939 5b2e4370b43e899075bf751166cd5532 ""
   "images/full_render_03.png" 1515717279 4253087 daecbd9eb67a7ea7bc2ce6f7d96db674 ""
-  "images/indirectCones.png" 1515778951 43843 514cd08b4917e7517bb5eedc83e57b19 ""
   "images/indirect_noise.png" 1515717279 2206995 d8df56d490123fbe973467acce3be3e0 ""
   "images/indirect_only.png" 1515717279 4098466 2c1eeaa999694672c8e87bf2548fe212 ""
   "images/reflection_only.png" 1515717279 3113700 5c29ca1ce60866337567c55575494c7a ""
   "images/reflection_only_no_roughness.png" 1515717279 3335130 69cebbc20cd7ec5032709cbc706113cf ""
-  "images/specularCone.png" 1515778921 65327 a187d34b0daa1cff583d53944ed0ebfe ""
   "images/voxelization_error.png" 1515717279 1126661 57221b9e902236ea92a86418af64048d ""
   "lineno.sty" 1515717279 151736 f1e4ea1a3da2e056656e97ed78d62374 ""
   "lipsum.sty" 1515717279 103491 f3a8d28ba533bcdb24167b15de14ff22 ""
-  "paper.aux" 1515779294 4324 1f799d2f1c2c1cab9299cba36a191c0c ""
-  "paper.bbl" 1515779287 1566 44652dca4960889b4ecac0d20a0fd60a "bibtex paper"
-  "paper.tex" 1515779279 10636 b9a9739a19db2b311283d523922fc58c ""
+  "paper.aux" 1515863060 4335 60b28916311a4d55a12123485a54c641 ""
+  "paper.bbl" 1515863054 1576 ae5c8d7e06884231088c74fd3740fa19 "bibtex paper"
+  "paper.tex" 1515863047 11669 0936e6b5a9bff6de24dfe0f7fa3f42a6 ""
   "rmlst.sty" 1515717279 1694 ff842d461cee624f8b73af44ce065702 ""
   (generated)
-  "paper.log"
   "paper.aux"
   "paper.pdf"
+  "paper.log"
