@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex paper"] 1515886877 "paper.aux" "paper.bbl" "paper" 1515886881
+["bibtex paper"] 1515886877 "paper.aux" "paper.bbl" "paper" 1515887256
   "./acmsiggraph.bst" 1515878936 23357 eedf7aa63e6f1eb845ecfa55cfd9d383 ""
-  "paper.aux" 1515886881 5786 9373dc080f3461d8c0dd322247e4934e ""
+  "paper.aux" 1515887256 5786 9373dc080f3461d8c0dd322247e4934e ""
   "references.bib" 1515886856 1921 fed4da02db83520668ae27fe71ebe21c ""
   (generated)
-  "paper.blg"
   "paper.bbl"
-["pdflatex"] 1515886877 "paper.tex" "paper.pdf" "paper" 1515886881
+  "paper.blg"
+["pdflatex"] 1515887252 "paper.tex" "paper.pdf" "paper" 1515887256
   "/home/jw0z/.cache/texlive/texmf-var/web2c/pdftex/pdflatex.fmt" 1510180580 719143 88d356959a00881ccb18a2c476271507 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map" 1463015741 1888031 5317a64a246c13fa560847c387843238 ""
@@ -123,11 +123,11 @@
   "images/voxelization_error.png" 1515878936 1126661 57221b9e902236ea92a86418af64048d ""
   "lineno.sty" 1515878936 151736 f1e4ea1a3da2e056656e97ed78d62374 ""
   "lipsum.sty" 1515878936 103491 f3a8d28ba533bcdb24167b15de14ff22 ""
-  "paper.aux" 1515886881 5786 9373dc080f3461d8c0dd322247e4934e ""
+  "paper.aux" 1515887256 5786 9373dc080f3461d8c0dd322247e4934e ""
   "paper.bbl" 1515886877 1895 db242e2c2ab8403bea3cf8bbe36836ae "bibtex paper"
-  "paper.tex" 1515886605 15043 da1a3fb8f2037a59d40d257257606b3f ""
+  "paper.tex" 1515887249 15047 29517cb920f924c3ee0f5cdcf5e15ca7 ""
   "rmlst.sty" 1515878936 1694 ff842d461cee624f8b73af44ce065702 ""
   (generated)
+  "paper.aux"
   "paper.log"
   "paper.pdf"
-  "paper.aux"
