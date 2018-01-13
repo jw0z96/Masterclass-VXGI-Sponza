@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.11.8)  13 JAN 2018 23:36
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.11.8)  13 JAN 2018 23:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -584,22 +584,22 @@ File: images/banding.png Graphic file (type png)
 Package pdftex.def Info: images/banding.png used on input line 199.
 (pdftex.def)             Requested size: 240.94499pt x 240.60687pt.
 
-(./paper.bbl
-Underfull \hbox (badness 6978) in paragraph at lines 27--30
+(./paper.bbl [3 <./images/reflection_only.png> <./images/reflection_only_no_rou
+ghness.png> <./images/voxelization_error.png> <./images/indirect_noise.png> <./
+images/banding.png>]
+Underfull \hbox (badness 6978) in paragraph at lines 29--33
 []\OT1/ptm/m/sc/9 Macey, J.\OT1/ptm/m/n/9 , 2017.  Glsl phys-i-cally based ren-
 der-ing -
  []
 
-[3 <./images/reflection_only.png> <./images/reflection_only_no_roughness.png> <
-./images/voxelization_error.png> <./images/indirect_noise.png> <./images/bandin
-g.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 37--41
+
+Underfull \hbox (badness 10000) in paragraph at lines 41--45
 []\OT1/ptm/m/sc/9 Vries, J. D.\OT1/ptm/m/n/9 , 2016.  De-ferred shad-ing.  [][]
 $\OT1/pcr/m/n/9 https :
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 37--41
+Underfull \hbox (badness 10000) in paragraph at lines 41--45
 \OT1/pcr/m/n/9 / / learnopengl . com / # ! Advanced-[]Lighting /
  []
 
@@ -634,7 +634,7 @@ sr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/tex
 live/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/ur
 w/times/utmri8a.pfb>
-Output written on paper.pdf (4 pages, 31805221 bytes).
+Output written on paper.pdf (4 pages, 31805234 bytes).
 PDF statistics:
  177 PDF objects out of 1000 (max. 8388607)
  135 compressed objects within 2 object streams

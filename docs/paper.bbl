@@ -5,6 +5,7 @@
 \newblock 2012.
 \newblock Octree-based sparse voxelization using the gpu hardware rasterizer.
 \newblock {\em OpenGL Insights\/}, 303.
+\newblock Accessed 20 Nov 2017.
 
 \bibitem[\protect\citename{Crassin et~al\mbox{.}
   }2011]{crassinneyretsainzgreeneisemann2011}
@@ -17,6 +18,7 @@
 {\sc Lin, C.-T.}, 2013.
 \newblock Sparse voxel octree.
 \newblock \url{https://github.com/otaku690/SparseVoxelOctree}.
+\newblock Accessed 17 Nov 2017.
 
 \bibitem[\protect\citename{Macey }2014]{ngl}
 {\sc Macey, J.}, 2014.
@@ -27,17 +29,19 @@
 {\sc Macey, J.}, 2017.
 \newblock Glsl physically based rendering - sponza demo.
 \newblock \url{https://github.com/NCCA/PBR/tree/master/PBRSponza}.
+\newblock Accessed 24 Oct 2017.
 
 \bibitem[\protect\citename{Villegas }2016]{Villegas2016}
 {\sc Villegas, J.}, 2016.
 \newblock Vctrenderer.
 \newblock \url{https://github.com/jose-villegas/VCTRenderer}.
+\newblock Accessed 30 Nov 2017.
 
 \bibitem[\protect\citename{Vries }2016a]{learnDeferred}
 {\sc Vries, J.~D.}, 2016.
 \newblock Deferred shading.
 \newblock \url{https://learnopengl.com/#!Advanced-Lighting/Deferred-Shading}.
-\newblock Accessed 27 Oct 2017.
+\newblock Accessed 25 Oct 2017.
 
 \bibitem[\protect\citename{Vries }2016b]{learnPBR}
 {\sc Vries, J.~D.}, 2016.

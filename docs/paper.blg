@@ -5,16 +5,16 @@ The style file: acmsiggraph.bst
 Database file #1: references.bib
 You've used 8 entries,
             2748 wiz_defined-function locations,
-            640 strings with 5420 characters,
-and the built_in function-call counts, 2423 in all, are:
-= -- 234
+            644 strings with 5500 characters,
+and the built_in function-call counts, 2459 in all, are:
+= -- 242
 > -- 97
 < -- 0
 + -- 28
 - -- 34
 * -- 151
-:= -- 415
-add.period$ -- 28
+:= -- 423
+add.period$ -- 32
 call.type$ -- 8
 change.case$ -- 45
 chr.to.int$ -- 7
@@ -22,17 +22,17 @@ cite$ -- 8
 duplicate$ -- 90
 empty$ -- 211
 format.name$ -- 36
-if$ -- 501
+if$ -- 509
 int.to.chr$ -- 2
 int.to.str$ -- 0
 missing$ -- 2
-newline$ -- 47
+newline$ -- 51
 num.names$ -- 24
-pop$ -- 64
+pop$ -- 63
 preamble$ -- 1
 purify$ -- 37
 quote$ -- 0
-skip$ -- 76
+skip$ -- 73
 stack$ -- 0
 substring$ -- 49
 swap$ -- 24
@@ -43,4 +43,4 @@ type$ -- 64
 warning$ -- 0
 while$ -- 24
 width$ -- 11
-write$ -- 105
+write$ -- 113
