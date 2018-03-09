@@ -385,12 +385,12 @@ void main()
 
 	// // HDR tonemapping
 	// fragShaded = fragShaded / (fragShaded + vec3(1.0));
-	fragShaded = tonemapFilmic(fragShaded);
-	// fragShaded = acesFilm(fragShaded);
+	// fragShaded = tonemapFilmic(fragShaded);
+	fragShaded = acesFilm(fragShaded);
 	// fragShaded = tonemapReinhard(fragShaded);
 
-	// // gamma correct
-	// fragShaded = pow(fragShaded, vec3(1.0/2.2));
+	// gamma correct
+	fragShaded = pow(fragShaded, vec3(1.0/2.2));
 
 	fragColor = vec4(fragShaded, 0.0);
 }
