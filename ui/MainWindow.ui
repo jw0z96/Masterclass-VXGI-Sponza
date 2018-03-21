@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>972</width>
-    <height>649</height>
+    <height>641</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -167,20 +167,20 @@
          <string>Rendering Controls</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="directLightCheckBox">
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="reflectionCheckBox">
            <property name="text">
-            <string>Direct Light</string>
+            <string>Reflections</string>
            </property>
            <property name="checked">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QCheckBox" name="reflectionCheckBox">
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="directLightCheckBox">
            <property name="text">
-            <string>Reflections</string>
+            <string>Direct Light</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -200,7 +200,20 @@
          <item row="3" column="1">
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Cone Angle Multiplier</string>
+            <string>Cone Angle </string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="reflectionsAmountSpinBox">
+           <property name="maximum">
+            <double>2.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -246,16 +259,39 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="2">
-          <widget class="QDoubleSpinBox" name="reflectionsAmountSpinBox">
-           <property name="maximum">
-            <double>2.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
-           </property>
-           <property name="value">
-            <double>1.000000000000000</double>
+         <item row="4" column="2">
+          <widget class="QComboBox" name="toneMappingComboBox">
+           <item>
+            <property name="text">
+             <string>Linear</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Reinhard</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Filmic</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ACES Filmic</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Uncharted</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLabel" name="toneMappingLabel">
+           <property name="text">
+            <string>Tonemapping</string>
            </property>
           </widget>
          </item>
@@ -301,7 +337,7 @@
      <x>0</x>
      <y>0</y>
      <width>972</width>
-     <height>19</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

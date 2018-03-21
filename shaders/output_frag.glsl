@@ -37,6 +37,8 @@ uniform bool viewReflections;
 
 uniform vec3 camPos;
 
+uniform int toneMappingIndex;
+
 // ----------------------------------------------------------------------------
 /// the following variables are copied from this implementation:
 /// https://github.com/jose-villegas/VCTRenderer/
@@ -333,6 +335,10 @@ vec3 calculateDirectLighting(vec3 position, vec3 normal, vec3 albedo, float roug
 	return Lo;
 }
 
+vec3 tonemapReinhard(const vec3 color) {
+	return color / (color + vec3(1.0));
+}
+
 // Based on Filmic Tonemapping Operators http://filmicgames.com/archives/75
 vec3 tonemapFilmic(const vec3 color) {
 	vec3 x = max(vec3(0.0), color - 0.004);
@@ -349,8 +355,23 @@ vec3 acesFilm(const vec3 x) {
 	return clamp((x * (a * x + b)) / (x * (c * x + d ) + e), 0.0, 1.0);
 }
 
-vec3 tonemapReinhard(const vec3 color) {
-	return color / (color + vec3(1.0));
+vec3 _Uncharted(vec3 x)
+{
+	const float A = 0.15;
+	const float B = 0.50;
+	const float C = 0.10;
+	const float D = 0.20;
+	const float E = 0.02;
+	const float F = 0.30;
+	const float W = 11.2;
+	return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+}
+
+vec3 Uncharted(const vec3 color)
+{
+	const float W = 11.2;
+	const float ExposureBias = 2.0f;
+	return _Uncharted(ExposureBias*color) / _Uncharted(vec3(W));
 }
 
 void main()
@@ -383,11 +404,14 @@ void main()
 	if (viewReflections)
 		fragShaded += reflectionsAmount * calculateReflection(WSPos, WSNormal, albedo, roughness, metalness);
 
-	// // HDR tonemapping
-	// fragShaded = fragShaded / (fragShaded + vec3(1.0));
-	// fragShaded = tonemapFilmic(fragShaded);
-	fragShaded = acesFilm(fragShaded);
-	// fragShaded = tonemapReinhard(fragShaded);
+	switch(toneMappingIndex)
+	{
+		case 0: break;
+		case 1: fragShaded = tonemapReinhard(fragShaded); break;
+		case 2: fragShaded = tonemapFilmic(fragShaded); break;
+		case 3: fragShaded = acesFilm(fragShaded); break;
+		case 4: fragShaded = Uncharted(fragShaded); break;
+	}
 
 	// gamma correct
 	fragShaded = pow(fragShaded, vec3(1.0/2.2));

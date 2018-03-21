@@ -35,6 +35,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_ui->lightPositionX, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
 	connect(m_ui->lightPositionY, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
 	connect(m_ui->lightPositionZ, SIGNAL(valueChanged(double)), this, SLOT(setLightPosition()));
+
+	// set the tonemapping signals
+	connect(m_ui->toneMappingComboBox, SIGNAL(currentIndexChanged(int)), m_gl, SLOT(setToneMapping(int)));
 }
 
 MainWindow::~MainWindow()

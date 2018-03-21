@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.7.1
+** Created by: Qt User Interface Compiler version 5.9.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -14,6 +14,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QGroupBox>
@@ -50,14 +51,16 @@ public:
     QLabel *lightFalloffLabel;
     QGroupBox *renderingControlsGB;
     QGridLayout *gridLayout_2;
-    QCheckBox *directLightCheckBox;
     QCheckBox *reflectionCheckBox;
+    QCheckBox *directLightCheckBox;
     QCheckBox *indirectLightCheckBox;
     QLabel *label;
+    QDoubleSpinBox *reflectionsAmountSpinBox;
     QDoubleSpinBox *directLightAmountSpinBox;
     QDoubleSpinBox *specularApertureSpinBox;
     QDoubleSpinBox *indirectLightAmountSpinBox;
-    QDoubleSpinBox *reflectionsAmountSpinBox;
+    QComboBox *toneMappingComboBox;
+    QLabel *toneMappingLabel;
     QSpacerItem *verticalSpacer;
     QSpacerItem *horizontalSpacer;
     QMenuBar *menubar;
@@ -67,7 +70,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(972, 649);
+        MainWindow->resize(972, 641);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         s_mainWindowGridLayout = new QGridLayout(centralwidget);
@@ -168,17 +171,17 @@ public:
         renderingControlsGB->setObjectName(QStringLiteral("renderingControlsGB"));
         gridLayout_2 = new QGridLayout(renderingControlsGB);
         gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
-        directLightCheckBox = new QCheckBox(renderingControlsGB);
-        directLightCheckBox->setObjectName(QStringLiteral("directLightCheckBox"));
-        directLightCheckBox->setChecked(true);
-
-        gridLayout_2->addWidget(directLightCheckBox, 0, 1, 1, 1);
-
         reflectionCheckBox = new QCheckBox(renderingControlsGB);
         reflectionCheckBox->setObjectName(QStringLiteral("reflectionCheckBox"));
         reflectionCheckBox->setChecked(true);
 
         gridLayout_2->addWidget(reflectionCheckBox, 2, 1, 1, 1);
+
+        directLightCheckBox = new QCheckBox(renderingControlsGB);
+        directLightCheckBox->setObjectName(QStringLiteral("directLightCheckBox"));
+        directLightCheckBox->setChecked(true);
+
+        gridLayout_2->addWidget(directLightCheckBox, 0, 1, 1, 1);
 
         indirectLightCheckBox = new QCheckBox(renderingControlsGB);
         indirectLightCheckBox->setObjectName(QStringLiteral("indirectLightCheckBox"));
@@ -190,6 +193,14 @@ public:
         label->setObjectName(QStringLiteral("label"));
 
         gridLayout_2->addWidget(label, 3, 1, 1, 1);
+
+        reflectionsAmountSpinBox = new QDoubleSpinBox(renderingControlsGB);
+        reflectionsAmountSpinBox->setObjectName(QStringLiteral("reflectionsAmountSpinBox"));
+        reflectionsAmountSpinBox->setMaximum(2);
+        reflectionsAmountSpinBox->setSingleStep(0.1);
+        reflectionsAmountSpinBox->setValue(1);
+
+        gridLayout_2->addWidget(reflectionsAmountSpinBox, 2, 2, 1, 1);
 
         directLightAmountSpinBox = new QDoubleSpinBox(renderingControlsGB);
         directLightAmountSpinBox->setObjectName(QStringLiteral("directLightAmountSpinBox"));
@@ -216,13 +227,15 @@ public:
 
         gridLayout_2->addWidget(indirectLightAmountSpinBox, 1, 2, 1, 1);
 
-        reflectionsAmountSpinBox = new QDoubleSpinBox(renderingControlsGB);
-        reflectionsAmountSpinBox->setObjectName(QStringLiteral("reflectionsAmountSpinBox"));
-        reflectionsAmountSpinBox->setMaximum(2);
-        reflectionsAmountSpinBox->setSingleStep(0.1);
-        reflectionsAmountSpinBox->setValue(1);
+        toneMappingComboBox = new QComboBox(renderingControlsGB);
+        toneMappingComboBox->setObjectName(QStringLiteral("toneMappingComboBox"));
 
-        gridLayout_2->addWidget(reflectionsAmountSpinBox, 2, 2, 1, 1);
+        gridLayout_2->addWidget(toneMappingComboBox, 4, 2, 1, 1);
+
+        toneMappingLabel = new QLabel(renderingControlsGB);
+        toneMappingLabel->setObjectName(QStringLiteral("toneMappingLabel"));
+
+        gridLayout_2->addWidget(toneMappingLabel, 4, 1, 1, 1);
 
 
         verticalLayout->addWidget(renderingControlsGB);
@@ -241,7 +254,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QStringLiteral("menubar"));
-        menubar->setGeometry(QRect(0, 0, 972, 19));
+        menubar->setGeometry(QRect(0, 0, 972, 23));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QStringLiteral("statusbar"));
@@ -263,10 +276,19 @@ public:
         shadowApertureLabel->setText(QApplication::translate("MainWindow", "Shadow Aperture", Q_NULLPTR));
         lightFalloffLabel->setText(QApplication::translate("MainWindow", "Falloff Exponent", Q_NULLPTR));
         renderingControlsGB->setTitle(QApplication::translate("MainWindow", "Rendering Controls", Q_NULLPTR));
-        directLightCheckBox->setText(QApplication::translate("MainWindow", "Direct Light", Q_NULLPTR));
         reflectionCheckBox->setText(QApplication::translate("MainWindow", "Reflections", Q_NULLPTR));
+        directLightCheckBox->setText(QApplication::translate("MainWindow", "Direct Light", Q_NULLPTR));
         indirectLightCheckBox->setText(QApplication::translate("MainWindow", "Indirect Light", Q_NULLPTR));
-        label->setText(QApplication::translate("MainWindow", "Cone Angle Multiplier", Q_NULLPTR));
+        label->setText(QApplication::translate("MainWindow", "Cone Angle ", Q_NULLPTR));
+        toneMappingComboBox->clear();
+        toneMappingComboBox->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "Linear", Q_NULLPTR)
+         << QApplication::translate("MainWindow", "Reinhard", Q_NULLPTR)
+         << QApplication::translate("MainWindow", "Filmic", Q_NULLPTR)
+         << QApplication::translate("MainWindow", "ACES Filmic", Q_NULLPTR)
+         << QApplication::translate("MainWindow", "Uncharted", Q_NULLPTR)
+        );
+        toneMappingLabel->setText(QApplication::translate("MainWindow", "Tonemapping", Q_NULLPTR));
     } // retranslateUi
 
 };

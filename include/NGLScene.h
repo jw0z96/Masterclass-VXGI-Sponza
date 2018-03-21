@@ -94,6 +94,10 @@ public slots:
 	inline void toggleDirectLightView(){m_viewDirectLight = !m_viewDirectLight;};
 	inline void toggleIndirectLightView(){m_viewIndirectLight = !m_viewIndirectLight;};
 	inline void toggleReflectionView(){m_viewReflections = !m_viewReflections;};
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief this is called to set the tonemapping operator
+	//----------------------------------------------------------------------------------------------------------------------
+	inline void setToneMapping(int _index){m_toneMappingIndex = _index;};
 
 private:
 
@@ -237,6 +241,10 @@ private:
 	/// @brief the falloff exponent for our light
 	//----------------------------------------------------------------------------------------------------------------------
 	float m_falloffExponent;
+	//----------------------------------------------------------------------------------------------------------------------
+	/// @brief selected tonemapping operator
+	//----------------------------------------------------------------------------------------------------------------------
+	int m_toneMappingIndex;
 	//----------------------------------------------------------------------------------------------------------------------
 	/// @brief Our Camera
 	//----------------------------------------------------------------------------------------------------------------------

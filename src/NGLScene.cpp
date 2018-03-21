@@ -48,6 +48,8 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_isFBODirty = true;
 	m_isLightingDirty = true;
 
+	m_toneMappingIndex = 0;
+
 	// set this widget to have the initial keyboard focus
 	setFocusPolicy (Qt::StrongFocus);
 	// re-size the widget to that of the parent (in this case the GLFrame passed in on construction)
@@ -352,6 +354,8 @@ void NGLScene::paintGL()
 	shader->setUniform("lightIntensity", m_lightIntensity);
 	shader->setUniform("lightFalloffExponent", m_falloffExponent);
 	shader->setUniform("shadowApertureMultiplier", m_shadowAperture);
+	// send tonemapping index
+	shader->setUniform("toneMappingIndex", m_toneMappingIndex);
 	// bind the textures to their texture units
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_FBOWSPositionId);
